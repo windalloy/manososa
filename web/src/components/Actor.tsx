@@ -29,7 +29,7 @@ const BASE_HEIGHT = 746;
 // 获取名字图片的require路径（玩家角色）
 const getNameImageSrc = () => {
   try {
-    return require(`../assets/character_name/name.png`);
+    return require(`../assets/character_name/name.webp`);
   } catch {
     return null;
   }

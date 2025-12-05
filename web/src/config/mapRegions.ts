@@ -27,7 +27,7 @@ export const mapRegions: MapRegion[] = [
     x2: 1064,
     y2: 444,
     message: '（一个兼具集会与展示功能的厅堂。原本放置弩枪的支架此刻空空如也。）',
-    bgImage: 'bg/07.png',
+    bgImage: 'bg/07.avif',
   },
   {
     name: '淋浴间',
@@ -37,7 +37,7 @@ export const mapRegions: MapRegion[] = [
     x2: 663,
     y2: 500,
     message: '（地面与排水口有些湿润，疑似今天下午有人使用过淋浴间。调查焚烧炉中的衣物也许可以知道下午是否有人洗过澡。）',
-    bgImage: 'bg/02.png',
+    bgImage: 'bg/02.avif',
   },
   {
     name: '中庭',
@@ -47,7 +47,7 @@ export const mapRegions: MapRegion[] = [
     x2: 848,
     y2: 500,
     message: '（喷泉系统被改造，淋浴间的水管被临时接入。诺亚似乎想用它制造一个大型蝴蝶喷泉。如此一来，梅露露就不用每天给中庭的花草浇水了，不过大家也不能再去中庭喝茶了。）',
-    bgImage: 'bg/39.png',
+    bgImage: 'bg/39.avif',
   },
   {
     name: '接客室',
@@ -57,7 +57,7 @@ export const mapRegions: MapRegion[] = [
     x2: 848,
     y2: 635,
     message: '（这个很少使用的房间保持着一种刻板的整洁，所有家具都无声地肃立着，像是等待着不会驻足的少女，像是欢迎着不被接纳的访客。）',
-    bgImage: 'bg/07.png',
+    bgImage: 'bg/07.avif',
   },
   {
     name: '玄关大厅',
@@ -67,7 +67,7 @@ export const mapRegions: MapRegion[] = [
     x2: 1067,
     y2: 688,
     message: '（艾玛整个下午都面向大门坐在这里，她的证词对于判断人员进出至关重要。）',
-    bgImage: 'bg/06.png',
+    bgImage: 'bg/06.avif',
   },
   {
     name: '审判庭入口通道',
@@ -77,7 +77,7 @@ export const mapRegions: MapRegion[] = [
     x2: 1116,
     y2: 538,
     message: '（地面上没有发现特殊的脚印或拖痕。审判庭的大门在尽头耸立着，它见证过太多抉择，却始终保持沉默。）',
-    bgImage: 'bg/12.png',
+    bgImage: 'bg/12.avif',
   },
   {
     name: '审判庭入口通道',
@@ -87,7 +87,7 @@ export const mapRegions: MapRegion[] = [
     x2: 1349,
     y2: 688,
     message: '（地面上没有发现特殊的脚印或拖痕。审判庭的大门在尽头耸立着，它见证过太多抉择，却始终保持沉默。）',
-    bgImage: 'bg/12.png',
+    bgImage: 'bg/12.avif',
   },
   {
     name: '审判庭入口通道',
@@ -97,7 +97,7 @@ export const mapRegions: MapRegion[] = [
     x2: 1298,
     y2: 693,
     message: '（地面上没有发现特殊的脚印或拖痕。审判庭的大门在尽头耸立着，它见证过太多抉择，却始终保持沉默。）',
-    bgImage: 'bg/12.png',
+    bgImage: 'bg/12.avif',
   },
   {
     name: '审判庭',
@@ -107,7 +107,7 @@ export const mapRegions: MapRegion[] = [
     x2: 1526,
     y2: 637,
     message: '（这个令人不快的房间里空无一人。希望能在审判开始前把事件调查清楚。）',
-    bgImage: 'bg/17.png',
+    bgImage: 'bg/17.avif',
   },
   {
     name: '食堂',
@@ -117,7 +117,7 @@ export const mapRegions: MapRegion[] = [
     x2: 1295,
     y2: 536,
     message: '（环境肮脏简陋，午间用餐的痕迹已被彻底清理。根据现有证词，除雪莉、梅露露与奈叶香外，其余人员均确认在此用餐。）',
-    bgImage: 'bg/09.png',
+    bgImage: 'bg/09.avif',
   },
   {
     name: '厨房',
@@ -127,7 +127,7 @@ export const mapRegions: MapRegion[] = [
     x2: 1295,
     y2: 270,
     message: '（用过的厨具和碗盘随意的摆放着，似乎下午还没有人来收拾过。）',
-    bgImage: 'bg/09.png',
+    bgImage: 'bg/09.avif',
   },
   {
     name: '医务室',
@@ -137,7 +137,7 @@ export const mapRegions: MapRegion[] = [
     x2: 637,
     y2: 279,
     message: '（药品柜中有各色药水，摆放整齐，但都没有贴标签...可恶，这个监狱的管理者难道不会写字吗？...医务室的阳台有攀爬痕迹，似乎下午曾有人从这里进出大楼。）',
-    bgImage: 'bg/11.png',
+    bgImage: 'bg/11.avif',
   },
   {
     name: '杂物间',
@@ -147,7 +147,7 @@ export const mapRegions: MapRegion[] = [
     x2: 734,
     y2: 279,
     message: '（物品摆放杂乱，经清点，确认一盒针线及一架人字梯缺失。）',
-    bgImage: 'bg/06.png',
+    bgImage: 'bg/06.avif',
   },
   {
     name: '女厕',
@@ -157,7 +157,7 @@ export const mapRegions: MapRegion[] = [
     x2: 848,
     y2: 279,
     message: '（设施完好无损，卫生保持得很好，也没有被改造的迹象......这是正确的。）',
-    bgImage: 'bg/02.png',
+    bgImage: 'bg/02.avif',
   },
   {
     name: '日光房',
@@ -167,7 +167,7 @@ export const mapRegions: MapRegion[] = [
     x2: 848,
     y2: 191,
     message: '（被上锁了，似乎还没有被投入使用。）',
-    bgImage: 'bg/06.png',
+    bgImage: 'bg/06.avif',
   },
   {
     name: '仓库',
@@ -177,7 +177,7 @@ export const mapRegions: MapRegion[] = [
     x2: 574,
     y2: 157,
     message: '（内部物品有倒塌和散落迹象，空中飞舞着紫色的蝴蝶。地上有一把造型奇特的仪礼剑，剑锋沾有血迹。）',
-    bgImage: 'bg/04.png',
+    bgImage: 'bg/04.avif',
     obtainEvidenceId: '10',
   },
   {
@@ -188,7 +188,7 @@ export const mapRegions: MapRegion[] = [
     x2: 1458,
     y2: 206,
     message: '（空置的房间做着被需要的梦，无人问津的路上洒满了阳光。）',
-    bgImage: 'bg/27.png',
+    bgImage: 'bg/27.avif',
   },
   {
     name: '火精之室',
@@ -198,7 +198,7 @@ export const mapRegions: MapRegion[] = [
     x2: 1285,
     y2: 160,
     message: '（空置的小房间，但不久之前似乎还在被人使用着。）',
-    bgImage: 'bg/35.png',
+    bgImage: 'bg/35.avif',
   },
   {
     name: '水精之室',
@@ -208,7 +208,7 @@ export const mapRegions: MapRegion[] = [
     x2: 1404,
     y2: 160,
     message: '（有明显被调查过的痕迹。但是没有找到什么值得在意的东西。）',
-    bgImage: 'bg/34.png',
+    bgImage: 'bg/34.avif',
   },
   {
     name: '地精之室',
@@ -218,7 +218,7 @@ export const mapRegions: MapRegion[] = [
     x2: 1526,
     y2: 160,
     message: '（空置的小房间，鲜有人光顾。房间的角落里有一把......被拆解的弩枪？为什么本应在会客厅的弩枪会出现在这里？）',
-    bgImage: 'bg/32.png',
+    bgImage: 'bg/32.avif',
     obtainEvidenceId: '05',
   },
   {
@@ -229,7 +229,7 @@ export const mapRegions: MapRegion[] = [
     x2: 1001,
     y2: 797,
     message: '（出门后左手边，有一片花草被明显压倒，旁边还放着一架人字梯，看起来像是从杂物间搬出来的。）',
-    bgImage: 'bg/23.png',
+    bgImage: 'bg/23.avif',
     obtainEvidenceId: '06',
   },
   {
@@ -240,7 +240,7 @@ export const mapRegions: MapRegion[] = [
     x2: 345,
     y2: 290,
     message: '（魔女岛的边界，高大而不可逾越。检查了一圈，没有发现任何异常的痕迹。）',
-    bgImage: 'bg/22.png',
+    bgImage: 'bg/22.avif',
   },
   {
     name: '湖',
@@ -250,7 +250,7 @@ export const mapRegions: MapRegion[] = [
     x2: 358,
     y2: 531,
     message: '（岛屿一隅的湖泊平静如镜。岸边的草地上有一处明显的压痕，显示有人曾在此久坐。不远处，一个透明的玻璃药剂瓶倒在地上，瓶口还残留着几滴未干的液体。）',
-    bgImage: 'bg/20.png',
+    bgImage: 'bg/20.avif',
     obtainEvidenceId: '09',
   },
   {
@@ -261,7 +261,7 @@ export const mapRegions: MapRegion[] = [
     x2: 353,
     y2: 759,
     message: '（诺亚和蕾雅今天下午都来过这里，摘走了不少花。诺亚大概是为了她的艺术创作，蕾雅...那个花环现在还放在她宿舍里，说是要送给我。这份心意是好的，但希望她下次能提前问问我要不要。）',
-    bgImage: 'bg/19.png',
+    bgImage: 'bg/19.avif',
   },
   // map_2 的区域
   {
@@ -272,7 +272,7 @@ export const mapRegions: MapRegion[] = [
     x2: 663,
     y2: 503,
     message: '（桌子上摆放着还未喝完的茶，说明下午曾有人在这里活动。）',
-    bgImage: 'bg/15.png',
+    bgImage: 'bg/15.avif',
   },
   {
     name: '娱乐室',
@@ -282,7 +282,7 @@ export const mapRegions: MapRegion[] = [
     x2: 848,
     y2: 353,
     message: '（桌子上摆放着还未喝完的茶，说明下午曾有人在这里活动。）',
-    bgImage: 'bg/15.png',
+    bgImage: 'bg/15.avif',
   },
   {
     name: '诺亚的工作室',
@@ -292,7 +292,7 @@ export const mapRegions: MapRegion[] = [
     x2: 848,
     y2: 635,
     message: '（离图书室最近的房间。充斥着颜料和...红酒的气味？画架上没有完成的作品。垃圾桶里有一些揉皱的纸团。诺亚的素描本摊开放在桌面上。）',
-    bgImage: 'bg/31.png',
+    bgImage: 'bg/31.avif',
     obtainEvidenceId: '07',
   },
   {
@@ -303,7 +303,7 @@ export const mapRegions: MapRegion[] = [
     x2: 1295,
     y2: 635,
     message: '（玛格的尸体已被移走，图书室内部和门口的血迹还在。蕾雅的刺剑作为凶器被发现，剑身沾有血迹。奈叶香的黑色发带落在不远处，一端浸染了血迹。一支弩箭深深嵌入樱树的树干，树下靠着一把扫帚......使用的凶器很简易，现场的状况却很复杂呢。）',
-    bgImage: 'bg/16.png',
+    bgImage: 'bg/16.avif',
   },
   {
     name: '二楼大厅',
@@ -313,7 +313,7 @@ export const mapRegions: MapRegion[] = [
     x2: 1071,
     y2: 693,
     message: '（连接着二楼各个房间的狭长区域。阳光透过彩绘玻璃窗，在走廊的地面上投下斑斓的光影。正对图书室的彩色玻璃窗尤为干净，是被谁擦拭过了吗？）',
-    bgImage: 'bg/14.png',
+    bgImage: 'bg/14.avif',
   },
   // map_b1 的区域
   {
@@ -324,7 +324,7 @@ export const mapRegions: MapRegion[] = [
     x2: 483,
     y2: 279,
     message: '（整洁得没有一丝生活气息的宿舍，像是无声蛰伏着的透明空气。）',
-    bgImage: 'bg/13.png',
+    bgImage: 'bg/13.avif',
   },
   {
     name: '可可和汉娜的房间',
@@ -334,7 +334,7 @@ export const mapRegions: MapRegion[] = [
     x2: 577,
     y2: 279,
     message: '（可可的床上有几根数据线，汉娜的床铺则装饰着蕾丝...没想到汉娜能缝出这么精美的东西。）',
-    bgImage: 'bg/13.png',
+    bgImage: 'bg/13.avif',
   },
   {
     name: '蕾雅和米莉亚的房间',
@@ -344,7 +344,7 @@ export const mapRegions: MapRegion[] = [
     x2: 676,
     y2: 279,
     message: '（米莉亚的床上有几本从娱乐室拿来的电影杂志，而蕾雅的床上放着一个...新鲜的花环？她是这么有少女心的人吗？）',
-    bgImage: 'bg/13.png',
+    bgImage: 'bg/13.avif',
   },
   {
     name: '诺亚和安安的房间',
@@ -354,7 +354,7 @@ export const mapRegions: MapRegion[] = [
     x2: 775,
     y2: 279,
     message: '（画室开放之后，诺亚不再侵占宿舍的墙面了。尚未成熟的颜料与墨迹，正试图理解和交融着彼此。）',
-    bgImage: 'bg/13.png',
+    bgImage: 'bg/13.avif',
   },
   {
     name: '艾玛和希罗的房间',
@@ -364,7 +364,7 @@ export const mapRegions: MapRegion[] = [
     x2: 871,
     y2: 279,
     message: '（这几天实在有些累过头了，案发的时候，我在床上睡得可香了。）',
-    bgImage: 'bg/13.png',
+    bgImage: 'bg/13.avif',
   },
   {
     name: '玛格和奈叶香的房间',
@@ -374,7 +374,7 @@ export const mapRegions: MapRegion[] = [
     x2: 970,
     y2: 279,
     message: '（本就无光的宿舍在玛格的布置下显得更加阴暗。奈叶香的物品很少，房间里几乎都是玛格的东西。）',
-    bgImage: 'bg/13.png',
+    bgImage: 'bg/13.avif',
   },
   {
     name: '雪莉和亚里沙的房间',
@@ -384,7 +384,7 @@ export const mapRegions: MapRegion[] = [
     x2: 1069,
     y2: 279,
     message: '（桌子上的药瓶似乎已经被收走了，宿舍看上去空荡荡的。）',
-    bgImage: 'bg/13.png',
+    bgImage: 'bg/13.avif',
   },
   {
     name: '牢房',
@@ -394,7 +394,7 @@ export const mapRegions: MapRegion[] = [
     x2: 1069,
     y2: 334,
     message: '（这里是宿舍区域，点击具体宿舍可以进行更详细的调查。）',
-    bgImage: 'bg/03.png',
+    bgImage: 'bg/03.avif',
   },
   {
     name: '惩罚室',
@@ -404,7 +404,7 @@ export const mapRegions: MapRegion[] = [
     x2: 1349,
     y2: 681,
     message: '（整个下午雪莉都被关在这里。直到刚才雪莉才被放出来。目前，玛格的尸体以“自杀”的名义被投票关入惩罚室，这一举动旨在让全部成员都能参与调查。）',
-    bgImage: 'bg/37.png',
+    bgImage: 'bg/37.avif',
   },
   {
     name: '焚烧炉',
@@ -414,7 +414,7 @@ export const mapRegions: MapRegion[] = [
     x2: 706,
     y2: 627,
     message: '（焚烧炉内发现大量樱花花瓣，其新鲜度与上午雪莉造成的樱花雨吻合。一件明显属于艾玛的衣物被抛于花瓣之上，可推断衣物是在花瓣被倒入后才被扔进来的。）',
-    bgImage: 'bg/40.png',
+    bgImage: 'bg/40.avif',
     obtainEvidenceId: '03',
   },
   // 楼层切换区域（map_1）

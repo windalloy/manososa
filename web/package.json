@@ -25,7 +25,8 @@
     "start": "react-scripts start",
     "build": "REACT_APP_API_URL=https://ai-murder-mystery-hackathon.onrender.com react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "convert-images": "node convert-images.js"
   },
   "eslintConfig": {
     "extends": [
@@ -48,6 +49,7 @@
   "devDependencies": {
     "postcss": "^8.4.38",
     "postcss-preset-mantine": "^1.13.0",
-    "postcss-simple-vars": "^7.0.1"
+    "postcss-simple-vars": "^7.0.1",
+    "sharp": "^0.33.0"
   }
 }

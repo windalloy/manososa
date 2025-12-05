@@ -13,10 +13,10 @@ import { findRegionByClick, MapRegion } from '../config/mapRegions';
 import { EvidenceDisplay } from '../components/EvidenceDisplay';
 import { initialEvidence, obtainEvidence, Evidence } from '../config/evidence';
 
-// 背景图片列表（01.png 到 48.png）
+// 背景图片列表（01.avif 到 48.avif）
 const BG_IMAGES = Array.from({ length: 48 }, (_, i) => {
   const num = String(i + 1).padStart(2, '0');
-  return `bg/${num}.png`;
+  return `bg/${num}.avif`;
 });
 
 // 获取随机背景图片
@@ -32,9 +32,9 @@ const getStandImage = (avatarFileName: string, actor?: { context1?: string; cont
   // 如果提供了强制变体（由出示证物触发），直接使用
   if (forcedVariant !== undefined && forcedVariant !== null) {
     if (forcedVariant === '') {
-      return `character_stand/${baseName}.png`; // 基础立绘
+      return `character_stand/${baseName}.webp`; // 基础立绘
     }
-    return `character_stand/${baseName}${forcedVariant}.png`;
+    return `character_stand/${baseName}${forcedVariant}.webp`;
   }
   
   // 如果没有强制变体，根据context状态来决定使用哪个立绘变体
@@ -47,7 +47,7 @@ const getStandImage = (avatarFileName: string, actor?: { context1?: string; cont
     
     // 如果 lastcontext 存在且已添加到 context1，使用它
     if (lastcontext.trim() !== '' && context1.includes(lastcontext.trim())) {
-      return `character_stand/${baseName}_l.png`;
+      return `character_stand/${baseName}_l.webp`;
     }
     
     // 对于 context2、context3、context4，使用最后添加的那个（在 context1 中最后出现的）
@@ -79,12 +79,12 @@ const getStandImage = (avatarFileName: string, actor?: { context1?: string; cont
     if (contextPositions.length > 0) {
       // 按位置排序，选择最后出现的
       contextPositions.sort((a, b) => b.position - a.position);
-      return `character_stand/${baseName}${contextPositions[0].variant}.png`;
+      return `character_stand/${baseName}${contextPositions[0].variant}.webp`;
     }
   }
   
   // 默认返回基础立绘文件路径
-  return `character_stand/${baseName}.png`;
+  return `character_stand/${baseName}.webp`;
 };
 
 // 背景图片缓存
@@ -100,7 +100,7 @@ const preloadBgImages = () => {
         // 如果图片不存在，使用默认背景
         if (!bgImageCache[bgPath]) {
           try {
-            bgImageCache[bgPath] = require('../assets/bg/01.png');
+            bgImageCache[bgPath] = require('../assets/bg/01.avif');
           } catch {
             bgImageCache[bgPath] = '';
           }
@@ -124,7 +124,7 @@ const getBgImageSrc = (bgPath: string) => {
   } catch {
     // 如果图片不存在，返回默认背景
     try {
-      const defaultBg = require('../assets/bg/01.png');
+      const defaultBg = require('../assets/bg/01.avif');
       bgImageCache[bgPath] = defaultBg;
       return defaultBg;
     } catch {
@@ -154,7 +154,7 @@ const preloadStandImages = () => {
     
     // 预加载所有变体（基础、_2、_3、_l）
     standVariants.forEach(variant => {
-      const standPath = `character_stand/${baseName}${variant}.png`;
+      const standPath = `character_stand/${baseName}${variant}.webp`;
       if (!standImageCache[standPath]) {
         try {
           standImageCache[standPath] = require(`../assets/${standPath}`);
@@ -183,12 +183,12 @@ const getStandImageSrc = (standPath: string) => {
 };
 
 // 地图图片列表（按顺序：map_2, map_1, map_b1）
-const MAP_IMAGES = ['map/map_2.png', 'map/map_1.png', 'map/map_b1.png'];
+const MAP_IMAGES = ['map/map_2.webp', 'map/map_1.webp', 'map/map_b1.webp'];
 
 // 获取证物图片路径
 const getEvidenceImageSrc = () => {
   try {
-    return require('../assets/evidence/bg.png');
+    return require('../assets/evidence/bg.webp');
   } catch {
     return null;
   }
@@ -197,7 +197,7 @@ const getEvidenceImageSrc = () => {
 // 获取通知背景图片路径
 const getNotificationBgSrc = () => {
   try {
-    return require('../assets/ui/get.png');
+    return require('../assets/ui/get.webp');
   } catch {
     return null;
   }
@@ -215,7 +215,7 @@ const getEvidenceItemImageSrc = (imageFileName: string): string | null => {
 // 获取bg1.png图片路径
 const getBg1ImageSrc = () => {
   try {
-    return require('../assets/ui/bg1.png');
+    return require('../assets/ui/bg1.webp');
   } catch {
     return null;
   }
@@ -233,7 +233,7 @@ const getMapImageSrc = (mapPath: string) => {
 // 获取历史背景图片
 const getHistoryBgSrc = () => {
   try {
-    return require('../assets/history/bg.png');
+    return require('../assets/history/bg.webp');
   } catch {
     return null;
   }
@@ -242,7 +242,7 @@ const getHistoryBgSrc = () => {
 // 获取玩家名字图片
 const getPlayerNameImageSrc = () => {
   try {
-    return require('../assets/character_name/name.png');
+    return require('../assets/character_name/name.webp');
   } catch {
     return null;
   }
@@ -302,7 +302,7 @@ export default function Home() {
   const historyScrollRef = useRef<HTMLDivElement>(null);
   const historyBgImageRef = useRef<HTMLImageElement>(null);
   const sessionId = useSessionContext();
-  const [bgImage, setBgImage] = useState<string>('bg/16.png');
+  const [bgImage, setBgImage] = useState<string>('bg/16.avif');
   const [recentBgImages, setRecentBgImages] = useState<string[]>([]); // 跟踪最近7次使用的背景
   const [standJump, setStandJump] = useState<number>(0); // 立绘跳跃动画计数器
   const [showMap, setShowMap] = useState<boolean>(false); // 是否显示地图
@@ -393,7 +393,7 @@ export default function Home() {
     if (actionCountdown === 0 && !endGame && !countdownEnded) {
       setCountdownEnded(true);
       // 切换背景为12.png
-      setBgImage('bg/12.png');
+      setBgImage('bg/12.avif');
       // 切换到希罗的角色（立绘会自动切换为hiro.png）
       const hiro = Object.values(actors).find(actor => actor.name === '二阶堂希罗');
       if (hiro) {
@@ -1805,7 +1805,7 @@ export default function Home() {
                           style={{
                             position: 'absolute',
                             top: '0px',
-                            left: `${(658 / historyBgImageLayout.naturalWidth) * historyBgImageLayout.width}px`, // 相对于背景图片的位置，向右移动10px
+                            left: `${(300 / historyBgImageLayout.naturalWidth) * historyBgImageLayout.width}px`, // 相对于背景图片的位置
                             zIndex: 10,
                           }}
                         >
