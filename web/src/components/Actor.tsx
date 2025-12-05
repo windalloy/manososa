@@ -9,7 +9,7 @@
  * - 处理证物出示逻辑（通过点击证物按钮）
  * - 支持继续对话功能
  */
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Actor,
   LLMMessage,
@@ -269,7 +269,7 @@ const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standS
     }, 500);
   };
 
-  const handleInputClick = () => {
+  const handleInputClick = useCallback(() => {
     setIsAnimating(true);
     // 标记该角色点击了"继续对话"，即使有回复也显示输入框
     continueDialogState.set(actor.id, true);
@@ -283,12 +283,15 @@ const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standS
         }, 100);
       }
     }, 500);
-  };
+  }, [actor.id]);
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
-      handleSendMessage();
+      // 只在输入框有内容时发送
+      if (currMessage.trim()) {
+        handleSendMessage();
+      }
     }
   };
 
@@ -296,6 +299,42 @@ const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standS
   const latestResponse = actor.messages.length > 0 
     ? (actor.messages.filter(m => m.role === 'assistant').pop()?.content || '')
     : '';
+
+  // 全局键盘事件监听（用于回复框模式的Enter键）
+  useEffect(() => {
+    // 检测是否为移动设备
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) {
+      return; // 移动端不添加键盘监听
+    }
+
+    const handleGlobalKeyPress = (event: KeyboardEvent) => {
+      // 如果焦点在输入框或其他可输入元素上，不处理
+      const activeElement = document.activeElement;
+      if (activeElement && (
+        activeElement === textareaRef.current ||
+        activeElement.tagName === 'INPUT' ||
+        activeElement.tagName === 'TEXTAREA' ||
+        (activeElement instanceof HTMLElement && activeElement.isContentEditable)
+      )) {
+        return;
+      }
+
+      // 如果按的是 Enter 键
+      if (event.key === 'Enter' && !event.shiftKey) {
+        // 回复框模式：有回复且不在加载中且不在动画中
+        if (!isInputMode && !loading && !isAnimating && latestResponse) {
+          event.preventDefault();
+          handleInputClick();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyPress);
+    return () => {
+      window.removeEventListener('keydown', handleGlobalKeyPress);
+    };
+  }, [isInputMode, loading, isAnimating, latestResponse, handleInputClick]);
 
   // 逐字显示的状态
   const [displayedText, setDisplayedText] = useState('');

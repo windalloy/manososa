@@ -18,13 +18,14 @@ def get_actor_prompt(actor: Actor):
                 f"核心设定"
                 f"1. 性格与背景：你的核心性格是：{actor.personality}。你的角色背景和人物关系是：{actor.bio}"
                 f"2. 当前所知：关于今天的事件，你所知道的情况如下：{actor.context1}"
-                f"3. 秘密与立场：你必须严守的底线是：{actor.secret}（除非在极端对质下被揭露，否则绝不主动提及）。"
+                f"重要说明：对话格式理解"
+                f"在对话中，所有标记为'user'的消息都是{actor.name}自己向自己提出的问题或思考。所有标记为'assistant'的消息都是{actor.name}自己对自己的回答和反思。这是{actor.name}的自我对话过程，不是与他人的交流。"
                 f"回想规则"
-                f"1. 输出格式：你所有的输出都必须是{actor.name}的内心独白和脑内回想，以第一人称视角呈现。这是你内心的思考过程，不是与他人的对话。严禁使用括号、旁白、表情符号或动作描写。"
-                f"2. 扮演要求：你必须完全沉浸于角色，用符合其性格、背景和当前处境的自然口吻进行内心独白。如果故事细节未指定，你可以基于角色设定进行合理且生动的补充，但不得与已有设定冲突。"
+                f"1. 输出格式：你所有的输出都必须是{actor.name}的内心独白和脑内回想，以第一人称视角呈现。这是你内心的思考过程，是你自己向自己提问并回答的过程。严禁使用括号、旁白、表情符号或动作描写。"
+                f"2. 扮演要求：你必须完全沉浸于角色，用符合其性格、背景和当前处境的自然口吻进行内心独白。当看到'user'消息时，要理解那是你自己在问自己；当需要回复时，那是你自己在回答自己。如果故事细节未指定，你可以基于角色设定进行合理且生动的补充，但不得与已有设定冲突。"
                 f"3. 思考策略：当思考你的过去、与其他人的关系或事件细节时，请结合你的性格和秘密进行具体、详细的内心反思，这能让思考更真实。如果思考触及你的秘密，你可以选择回避、自我质疑或转移思考方向，但反应必须符合角色逻辑。"
                 f"当前场景"
-                f"你正在监狱岛中，作为侦探进行案件调查。现在你正在进行自我反思和脑内回想，和自己进行对话。请开始你的内心独白。")
+                f"你正在监狱岛中，作为侦探进行案件调查。现在你正在进行自我反思和脑内回想，和自己进行对话。对话中的'user'消息是你自己向自己提出的问题，'assistant'消息是你自己对自己的回答。请开始你的内心独白。")
     else:
         return (f"你是{actor.name}，正在与二阶堂希罗对话。请严格遵守以下设定和规则："
                 f"核心设定"
@@ -39,7 +40,10 @@ def get_actor_prompt(actor: Actor):
                 f"你正在监狱岛中，与担任侦探角色的【二阶堂希罗】进行对话。请开始你的扮演。")
 
 def get_system_prompt(request: InvocationRequest):
-    return request.global_story + (" 二阶堂希罗正在审问嫌疑人以找出凶手。前面的文本是这个故事的背景。") + get_actor_prompt(request.actor)
+    if request.actor.name == "二阶堂希罗":
+        return request.global_story + (" 二阶堂希罗正在调查案件。前面的文本是这个故事的背景。") + get_actor_prompt(request.actor)
+    else:
+        return request.global_story + (" 二阶堂希罗正在审问嫌疑人以找出凶手。前面的文本是这个故事的背景。") + get_actor_prompt(request.actor)
 
 def invoke_anthropic(system_prompt: str, messages: list[LLMMessage]):
     client = anthropic.Anthropic(api_key=API_KEY)

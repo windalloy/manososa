@@ -103,11 +103,19 @@ def prompt_ai(conn, request: InvocationRequest) -> InvocationResponse:
 
     # 如果当前角色是二阶堂希罗，在最终回复前后加上括号（在审查和修复之后）
     if request.actor.name == "二阶堂希罗":
+        # 移除已有的括号，避免重复嵌套
+        final_response_text = response.final_response
+        # 如果已经以中文括号开头和结尾，移除它们
+        if final_response_text.startswith("（") and final_response_text.endswith("）"):
+            final_response_text = final_response_text[1:-1]
+        # 添加括号
+        final_response_text = f"（{final_response_text}）"
+        
         response = InvocationResponse(
             original_response=response.original_response,
             critique_response=response.critique_response,
             problems_detected=response.problems_detected,
-            final_response=f"（{response.final_response}）",
+            final_response=final_response_text,
             refined_response=response.refined_response,
         )
 

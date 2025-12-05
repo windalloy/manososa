@@ -12,6 +12,7 @@ import { getStandPosition } from '../config/characterStandPositions';
 import { findRegionByClick, MapRegion } from '../config/mapRegions';
 import { EvidenceDisplay } from '../components/EvidenceDisplay';
 import { initialEvidence, obtainEvidence, Evidence } from '../config/evidence';
+import { preloadAllImages } from '../utils/imagePreloader';
 
 // 背景图片列表（01.avif 到 48.avif）
 const BG_IMAGES = Array.from({ length: 48 }, (_, i) => {
@@ -403,10 +404,124 @@ export default function Home() {
     }
   }, [actionCountdown, endGame, countdownEnded, actors]);
 
-  // 组件挂载时预加载所有立绘图片和背景图片
+  // 组件挂载时预加载所有图片（按优先级）
   useEffect(() => {
+    // 保留原有的缓存机制
     preloadStandImages();
     preloadBgImages();
+    
+    // 收集所有需要预加载的图片路径（获取实际的 URL）
+    const collectStandImageUrls = (): string[] => {
+      const characterImages = [
+        'ema.jpg', 'hiro.jpg', 'anan.jpg', 'noa.jpg', 'leia.jpg', 
+        'milia.jpg', 'nanoka.jpg', 'arisa.jpg', 'sherry.jpg', 
+        'hanna.jpg', 'koko.jpg', 'meruru.jpg'
+      ];
+      const standVariants = ['', '_2', '_3', '_4', '_l'];
+      const urls: string[] = [];
+      
+      characterImages.forEach(imageFile => {
+        const baseName = imageFile.replace(/\.(jpg|jpeg|png)$/i, '');
+        standVariants.forEach(variant => {
+          const standPath = `character_stand/${baseName}${variant}.webp`;
+          try {
+            const src = require(`../assets/${standPath}`);
+            if (src) urls.push(src);
+          } catch {
+            // 忽略不存在的图片
+          }
+        });
+      });
+      return urls;
+    };
+    
+    const collectBgImageUrls = (): string[] => {
+      const urls: string[] = [];
+      BG_IMAGES.forEach(bgPath => {
+        try {
+          const src = require(`../assets/${bgPath}`);
+          if (src) urls.push(src);
+        } catch {
+          // 忽略不存在的图片
+        }
+      });
+      return urls;
+    };
+    
+    const collectOtherImageUrls = (): string[] => {
+      const urls: string[] = [];
+      
+      // 证物图片
+      for (let i = 1; i <= 15; i++) {
+        const num = String(i).padStart(2, '0');
+        try {
+          const src = require(`../assets/evidence/${num}.webp`);
+          if (src) urls.push(src);
+        } catch {}
+      }
+      
+      // UI 图片
+      const uiImages = ['ui/get.webp', 'ui/bg1.webp', 'ui/1.webp', 'ui/2.webp'];
+      uiImages.forEach(path => {
+        try {
+          const src = require(`../assets/${path}`);
+          if (src) urls.push(src);
+        } catch {}
+      });
+      
+      // 历史背景
+      try {
+        const src = require('../assets/history/bg.webp');
+        if (src) urls.push(src);
+      } catch {}
+      
+      try {
+        const src = require('../assets/history/bg1.webp');
+        if (src) urls.push(src);
+      } catch {}
+      
+      // 证物背景
+      try {
+        const src = require('../assets/evidence/bg.webp');
+        if (src) urls.push(src);
+      } catch {}
+      
+      try {
+        const src = require('../assets/evidence/bg1.webp');
+        if (src) urls.push(src);
+      } catch {}
+      
+      // 地图图片
+      MAP_IMAGES.forEach(mapPath => {
+        try {
+          const src = require(`../assets/${mapPath}`);
+          if (src) urls.push(src);
+        } catch {}
+      });
+      
+      // 角色名称图片
+      const characterNames = ['name', 'n_ema', 'n_hiro', 'n_anan', 'n_noa', 'n_leia', 
+        'n_milia', 'n_nanoka', 'n_arisa', 'n_sherry', 'n_hanna', 'n_koko', 'n_meruru', 'n_alisa', 'n_mage'];
+      characterNames.forEach(name => {
+        try {
+          const src = require(`../assets/character_name/${name}.webp`);
+          if (src) urls.push(src);
+        } catch {}
+      });
+      
+      return urls;
+    };
+    
+    // 按优先级预加载图片
+    const standUrls = collectStandImageUrls();
+    const bgUrls = collectBgImageUrls();
+    const otherUrls = collectOtherImageUrls();
+    
+    // 异步执行预加载，不阻塞页面渲染
+    preloadAllImages(standUrls, bgUrls, otherUrls).catch(err => {
+      console.warn('图片预加载过程中出现错误:', err);
+    });
+    
     // 检测是否为移动设备
     setIsMobile(isMobileDevice());
   }, []);
