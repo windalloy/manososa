@@ -23,7 +23,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "REACT_APP_API_URL=https://ai-murder-mystery-hackathon.onrender.com react-scripts build",
+    "build": "REACT_APP_API_URL=http://47.109.192.144:10000 react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "convert-images": "node convert-images.js"
