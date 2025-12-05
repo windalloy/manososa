@@ -1,0 +1,6 @@
+**/.ipynb_checkpoints
+**/.env
+**/__pycache__
+**/.idea
+**/venv
+.DS_Store
