@@ -183,15 +183,7 @@ const EndModal: React.FC<EndModalProps> = ({ opened, onClose }) => {
           lineHeight: '1.8',
           fontSize: `${16 * scale}px`,
         }}>
-          我们短暂而飘渺的生命，追寻和拒绝着爱的投影。交织飞舞的善意，与睡梦相伴而终。
-        </Text>
-        <br></br>
-        <Text style={{
-          color: 'rgba(220, 220, 220, 1)',
-          lineHeight: '1.8',
-          fontSize: `${16 * scale}px`,
-        }}>
-          这里不会揭晓答案。故事的真相，由您心中的判决来定义。
+          短暂而飘渺的生命，追寻和拒绝着爱的投影。交织飞舞的善意，与睡梦相伴而终。这里不会揭晓案件的答案。故事的真相，由您心中的判决来定义。
         </Text>
         <br></br>
         <Text style={{ 

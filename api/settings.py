@@ -46,7 +46,7 @@ elif INFERENCE_SERVICE == "ollama":
 else:
     raise ValueError(f"Unknown inference service: {INFERENCE_SERVICE}")
 
-MAX_TOKENS = int(os.getenv("MAX_TOKENS", "512"))
+MAX_TOKENS = int(os.getenv("MAX_TOKENS", "200"))
 
 # Increment this whenever we make changes to the prompts
 PROMPTS_VERSION = "1.0.5"

@@ -230,7 +230,7 @@ pip install -r requirements.txt
 INFERENCE_SERVICE=deepseek
 API_KEY=your-deepseek-api-key-here
 MODEL=deepseek-chat  # DeepSeek 模型名称
-MAX_TOKENS=512
+MAX_TOKENS=200
 
 # Ollama 配置（如果使用 Ollama）
 OLLAMA_URL=http://localhost:11434
@@ -317,6 +317,8 @@ npx serve -s build -l 3000
 
 ## 🌐 服务器部署
 
+> 💡 **详细部署指南：** 查看 [DEPLOYMENT.md](./DEPLOYMENT.md) 获取完整的持久化部署方案（systemd、PM2、Docker Compose、Nginx 等）。
+
 ### 前置要求
 
 1. 服务器已安装 Node.js、Python
@@ -347,7 +349,7 @@ pip install -r requirements.txt
 INFERENCE_SERVICE=deepseek
 API_KEY=your-deepseek-api-key-here
 MODEL=deepseek-chat
-MAX_TOKENS=512
+MAX_TOKENS=200
 ```
 
 #### 2.3 使用 systemd 管理服务（推荐）
@@ -477,7 +479,7 @@ sudo ufw reload
 | `INFERENCE_SERVICE` | AI 服务提供商 | `deepseek` | `deepseek`, `anthropic`, `openai`, `groq`, `openrouter`, `ollama` |
 | `API_KEY` | API 密钥 | - | `sk-xxx...` |
 | `MODEL` | 模型名称 | `deepseek-chat` | `deepseek-chat`, `deepseek-reasoner` 等 |
-| `MAX_TOKENS` | 最大 token 数 | `512` | `512`, `1024` |
+| `MAX_TOKENS` | 最大 token 数 | `200` | `200`, `512`, `1024` |
 | `OLLAMA_URL` | Ollama 服务地址 | `http://localhost:11434` | - |
 
 ### 前端配置（`web/src/constants.ts`）

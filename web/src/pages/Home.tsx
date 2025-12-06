@@ -1991,7 +1991,7 @@ export default function Home() {
                           style={{
                             position: 'absolute',
                             top: '0px',
-                            left: `${(300 / historyBgImageLayout.naturalWidth) * historyBgImageLayout.width}px`, // 相对于背景图片的位置
+                            left: `${(190 / BASE_WIDTH) * historyBgImageLayout.width}px`, // 使用基准尺寸计算，保持与基准屏幕一致
                             zIndex: 10,
                           }}
                         >
@@ -2014,11 +2014,13 @@ export default function Home() {
                           lineHeight: '1.8',
                           whiteSpace: 'pre-wrap',
                           wordBreak: 'break-word',
-                          marginLeft: `${(410 / historyBgImageLayout.naturalWidth) * historyBgImageLayout.width}px`, // 相对于背景图片的位置，向右移动10px
-                          marginRight: `${(160 / historyBgImageLayout.naturalWidth) * historyBgImageLayout.width}px`, // 相对于背景图片的位置
+                          marginLeft: `${(240 / BASE_WIDTH) * historyBgImageLayout.width}px`, // 使用基准尺寸计算，保持与基准屏幕一致
+                          marginRight: `${(210 / BASE_WIDTH) * historyBgImageLayout.width}px`, // 使用基准尺寸计算，保持与基准屏幕一致
                         }}
                       >
-                        {message.content}
+                        {isUser && message.content.startsWith('二阶堂希罗: ') 
+                          ? message.content.replace(/^二阶堂希罗: /, '') 
+                          : message.content}
                       </div>
                       )}
                     </div>
