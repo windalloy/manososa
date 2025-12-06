@@ -12,7 +12,7 @@ import { getStandPosition } from '../config/characterStandPositions';
 import { findRegionByClick, MapRegion } from '../config/mapRegions';
 import { EvidenceDisplay } from '../components/EvidenceDisplay';
 import { initialEvidence, obtainEvidence, Evidence } from '../config/evidence';
-import { preloadAllImages } from '../utils/imagePreloader';
+import { preloadAllImages, preloadPriorityImages } from '../utils/imagePreloader';
 
 // 背景图片列表（01.avif 到 48.avif）
 const BG_IMAGES = Array.from({ length: 48 }, (_, i) => {
@@ -517,14 +517,85 @@ export default function Home() {
     const bgUrls = collectBgImageUrls();
     const otherUrls = collectOtherImageUrls();
     
-    // 异步执行预加载，不阻塞页面渲染
-    preloadAllImages(standUrls, bgUrls, otherUrls).catch(err => {
-      console.warn('图片预加载过程中出现错误:', err);
-    });
+    // 首先优先加载首屏背景图片和当前立绘
+    const initialImages: string[] = [];
+    
+    // 加载首屏背景
+    if (bgImage) {
+      try {
+        const bgSrc = require(`../assets/${bgImage}`);
+        if (bgSrc) initialImages.push(bgSrc);
+      } catch {
+        // 忽略加载失败的图片
+      }
+    }
+    
+    // 加载当前角色的立绘
+    const currentActor = actors[currActor];
+    if (currentActor) {
+      const standPath = getStandImage(currentActor.image, currentActor, null);
+      if (standPath) {
+        try {
+          const standSrc = getStandImageSrc(standPath);
+          if (standSrc) initialImages.push(standSrc);
+        } catch {
+          // 忽略加载失败的图片
+        }
+      }
+    }
+    
+    // 优先加载首屏图片，然后再开始队列预加载
+    if (initialImages.length > 0) {
+      preloadPriorityImages(initialImages).then(() => {
+        // 首屏图片加载完成后再开始队列预加载
+        preloadAllImages(standUrls, bgUrls, otherUrls).catch(err => {
+          console.warn('图片预加载过程中出现错误:', err);
+        });
+      }).catch(() => {
+        // 即使优先加载失败，也继续队列预加载
+        preloadAllImages(standUrls, bgUrls, otherUrls).catch(err => {
+          console.warn('图片预加载过程中出现错误:', err);
+        });
+      });
+    } else {
+      // 如果没有首屏图片，直接开始队列预加载
+      preloadAllImages(standUrls, bgUrls, otherUrls).catch(err => {
+        console.warn('图片预加载过程中出现错误:', err);
+      });
+    }
     
     // 检测是否为移动设备
     setIsMobile(isMobileDevice());
   }, []);
+
+  // 优先加载当前背景图片
+  useEffect(() => {
+    if (bgImage) {
+      try {
+        const bgSrc = require(`../assets/${bgImage}`);
+        if (bgSrc) {
+          preloadPriorityImages([bgSrc]).catch(() => {});
+        }
+      } catch {
+        // 忽略加载失败的图片
+      }
+    }
+  }, [bgImage]);
+
+  // 优先加载当前地图图片
+  useEffect(() => {
+    if (showMap) {
+      const mapPath = MAP_IMAGES[currentMapIndex];
+      try {
+        const mapSrc = require(`../assets/${mapPath}`);
+        if (mapSrc) {
+          preloadPriorityImages([mapSrc]).catch(() => {});
+        }
+      } catch {
+        // 忽略加载失败的图片
+      }
+    }
+  }, [showMap, currentMapIndex]);
 
   // 计算笔记框宽度和位置（根据屏幕尺寸自适应，确保16:9时不重叠）
   useEffect(() => {

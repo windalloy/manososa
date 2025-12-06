@@ -278,11 +278,38 @@ REACT_APP_API_URL=http://localhost:10000 npm run start
 
 #### 3.3 启动前端开发服务器
 
+**开发模式（推荐用于开发）**：
+
 ```bash
 npm run start
 ```
 
-前端将在 `http://localhost:3000` 启动。
+前端将在 `http://localhost:3000` 启动，支持热重载。
+
+**生产模式（构建后启动）**：
+
+如果你想测试生产构建版本：
+
+```bash
+# 1. 构建生产版本
+npm run build
+
+# 2. 安装 serve（如果还没有安装）
+npm install -g serve
+
+# 3. 启动静态文件服务器
+cd build
+serve -s . -l 3000
+
+# 或者一行命令（在 web 目录下）
+npx serve -s build -l 3000
+```
+
+构建后的应用将在 `http://localhost:3000` 启动。
+
+**注意**：
+- 开发模式（`npm run start`）：支持热重载，适合开发调试
+- 生产模式（`npm run build` + `serve`）：优化后的静态文件，适合测试生产环境或部署
 
 ### 步骤 4：访问应用
 
