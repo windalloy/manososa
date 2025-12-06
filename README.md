@@ -1,9 +1,10 @@
-# AI Alibis - AI 推理游戏系统
+# manososa - 魔女搜查游戏
 
 一个基于 AI 的交互式推理游戏系统，玩家可以与角色对话、收集证物、调查线索，最终推理出真相。
 
 ## 📋 目录
 
+- [致谢](#致谢)
 - [项目简介](#项目简介)
 - [技术栈](#技术栈)
 - [项目结构](#项目结构)
@@ -14,9 +15,13 @@
 - [如何编写自己的剧本](#如何编写自己的剧本)
 - [常见问题](#常见问题)
 
+## 致谢
+
+本项目基于并借鉴了 [AI Alibis: Multi-Agent LLM Murder Mystery](https://github.com/ironman5366/ai-murder-mystery-hackathon) 项目。感谢原项目作者的开源贡献，为本项目提供了重要的技术基础和设计灵感。
+
 ## 🎮 项目简介
 
-AI Alibis 是一个基于大语言模型的交互式推理游戏系统。玩家扮演侦探，通过：
+manososa 是一个基于大语言模型的交互式推理游戏系统（魔女搜查游戏）。玩家扮演侦探，通过：
 - **调查**：前往各个地点寻找线索和证物
 - **询问**：与角色对话，获取证言
 - **出示**：向角色出示证物，改变他们的证言
@@ -166,7 +171,7 @@ manososa/
   }
   ```
 - **说明**：
-  - `"context2"` - 出示该证物后，角色切换到 `context2` 证言
+  - `"context2"` - 出示该证物后，将`context2` 的内容添加到context1中
   - `false` - 出示该证物不会改变证言
 
 #### `web/src/config/evidence.ts`
@@ -320,11 +325,11 @@ MAX_TOKENS=512
 
 #### 2.3 使用 systemd 管理服务（推荐）
 
-创建 `/etc/systemd/system/ai-alibis-api.service`：
+创建 `/etc/systemd/system/manososa-api.service`：
 
 ```ini
 [Unit]
-Description=AI Alibis API Service
+Description=manososa API Service
 After=network.target
 
 [Service]
@@ -342,9 +347,9 @@ WantedBy=multi-user.target
 启动服务：
 
 ```bash
-sudo systemctl enable ai-alibis-api
-sudo systemctl start ai-alibis-api
-sudo systemctl status ai-alibis-api
+sudo systemctl enable manososa-api
+sudo systemctl start manososa-api
+sudo systemctl status manososa-api
 ```
 
 ### 步骤 3：配置前端
@@ -382,7 +387,7 @@ npm run build
 sudo apt install nginx
 ```
 
-2. 配置 Nginx（`/etc/nginx/sites-available/ai-alibis`）：
+2. 配置 Nginx（`/etc/nginx/sites-available/manososa`）：
 ```nginx
 server {
     listen 80;
@@ -406,7 +411,7 @@ server {
 
 3. 启用配置：
 ```bash
-sudo ln -s /etc/nginx/sites-available/ai-alibis /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/manososa /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl restart nginx
 ```
@@ -601,7 +606,7 @@ A: 检查：
 ### Q: 服务器部署后前端无法连接后端？
 
 A: 检查：
-1. 后端服务是否正常运行：`sudo systemctl status ai-alibis-api`
+1. 后端服务是否正常运行：`sudo systemctl status manososa-api`
 2. 防火墙是否开放端口 10000
 3. `web/src/constants.ts` 中的 `SERVER_IP` 是否正确
 4. 浏览器控制台的网络请求是否成功
