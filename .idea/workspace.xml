@@ -8,71 +8,142 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/web/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/01.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/01.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/01.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/01.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/02.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/02.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/02.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/02.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/03.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/03.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/03.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/03.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/04.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/04.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/04.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/04.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/05.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/05.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/05.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/05.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/06.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/06.avif" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/07.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/07.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/07.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/07.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/08.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/08.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/08.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/08.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/09.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/09.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/09.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/09.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/10.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/10.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/10.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/10.avif" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/11.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/11.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/11.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/11.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/12.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/12.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/12.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/12.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/13.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/13.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/14.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/14.avif" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/15.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/15.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/15.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/15.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/16.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/16.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/16.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/16.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/17.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/17.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/17.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/17.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/18.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/18.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/18.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/18.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/19.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/19.avif" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/20.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/20.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/20.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/20.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/21.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/21.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/21.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/21.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/22.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/22.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/22.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/22.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/23.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/23.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/23.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/23.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/24.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/24.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/24.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/24.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/25.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/25.avif" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/26.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/26.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/26.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/26.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/27.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/27.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/27.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/27.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/28.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/28.avif" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/29.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/29.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/29.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/29.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/30.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/30.avif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/31.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/31.avif" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/32.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/32.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/32.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/32.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/33.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/33.avif" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/assets/bg/34.avif" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/34.avif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/34.png" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/bg/34.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/35.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/35.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/36.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/36.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/37.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/37.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/38.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/38.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/39.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/39.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/40.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/assets/bg/40.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/config/mapRegions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/config/mapRegions.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_avatars/anan.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_avatars/anan.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_avatars/arisa.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_avatars/arisa.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_avatars/ema.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_avatars/ema.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_avatars/hanna.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_avatars/hanna.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_avatars/hiro.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_avatars/hiro.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_avatars/koko.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_avatars/koko.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_avatars/leia.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_avatars/leia.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_avatars/mage.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_avatars/mage.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_avatars/meruru.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_avatars/meruru.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_avatars/milia.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_avatars/milia.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_avatars/nanoka.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_avatars/nanoka.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_avatars/noa.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_avatars/noa.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_avatars/sherry.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_avatars/sherry.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_name/n_alisa.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_name/n_alisa.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_name/n_anan.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_name/n_anan.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_name/n_ema.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_name/n_ema.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_name/n_hanna.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_name/n_hanna.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_name/n_hiro.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_name/n_hiro.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_name/n_koko.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_name/n_koko.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_name/n_leia.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_name/n_leia.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_name/n_mage.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_name/n_mage.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_name/n_meruru.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_name/n_meruru.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_name/n_milia.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_name/n_milia.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_name/n_nanoka.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_name/n_nanoka.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_name/n_noa.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_name/n_noa.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_name/n_sherry.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_name/n_sherry.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_name/name.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_name/name.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/anan.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/anan.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/anan_2.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/anan_2.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/anan_3.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/anan_3.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/arisa.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/arisa.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/arisa_2.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/arisa_2.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/arisa_3.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/arisa_3.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/ema.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/ema.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/ema_2.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/ema_2.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/ema_3.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/ema_3.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/ema_4.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/ema_4.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/hanna.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/hanna.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/hanna_2.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/hanna_2.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/hiro.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/hiro.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/hiro1.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/hiro1.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/hiro_2.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/hiro_2.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/koko.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/koko.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/koko_3.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/koko_3.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/leia.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/leia.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/leia_2.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/leia_2.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/leia_3.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/leia_3.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/leia_l.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/leia_l.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/mage.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/mage.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/meruru.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/meruru.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/meruru_2.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/meruru_2.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/meruru_3.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/meruru_3.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/meruru_l.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/meruru_l.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/milia.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/milia.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/milia_2.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/milia_2.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/nanoka.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/nanoka.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/nanoka_1.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/nanoka_1.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/nanoka_2.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/nanoka_2.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/nanoka_3.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/nanoka_3.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/nanoka_4.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/nanoka_4.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/noa.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/noa.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/noa_2.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/noa_2.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/noa_3.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/noa_3.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/sherry.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/sherry.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/sherry_2.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/sherry_2.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/character_stand/sherry_l.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/character_stand/sherry_l.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/evidence/01.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/evidence/01.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/evidence/02.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/evidence/02.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/evidence/03.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/evidence/03.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/evidence/04.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/evidence/04.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/evidence/05.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/evidence/05.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/evidence/06.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/evidence/06.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/evidence/07.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/evidence/07.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/evidence/08.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/evidence/08.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/evidence/09.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/evidence/09.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/evidence/10.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/evidence/10.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/evidence/11.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/evidence/11.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/evidence/12.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/evidence/12.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/evidence/13.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/evidence/13.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/evidence/14.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/evidence/14.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/evidence/15.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/evidence/15.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/evidence/bg.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/evidence/bg.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/evidence/bg1.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/evidence/bg1.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/evidence/bg3.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/evidence/bg3.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/history/bg.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/history/bg.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/history/bg1.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/history/bg1.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/logo.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/logo.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/map/Map_Background.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/map/Map_Background.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/map/map_1.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/map/map_1.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/map/map_11.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/map/map_11.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/map/map_12.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/map/map_12.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/map/map_2.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/map/map_2.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/map/map_21.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/map/map_21.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/map/map_22.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/map/map_22.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/map/map_b1.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/map/map_b1.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/map/map_b11.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/map/map_b11.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/map/map_b12.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/map/map_b12.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/ui/1.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/ui/1.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/ui/2.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/ui/2.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/ui/bg1.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/ui/bg1.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/assets/ui/get.webp" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/assets/ui/get.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/components/EndModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/components/EndModal.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/constants.ts" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/constants.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/evidence.json" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/evidence.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

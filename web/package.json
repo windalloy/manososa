@@ -26,7 +26,10 @@
     "build": "REACT_APP_API_URL=http://47.109.192.144:10000 react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "convert-images": "node convert-images.js"
+    "convert-images": "node convert-images.js",
+    "convert-images:balanced": "node convert-images-optimized.js balanced",
+    "convert-images:custom": "node convert-images-optimized.js custom",
+    "convert-images:aggressive": "node convert-images-optimized.js aggressive"
   },
   "eslintConfig": {
     "extends": [

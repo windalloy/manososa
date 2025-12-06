@@ -183,6 +183,14 @@ const EndModal: React.FC<EndModalProps> = ({ opened, onClose }) => {
           lineHeight: '1.8',
           fontSize: `${16 * scale}px`,
         }}>
+          我们短暂而飘渺的生命，追寻和拒绝着爱的投影。交织飞舞的善意，与睡梦相伴而终。
+        </Text>
+        <br></br>
+        <Text style={{
+          color: 'rgba(220, 220, 220, 1)',
+          lineHeight: '1.8',
+          fontSize: `${16 * scale}px`,
+        }}>
           这里不会揭晓答案。故事的真相，由您心中的判决来定义。
         </Text>
         <br></br>
@@ -191,7 +199,26 @@ const EndModal: React.FC<EndModalProps> = ({ opened, onClose }) => {
           lineHeight: '1.8',
           fontSize: `${16 * scale}px`,
         }}>
-          如果对剧本或系统感兴趣，可以去()了解更多内容。
+          如果对剧本或系统感兴趣，可以去{' '}
+          <a 
+            href="https://github.com/windalloy/manososa" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{
+              color: 'rgba(100, 150, 255, 1)',
+              textDecoration: 'underline',
+              cursor: 'pointer',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = 'rgba(120, 170, 255, 1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'rgba(100, 150, 255, 1)';
+            }}
+          >
+            https://github.com/windalloy/manososa
+          </a>
+          {' '}了解更多内容。
         </Text>
         <br></br>
         <Text style={{ 
@@ -215,7 +242,7 @@ const EndModal: React.FC<EndModalProps> = ({ opened, onClose }) => {
           lineHeight: '1.8',
           fontSize: `${16 * scale}px`,
         }}>
-          最后，这其实只是我人工智能课的一次大作业，没想到不知不觉就做成了这个样子。不管是写系统还是写剧本，这都是我的第一次尝试。因此，再次衷心感谢您，体验了这个尚显简易的小游戏。
+          最后，这其实只是我人工智能课的一次大作业，没想到不知不觉就做成了这个样子。不管是写系统还是写剧本，这都是我的第一次尝试。因此，再次衷心感谢您，体验了这个尚显简易的小游戏。谢谢！
         </Text>
         <br></br>
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: `${5 * scale}px` }}>

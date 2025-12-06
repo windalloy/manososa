@@ -1,21 +1,14 @@
-// 自动检测 API URL（不需要 web/.env 文件）
-// 1. 优先使用环境变量 REACT_APP_API_URL
-// 2. 如果在浏览器中运行且不是 localhost，自动使用当前服务器的域名和端口 10000
-// 3. 开发环境：如果浏览器访问的是 localhost，但实际在服务器上运行，使用服务器 IP
-// 4. 生产环境：使用服务器 IP
-// 注意：可以通过命令行临时设置 REACT_APP_API_URL 环境变量（可选）
 
-// 服务器 IP 地址（用于服务器环境）
 const SERVER_IP = '47.109.192.144';
 const SERVER_PORT = 10000;
 
 function getApiUrl(): string {
-  // 优先使用环境变量
+  
   if (process.env.REACT_APP_API_URL) {
     return process.env.REACT_APP_API_URL;
   }
   
-  // 在浏览器环境中自动检测
+  
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
     // 如果不是本地开发环境，使用当前服务器的域名和端口 10000
