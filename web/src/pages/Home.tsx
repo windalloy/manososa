@@ -303,7 +303,7 @@ export default function Home() {
   const historyScrollRef = useRef<HTMLDivElement>(null);
   const historyBgImageRef = useRef<HTMLImageElement>(null);
   const sessionId = useSessionContext();
-  const [bgImage, setBgImage] = useState<string>('bg/16.avif');
+  const [bgImage, setBgImage] = useState<string>('bg/01.avif');
   const [recentBgImages, setRecentBgImages] = useState<string[]>([]); // 跟踪最近7次使用的背景
   const [standJump, setStandJump] = useState<number>(0); // 立绘跳跃动画计数器
   const [showMap, setShowMap] = useState<boolean>(false); // 是否显示地图
@@ -410,16 +410,33 @@ export default function Home() {
     preloadStandImages();
     preloadBgImages();
     
-    // 收集所有需要预加载的图片路径（获取实际的 URL）
-    const collectStandImageUrls = (): string[] => {
-      const characterImages = [
-        'ema.jpg', 'hiro.jpg', 'anan.jpg', 'noa.jpg', 'leia.jpg', 
-        'milia.jpg', 'nanoka.jpg', 'arisa.jpg', 'sherry.jpg', 
-        'hanna.jpg', 'koko.jpg', 'meruru.jpg'
-      ];
-      const standVariants = ['', '_2', '_3', '_4', '_l'];
+    // 收集图片路径（按新的分类方式）
+    const characterImages = [
+      'ema.jpg', 'hiro.jpg', 'anan.jpg', 'noa.jpg', 'leia.jpg', 
+      'milia.jpg', 'nanoka.jpg', 'arisa.jpg', 'sherry.jpg', 
+      'hanna.jpg', 'koko.jpg', 'meruru.jpg'
+    ];
+    
+    // 收集基础立绘（不带下划线的）
+    const collectBaseStandImages = (): string[] => {
       const urls: string[] = [];
-      
+      characterImages.forEach(imageFile => {
+        const baseName = imageFile.replace(/\.(jpg|jpeg|png)$/i, '');
+        const standPath = `character_stand/${baseName}.webp`;
+        try {
+          const src = require(`../assets/${standPath}`);
+          if (src) urls.push(src);
+        } catch {
+          // 忽略不存在的图片
+        }
+      });
+      return urls;
+    };
+    
+    // 收集立绘变体（带下划线的）
+    const collectStandVariants = (): string[] => {
+      const urls: string[] = [];
+      const standVariants = ['_2', '_3', '_4', '_l'];
       characterImages.forEach(imageFile => {
         const baseName = imageFile.replace(/\.(jpg|jpeg|png)$/i, '');
         standVariants.forEach(variant => {
@@ -435,6 +452,7 @@ export default function Home() {
       return urls;
     };
     
+    // 收集背景图片（按顺序）
     const collectBgImageUrls = (): string[] => {
       const urls: string[] = [];
       BG_IMAGES.forEach(bgPath => {
@@ -448,56 +466,48 @@ export default function Home() {
       return urls;
     };
     
-    const collectOtherImageUrls = (): string[] => {
-      const urls: string[] = [];
+    // 按目录分类收集其他图片
+    const collectOtherImagesByCategory = () => {
+      const map: string[] = [];
+      const ui: string[] = [];
+      const evidence: string[] = [];
+      const character_name: string[] = [];
+      const character_avatars: string[] = [];
+      const history: string[] = [];
       
-      // 证物图片
-      for (let i = 1; i <= 15; i++) {
-        const num = String(i).padStart(2, '0');
+      // 地图图片
+      MAP_IMAGES.forEach(mapPath => {
         try {
-          const src = require(`../assets/evidence/${num}.webp`);
-          if (src) urls.push(src);
+          const src = require(`../assets/${mapPath}`);
+          if (src) map.push(src);
         } catch {}
-      }
+      });
       
       // UI 图片
       const uiImages = ['ui/get.webp', 'ui/bg1.webp', 'ui/1.webp', 'ui/2.webp'];
       uiImages.forEach(path => {
         try {
           const src = require(`../assets/${path}`);
-          if (src) urls.push(src);
+          if (src) ui.push(src);
         } catch {}
       });
       
-      // 历史背景
-      try {
-        const src = require('../assets/history/bg.webp');
-        if (src) urls.push(src);
-      } catch {}
-      
-      try {
-        const src = require('../assets/history/bg1.webp');
-        if (src) urls.push(src);
-      } catch {}
-      
-      // 证物背景
+      // 证物图片（包括背景）
+      for (let i = 1; i <= 15; i++) {
+        const num = String(i).padStart(2, '0');
+        try {
+          const src = require(`../assets/evidence/${num}.webp`);
+          if (src) evidence.push(src);
+        } catch {}
+      }
       try {
         const src = require('../assets/evidence/bg.webp');
-        if (src) urls.push(src);
+        if (src) evidence.push(src);
       } catch {}
-      
       try {
         const src = require('../assets/evidence/bg1.webp');
-        if (src) urls.push(src);
+        if (src) evidence.push(src);
       } catch {}
-      
-      // 地图图片
-      MAP_IMAGES.forEach(mapPath => {
-        try {
-          const src = require(`../assets/${mapPath}`);
-          if (src) urls.push(src);
-        } catch {}
-      });
       
       // 角色名称图片
       const characterNames = ['name', 'n_ema', 'n_hiro', 'n_anan', 'n_noa', 'n_leia', 
@@ -505,61 +515,94 @@ export default function Home() {
       characterNames.forEach(name => {
         try {
           const src = require(`../assets/character_name/${name}.webp`);
-          if (src) urls.push(src);
+          if (src) character_name.push(src);
         } catch {}
       });
       
-      return urls;
+      // 角色头像
+      characterImages.forEach(imageFile => {
+        const baseName = imageFile.replace(/\.(jpg|jpeg|png)$/i, '');
+        try {
+          const src = require(`../assets/character_avatars/${baseName}.webp`);
+          if (src) character_avatars.push(src);
+        } catch {}
+      });
+      
+      // 历史背景
+      try {
+        const src = require('../assets/history/bg.webp');
+        if (src) history.push(src);
+      } catch {}
+      try {
+        const src = require('../assets/history/bg1.webp');
+        if (src) history.push(src);
+      } catch {}
+      
+      return { map, ui, evidence, character_name, character_avatars, history };
     };
     
-    // 按优先级预加载图片
-    const standUrls = collectStandImageUrls();
-    const bgUrls = collectBgImageUrls();
-    const otherUrls = collectOtherImageUrls();
-    
-    // 首先优先加载首屏背景图片和当前立绘
+    // 第一步：优先加载首屏背景 01.avif 和立绘 ema
     const initialImages: string[] = [];
     
-    // 加载首屏背景
-    if (bgImage) {
-      try {
-        const bgSrc = require(`../assets/${bgImage}`);
-        if (bgSrc) initialImages.push(bgSrc);
-      } catch {
-        // 忽略加载失败的图片
-      }
+    // 加载首屏背景 01.avif
+    try {
+      const bg01Src = require('../assets/bg/01.avif');
+      if (bg01Src) initialImages.push(bg01Src);
+    } catch {
+      // 忽略加载失败的图片
     }
     
-    // 加载当前角色的立绘
-    const currentActor = actors[currActor];
-    if (currentActor) {
-      const standPath = getStandImage(currentActor.image, currentActor, null);
-      if (standPath) {
-        try {
-          const standSrc = getStandImageSrc(standPath);
-          if (standSrc) initialImages.push(standSrc);
-        } catch {
-          // 忽略加载失败的图片
-        }
-      }
+    // 加载立绘 ema（基础立绘）
+    try {
+      const emaStandSrc = require('../assets/character_stand/ema.webp');
+      if (emaStandSrc) initialImages.push(emaStandSrc);
+    } catch {
+      // 忽略加载失败的图片
     }
+    
+    // 收集所有图片
+    const baseStandUrls = collectBaseStandImages();
+    const bgUrls = collectBgImageUrls();
+    const standVariants = collectStandVariants();
+    const otherImagesByCategory = collectOtherImagesByCategory();
     
     // 优先加载首屏图片，然后再开始队列预加载
     if (initialImages.length > 0) {
       preloadPriorityImages(initialImages).then(() => {
         // 首屏图片加载完成后再开始队列预加载
-        preloadAllImages(standUrls, bgUrls, otherUrls).catch(err => {
+        preloadAllImages(
+          baseStandUrls,
+          bgUrls,
+          {
+            ...otherImagesByCategory,
+            character_stand_variants: standVariants,
+          }
+        ).catch(err => {
           console.warn('图片预加载过程中出现错误:', err);
         });
       }).catch(() => {
         // 即使优先加载失败，也继续队列预加载
-        preloadAllImages(standUrls, bgUrls, otherUrls).catch(err => {
+        preloadAllImages(
+          baseStandUrls,
+          bgUrls,
+          {
+            ...otherImagesByCategory,
+            character_stand_variants: standVariants,
+          }
+        ).catch(err => {
           console.warn('图片预加载过程中出现错误:', err);
         });
       });
     } else {
       // 如果没有首屏图片，直接开始队列预加载
-      preloadAllImages(standUrls, bgUrls, otherUrls).catch(err => {
+      preloadAllImages(
+        baseStandUrls,
+        bgUrls,
+        {
+          ...otherImagesByCategory,
+          character_stand_variants: standVariants,
+        }
+      ).catch(err => {
         console.warn('图片预加载过程中出现错误:', err);
       });
     }

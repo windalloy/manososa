@@ -66,40 +66,28 @@ def prompt_ai(conn, request: InvocationRequest) -> InvocationResponse:
 
     print(f"\nunrefined_response: {unrefined_response}\n")
 
-    # 如果 violation 为空，跳过审查流程，直接使用原始响应
-    violation = request.actor.violation.strip() if request.actor.violation else ""
-    if not violation:
-        print("\nSkipping critique and refine (violation is empty)\n")
-        final_response = unrefined_response
-        response = InvocationResponse(
-            original_response=unrefined_response,
-            critique_response="NONE! (violation is empty, critique skipped)",
-            problems_detected=False,
-            final_response=final_response,
-            refined_response=None,
-        )
+    # 所有角色都进行审查，原则A（发言与自身掌握的事实相矛盾）作用于所有角色
+    critique_response = critique(conn, turn_id, request, unrefined_response)
+
+    print(f"\ncritique_response: {critique_response}\n")
+
+    problems_found = check_whether_to_refine(critique_response)
+
+    if problems_found:
+        refined_response = refine(conn, turn_id, request, critique_response, unrefined_response)
+        
+        final_response = refined_response
     else:
-        critique_response = critique(conn, turn_id, request, unrefined_response)
+        final_response = unrefined_response
+        refined_response = None
 
-        print(f"\ncritique_response: {critique_response}\n")
-
-        problems_found = check_whether_to_refine(critique_response)
-
-        if problems_found:
-            refined_response = refine(conn, turn_id, request, critique_response, unrefined_response)
-            
-            final_response = refined_response
-        else:
-            final_response = unrefined_response
-            refined_response = None
-
-        response = InvocationResponse(
-            original_response=unrefined_response,
-            critique_response=critique_response,
-            problems_detected=problems_found,
-            final_response=final_response,
-            refined_response=refined_response,
-        )
+    response = InvocationResponse(
+        original_response=unrefined_response,
+        critique_response=critique_response,
+        problems_detected=problems_found,
+        final_response=final_response,
+        refined_response=refined_response,
+    )
 
     # 如果当前角色是二阶堂希罗，在最终回复前后加上括号（在审查和修复之后）
     if request.actor.name == "二阶堂希罗":

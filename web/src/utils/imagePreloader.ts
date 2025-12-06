@@ -60,6 +60,11 @@ class PreloadQueue {
   clear(): void {
     this.queue = [];
   }
+
+  // 检查是否暂停
+  getPausedState(): boolean {
+    return this.isPaused;
+  }
 }
 
 // 全局预加载队列实例
@@ -124,36 +129,98 @@ export async function preloadPriorityImages(images: string[]): Promise<void> {
 }
 
 /**
- * 预加载所有图片（按优先级，使用队列系统）
- * @param standImages 立绘图片路径数组（第一优先级）
- * @param bgImages 背景图片路径数组（第二优先级）
- * @param otherImages 其他图片路径数组（第三优先级）
+ * 预加载所有图片（按新的优先级顺序）
+ * @param baseStandImages 基础立绘图片路径数组（不带下划线的，如 ema.webp, hiro.webp）
+ * @param bgImages 背景图片路径数组（按顺序）
+ * @param otherImagesByCategory 按目录分类的其他图片
  */
 export async function preloadAllImages(
-  standImages: string[],
+  baseStandImages: string[],
   bgImages: string[],
-  otherImages: string[] = []
+  otherImagesByCategory: {
+    map: string[];
+    ui: string[];
+    evidence: string[];
+    character_name: string[];
+    character_avatars: string[];
+    history: string[];
+    character_stand_variants: string[]; // 带下划线的立绘变体
+  }
 ): Promise<void> {
-  // 第一优先级：使用 link preload 预加载当前可能用到的立绘
-  // 只预加载基础立绘（不带变体的），因为它们是首先显示的
-  const criticalStandImages = standImages.filter(src => 
-    !src.includes('_2') && !src.includes('_3') && !src.includes('_4') && !src.includes('_l')
-  );
-  preloadCriticalImages(criticalStandImages);
+  // 第二步：同时预加载所有背景（按顺序）和所有基础立绘
+  // 背景按顺序加载，基础立绘同时加载，两者并行进行
+  // 注意：这一步不使用队列系统，直接加载，因为它们是高优先级
+  // 但 preloadPriorityImages 会暂停队列，所以如果此时队列正在运行，会被暂停
+  const loadBgsAndStands = async () => {
+    const bgBatchSize = 3;
+    const standBatchSize = 3;
+    
+    // 创建两个并行的加载任务
+    const bgLoader = async () => {
+      // 背景按顺序加载
+      for (let i = 0; i < bgImages.length; i += bgBatchSize) {
+        // 检查是否被暂停（通过检查队列状态）
+        if (preloadQueue.getPausedState()) {
+          // 如果被暂停，等待恢复
+          while (preloadQueue.getPausedState()) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+        }
+        
+        const batch = bgImages.slice(i, i + bgBatchSize);
+        await Promise.allSettled(
+          batch.map(src => preloadImage(src).catch(() => {}))
+        );
+        if (i + bgBatchSize < bgImages.length) {
+          await new Promise(resolve => setTimeout(resolve, 50));
+        }
+      }
+    };
+    
+    const standLoader = async () => {
+      // 基础立绘同时加载
+      for (let i = 0; i < baseStandImages.length; i += standBatchSize) {
+        // 检查是否被暂停
+        if (preloadQueue.getPausedState()) {
+          while (preloadQueue.getPausedState()) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+        }
+        
+        const batch = baseStandImages.slice(i, i + standBatchSize);
+        await Promise.allSettled(
+          batch.map(src => preloadImage(src).catch(() => {}))
+        );
+        if (i + standBatchSize < baseStandImages.length) {
+          await new Promise(resolve => setTimeout(resolve, 50));
+        }
+      }
+    };
+    
+    // 同时执行背景和立绘的加载
+    await Promise.all([bgLoader(), standLoader()]);
+  };
 
-  // 将图片添加到队列（按优先级顺序）
-  // 立绘图片优先
-  preloadQueue.add(standImages);
-  
-  // 延迟后添加背景图片
-  setTimeout(() => {
-    preloadQueue.add(bgImages);
-  }, 200);
-  
-  // 再延迟后添加其他图片
-  setTimeout(() => {
-    preloadQueue.add(otherImages);
-  }, 500);
+  // 执行第二步
+  await loadBgsAndStands();
+
+  // 第三步：按目录顺序预加载其他图片（使用队列系统，可以被暂停）
+  const categoryOrder = [
+    otherImagesByCategory.map,
+    otherImagesByCategory.ui,
+    otherImagesByCategory.evidence,
+    otherImagesByCategory.character_name,
+    otherImagesByCategory.character_avatars,
+    otherImagesByCategory.history,
+    otherImagesByCategory.character_stand_variants,
+  ];
+
+  // 将其他图片添加到队列
+  for (const categoryImages of categoryOrder) {
+    if (categoryImages.length > 0) {
+      preloadQueue.add(categoryImages);
+    }
+  }
 }
 
 /**
