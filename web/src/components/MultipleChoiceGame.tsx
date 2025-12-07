@@ -33,7 +33,7 @@ const questions = [
     ]
   },
   {
-    question: "想要指控的对象是",
+    question: "当前怀疑的对象是",
     choices: [
       "樱羽艾玛",
       "二阶堂希罗",
@@ -47,7 +47,13 @@ const questions = [
       "远野汉娜",
       "泽渡可可",
       "冰上梅露露",
-      "宝生玛格",
+    ]
+  },
+  {
+    question: "是否要指控你怀疑的对象",
+    choices: [
+      "是，指证怀疑对象",
+      "否，玛格死于自杀",
     ]
   }
 ];
@@ -115,9 +121,21 @@ const MultipleChoiceGame: React.FC<MultipleChoiceGameProps> = ({ onBackToGame, o
   };
 
   // 生成回复框内容
-  const responseContent = answers.length >= 2 
-    ? `那么，就让艾玛去${answers[0]}吧，我先去审判庭准备指控${answers[1]}的证词了。`
-    : '';
+  const responseContent = (() => {
+    if (answers.length < 3) {
+      return '';
+    }
+    
+    // 根据第三个问题的选择决定结束语
+    if (answers[2] === "否，玛格死于自杀") {
+      return `我怀疑是${answers[1]}害死了玛格，但是我不打算指控她。玛格的死明显源于一连串的意外，而非任何人的杀意。我们之中没有魔女，只有想要释放善意却笨拙冒失的正确而努力的人。因此，我将指证玛格自杀。为了保护所有人，即便需要编织谎言，我也在所不惜。`;
+    } else if (answers[2] === "是，指证怀疑对象") {
+      return `明白了。让艾玛去继续${answers[0]}吧。至于我，该去准备正式的指控了。我将整理所有关于 ${answers[1]} 的证词与证物，确保在审判中无可辩驳。我一定要将杀害玛格的魔女亲手送上处刑台。`;
+    }
+    
+    // 默认情况（不应该到达这里，但为了安全起见）
+    return `那么，就让艾玛去${answers[0]}吧，我先去审判庭准备指控${answers[1]}的证词了。`;
+  })();
 
   // 逐字显示效果
   useEffect(() => {
@@ -298,7 +316,7 @@ const MultipleChoiceGame: React.FC<MultipleChoiceGameProps> = ({ onBackToGame, o
             <div
               style={{
                 fontSize: `${18 * scale}px`,
-                lineHeight: '1.8',
+                lineHeight: `${32.4 * scale}px`,
                 color: 'white',
                 whiteSpace: 'pre-wrap',
                 wordBreak: 'break-word',

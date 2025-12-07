@@ -13,6 +13,7 @@ import { findRegionByClick, MapRegion } from '../config/mapRegions';
 import { EvidenceDisplay } from '../components/EvidenceDisplay';
 import { initialEvidence, obtainEvidence, Evidence } from '../config/evidence';
 import { preloadAllImages, preloadPriorityImages } from '../utils/imagePreloader';
+import { saveGameProgress, loadGameProgress, hasGameProgress } from '../utils/gameStorage';
 
 // 背景图片列表（01.avif 到 48.avif）
 const BG_IMAGES = Array.from({ length: 48 }, (_, i) => {
@@ -281,7 +282,7 @@ const isMobileDevice = (): boolean => {
 };
 
 export default function Home() {
-  const { actors, setActors, globalStory } = useMysteryContext(); 
+  const { actors, setActors, globalStory, setGlobalStory } = useMysteryContext(); 
   const [currActor, setCurrActor] = useState<number>(0);
   const [introModalOpened, setIntroModalOpened] = useState(true);
   const [endModalOpened, setEndModalOpened] = useState(false);
@@ -388,6 +389,89 @@ export default function Home() {
     initialEvidence.map(e => ({ ...e })) // 深拷贝，确保每次都是新的数组实例
   ); // 证物列表
   const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(null); // 当前选中的证物
+  
+  // 标记是否已经恢复过游戏状态，避免重复恢复
+  const hasRestoredRef = useRef(false);
+
+  // 组件挂载时恢复游戏进度
+  useEffect(() => {
+    if (hasRestoredRef.current) return;
+    
+    const savedState = loadGameProgress();
+    if (savedState) {
+      // 恢复对话历史和全局故事
+      if (savedState.actors) {
+        setActors(savedState.actors);
+        setFilteredActors(Object.values(savedState.actors));
+      }
+      if (savedState.globalStory) {
+        setGlobalStory(savedState.globalStory);
+      }
+      
+      // 恢复游戏状态
+      if (savedState.actionCountdown !== undefined) {
+        setActionCountdown(savedState.actionCountdown);
+      }
+      if (savedState.endGame !== undefined) {
+        setEndGame(savedState.endGame);
+      }
+      if (savedState.postGame !== undefined) {
+        setPostGame(savedState.postGame);
+      }
+      if (savedState.countdownEnded !== undefined) {
+        setCountdownEnded(savedState.countdownEnded);
+      }
+      if (savedState.currActor !== undefined) {
+        setCurrActor(savedState.currActor);
+      }
+      
+      // 恢复证物和笔记
+      if (savedState.evidenceList) {
+        setEvidenceList(savedState.evidenceList);
+      }
+      if (savedState.notes) {
+        setNotes(savedState.notes);
+      }
+      if (savedState.nextNoteId !== undefined) {
+        nextNoteId.current = savedState.nextNoteId;
+      }
+      
+      // 恢复UI状态
+      if (savedState.bgImage) {
+        setBgImage(savedState.bgImage);
+      }
+      if (savedState.currentMapIndex !== undefined) {
+        setCurrentMapIndex(savedState.currentMapIndex);
+      }
+      
+      // 如果有保存的进度，不显示介绍模态框
+      setIntroModalOpened(false);
+      
+      hasRestoredRef.current = true;
+    } else {
+      hasRestoredRef.current = true;
+    }
+  }, []); // 只在组件挂载时执行一次
+
+  // 自动保存游戏进度（当关键状态变化时）
+  useEffect(() => {
+    if (!hasRestoredRef.current) return; // 等待恢复完成后再开始保存
+    
+    saveGameProgress({
+      actors,
+      globalStory,
+      actionCountdown,
+      endGame,
+      postGame,
+      countdownEnded,
+      currActor,
+      evidenceList,
+      notes,
+      nextNoteId: nextNoteId.current,
+      bgImage,
+      currentMapIndex,
+    });
+  }, [actors, globalStory, actionCountdown, endGame, postGame, countdownEnded, currActor, evidenceList, notes, bgImage, currentMapIndex]);
 
   // 监听倒计时，当为0时执行结束游戏逻辑
   useEffect(() => {

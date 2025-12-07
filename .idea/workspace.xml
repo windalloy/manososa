@@ -7,6 +7,11 @@
     <list default="true" id="193e97bf-4125-4b01-be92-80643b491152" name="Changes" comment="12.6">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/characters.json" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/characters.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/components/EndModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/components/EndModal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/components/MultipleChoiceGame.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/components/MultipleChoiceGame.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/config/evidence.ts" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/config/evidence.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/evidence.json" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/evidence.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/pages/Home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/pages/Home.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,7 +116,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765043974406</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="12.6">
+      <option name="closed" value="true" />
+      <created>1765072741383</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1765072741383</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="UnknownFeatures">

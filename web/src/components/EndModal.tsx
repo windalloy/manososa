@@ -5,7 +5,8 @@
  * - 在游戏结束时显示感谢信息
  */
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Text } from '@mantine/core';
+import { Modal, Button, Text, ScrollArea } from '@mantine/core';
+import storyData from '../story.json';
 
 interface EndModalProps {
   opened: boolean;
@@ -21,6 +22,7 @@ const ASPECT_RATIO = 16 / 9;
 const EndModal: React.FC<EndModalProps> = ({ opened, onClose }) => {
   const [scale, setScale] = useState<number>(1);
   const [isLandscape, setIsLandscape] = useState<boolean>(window.innerWidth > window.innerHeight);
+  const [showStoryModal, setShowStoryModal] = useState<boolean>(false);
 
   useEffect(() => {
     const calculateScale = () => {
@@ -175,7 +177,7 @@ const EndModal: React.FC<EndModalProps> = ({ opened, onClose }) => {
           lineHeight: '1.8',
           fontSize: `${16 * scale}px`,
         }}>
-          现在，希罗酱已经收集到了足够的证据，接下来就是她在审判庭上大展身手的时刻了。不过，那之后的故事，就超出这个游戏的范围了。
+          现在，希罗酱已经收集到了足够的证据，接下来就是她在审判庭上大展身手的时刻了。不过，那之后的故事，就与本游戏无关了。
         </Text>
         <br></br>
         <Text style={{ 
@@ -183,7 +185,7 @@ const EndModal: React.FC<EndModalProps> = ({ opened, onClose }) => {
           lineHeight: '1.8',
           fontSize: `${16 * scale}px`,
         }}>
-          短暂而飘渺的生命，追寻和拒绝着爱的投影。交织飞舞的善意，与睡梦相伴而终。这里不会揭晓案件的答案。故事的真相，由您心中的判决来定义。
+          如果想了解完整的案件，请点击下方的“查看剧本”按钮。
         </Text>
         <br></br>
         <Text style={{ 
@@ -191,7 +193,7 @@ const EndModal: React.FC<EndModalProps> = ({ opened, onClose }) => {
           lineHeight: '1.8',
           fontSize: `${16 * scale}px`,
         }}>
-          如果对剧本或系统感兴趣，可以去{' '}
+          如果对系统感兴趣，可以去{' '}
           <a 
             href="https://github.com/windalloy/manososa" 
             target="_blank" 
@@ -218,7 +220,26 @@ const EndModal: React.FC<EndModalProps> = ({ opened, onClose }) => {
           lineHeight: '1.8',
           fontSize: `${16 * scale}px`,
         }}>
-          如果有任何建议或感想，可以来这里()评论。
+          如果有任何建议或感想，可以来B站评论{' '}
+          <a 
+            href="https://space.bilibili.com/292666183?spm_id_from=333.1007.0.0" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{
+              color: 'rgba(100, 150, 255, 1)',
+              textDecoration: 'underline',
+              cursor: 'pointer',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = 'rgba(120, 170, 255, 1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'rgba(100, 150, 255, 1)';
+            }}
+          >
+            https://space.bilibili.com/292666183?spm_id_from=333.1007.0.0
+          </a>
+          {' '}。
         </Text>
         <br></br>
         <Text style={{ 
@@ -226,7 +247,7 @@ const EndModal: React.FC<EndModalProps> = ({ opened, onClose }) => {
           lineHeight: '1.8',
           fontSize: `${16 * scale}px`,
         }}>
-          如果想用这个系统写自己的剧本，请尽管拿去用就好，不必征求我的意见。
+          如果想用这个系统写自己的剧本，尽管拿去用就好，不用征求我的意见。
         </Text>
         <br></br>
         <Text style={{ 
@@ -234,10 +255,23 @@ const EndModal: React.FC<EndModalProps> = ({ opened, onClose }) => {
           lineHeight: '1.8',
           fontSize: `${16 * scale}px`,
         }}>
-          最后，这其实只是我人工智能课的一次大作业，没想到不知不觉就做成了这个样子。不管是写系统还是写剧本，这都是我的第一次尝试。因此，再次衷心感谢您，体验了这个尚显简易的小游戏。谢谢！
+          最后，这其实只是人工智能课的一次大作业，没想到不知不觉就给做成了这个样子。不管是写剧本还是写这类系统，这都是我的第一次尝试。因此，再次衷心感谢您，体验了这个尚显简易的小游戏。
         </Text>
         <br></br>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: `${5 * scale}px` }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: `${10 * scale}px`, marginTop: `${5 * scale}px` }}>
+          <Button 
+            onClick={() => setShowStoryModal(true)}
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              color: 'rgba(220, 220, 220, 1)',
+              padding: `${6 * scale}px ${16 * scale}px`,
+              fontSize: `${13 * scale}px`,
+              height: 'fit-content',
+              lineHeight: '1.5',
+            }}
+          >
+            查看剧本
+          </Button>
           <Button 
             onClick={onClose}
             style={{
@@ -252,6 +286,111 @@ const EndModal: React.FC<EndModalProps> = ({ opened, onClose }) => {
             知道了
           </Button>
         </div>
+      </Modal>
+      
+      {/* 剧本显示 Modal */}
+      <Modal
+        opened={showStoryModal}
+        onClose={() => setShowStoryModal(false)}
+        size="xl"
+        centered
+        title={
+          <Text style={{ 
+            color: 'rgba(220, 220, 220, 1)', 
+            fontSize: `${20 * scale}px`,
+            fontWeight: 600,
+          }}>
+            {storyData.title}
+          </Text>
+        }
+        styles={{
+          inner: {
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            position: 'fixed',
+          },
+          content: {
+            backgroundColor: 'rgba(40, 40, 40, 1)',
+            borderRadius: `${12 * scale}px`,
+            width: `${Math.min(900 * scale, window.innerWidth * 0.9)}px`,
+            maxWidth: '90vw',
+            maxHeight: '85vh',
+          },
+          header: {
+            backgroundColor: 'transparent',
+            padding: `${16 * scale}px ${20 * scale}px`,
+            minHeight: 'auto',
+            height: 'auto',
+            borderBottom: `1px solid rgba(255, 255, 255, 0.1)`,
+          },
+          body: {
+            backgroundColor: 'transparent',
+            padding: `${20 * scale}px`,
+            maxHeight: 'calc(85vh - 80px)',
+          },
+          close: {
+            color: 'rgba(200, 200, 200, 1)',
+            width: `${24 * scale}px`,
+            height: `${24 * scale}px`,
+          },
+        }}
+      >
+        <ScrollArea 
+          style={{ 
+            height: 'calc(85vh - 120px)',
+          }}
+          offsetScrollbars
+          styles={{
+            root: {
+              paddingRight: `${10 * scale}px`,
+            },
+            viewport: {
+              paddingRight: `${10 * scale}px`,
+            },
+            scrollbar: {
+              '&[data-orientation="vertical"] .mantine-ScrollArea-thumb': {
+                backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                },
+              },
+            },
+          }}
+        >
+          <div style={{ paddingRight: `${10 * scale}px` }}>
+            {storyData.content.map((section, index) => (
+              <div key={index} style={{ marginBottom: `${20 * scale}px` }}>
+                <Text
+                  style={{
+                    color: 'rgba(100, 150, 255, 1)',
+                    fontSize: `${18 * scale}px`,
+                    fontWeight: 600,
+                    marginBottom: `${8 * scale}px`,
+                    display: 'block',
+                  }}
+                >
+                  {section.time.startsWith('■') ? section.time : `■ ${section.time}`}
+                </Text>
+                {section.events.map((event, eventIndex) => (
+                  <Text
+                    key={eventIndex}
+                    style={{
+                      color: 'rgba(220, 220, 220, 1)',
+                      fontSize: `${15 * scale}px`,
+                      lineHeight: '1.8',
+                      marginBottom: `${6 * scale}px`,
+                      paddingLeft: `${12 * scale}px`,
+                      display: 'block',
+                    }}
+                  >
+                    {event}
+                  </Text>
+                ))}
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
       </Modal>
     </>
   );
