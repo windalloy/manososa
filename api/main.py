@@ -75,6 +75,7 @@ def prompt_ai(conn, request: InvocationRequest) -> InvocationResponse:
 
     if problems_found:
         refined_response = refine(conn, turn_id, request, critique_response, unrefined_response)
+        print(f"\nrefined_response: {refined_response}\n")
         
         final_response = refined_response
     else:

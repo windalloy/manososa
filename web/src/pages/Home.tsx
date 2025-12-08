@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo } from 'react';
-import { AppShell, Button, Textarea, ActionIcon, Image, Group, ScrollArea } from '@mantine/core';
+import { AppShell, Button, Textarea, ActionIcon, Image, Group, ScrollArea, Modal, Text } from '@mantine/core';
 import ActorSidebar from '../components/ActorSidebar';
 import ActorChat, { sendChat, clearContinueDialogState } from '../components/Actor';
 import IntroModal from '../components/IntroModal';
@@ -13,7 +13,7 @@ import { findRegionByClick, MapRegion } from '../config/mapRegions';
 import { EvidenceDisplay } from '../components/EvidenceDisplay';
 import { initialEvidence, obtainEvidence, Evidence } from '../config/evidence';
 import { preloadAllImages, preloadPriorityImages } from '../utils/imagePreloader';
-import { saveGameProgress, loadGameProgress, hasGameProgress } from '../utils/gameStorage';
+import { saveGameProgress, loadGameProgress, hasGameProgress, clearGameProgress } from '../utils/gameStorage';
 
 // 背景图片列表（01.avif 到 48.avif）
 const BG_IMAGES = Array.from({ length: 48 }, (_, i) => {
@@ -284,9 +284,11 @@ const isMobileDevice = (): boolean => {
 export default function Home() {
   const { actors, setActors, globalStory, setGlobalStory } = useMysteryContext(); 
   const [currActor, setCurrActor] = useState<number>(0);
-  const [introModalOpened, setIntroModalOpened] = useState(true);
+  // 如果有保存的进度，不显示介绍模态框
+  const [introModalOpened, setIntroModalOpened] = useState(() => !hasGameProgress());
   const [endModalOpened, setEndModalOpened] = useState(false);
   const [helpModalOpened, setHelpModalOpened] = useState(false);
+  const [restartConfirmOpened, setRestartConfirmOpened] = useState(false);
   const [actionCountdown, setActionCountdown] = useState<number>(658); 
   const [endGame, setEndGame] = useState(false);
   const [countdownEnded, setCountdownEnded] = useState(false); // 标记倒计时是否结束
@@ -444,9 +446,6 @@ export default function Home() {
         setCurrentMapIndex(savedState.currentMapIndex);
       }
       
-      // 如果有保存的进度，不显示介绍模态框
-      setIntroModalOpened(false);
-      
       hasRestoredRef.current = true;
     } else {
       hasRestoredRef.current = true;
@@ -478,7 +477,7 @@ export default function Home() {
     if (actionCountdown === 0 && !endGame && !countdownEnded) {
       setCountdownEnded(true);
       // 切换背景为12.png
-      setBgImage('bg/12.avif');
+      setBgImage('bg/10.avif');
       // 切换到希罗的角色（立绘会自动切换为hiro.png）
       const hiro = Object.values(actors).find(actor => actor.name === '二阶堂希罗');
       if (hiro) {
@@ -929,7 +928,7 @@ export default function Home() {
 
   const handleEndGame = () => {
     // 切换背景为12.png
-    setBgImage('bg/12.png');
+    setBgImage('bg/10.avif');
     // 切换到希罗的角色（立绘会自动切换为hiro.png）
     const hiro = Object.values(actors).find(actor => actor.name === '二阶堂希罗');
     if (hiro) {
@@ -1066,6 +1065,53 @@ export default function Home() {
     }
   };
 
+  // 检测历史对话中鼠标位置是否在可点击区域
+  const checkHistoryClickableArea = (event: React.MouseEvent<HTMLImageElement>): boolean => {
+    const img = event.currentTarget;
+    const rect = img.getBoundingClientRect();
+    const imgElement = img as HTMLImageElement;
+    
+    const naturalWidth = imgElement.naturalWidth;
+    const naturalHeight = imgElement.naturalHeight;
+    
+    if (naturalWidth === 0 || naturalHeight === 0) {
+      return false;
+    }
+    
+    const displayWidth = rect.width;
+    const displayHeight = rect.height;
+    const scaleX = naturalWidth / displayWidth;
+    const scaleY = naturalHeight / displayHeight;
+    const scale = Math.min(scaleX, scaleY);
+    const actualDisplayWidth = naturalWidth / scale;
+    const actualDisplayHeight = naturalHeight / scale;
+    const offsetX = (displayWidth - actualDisplayWidth) / 2;
+    const offsetY = (displayHeight - actualDisplayHeight) / 2;
+    const clickX = event.clientX - rect.left;
+    const clickY = event.clientY - rect.top;
+    
+    if (clickX < offsetX || clickX > offsetX + actualDisplayWidth ||
+        clickY < offsetY || clickY > offsetY + actualDisplayHeight) {
+      return false;
+    }
+    
+    const imageRelativeX = clickX - offsetX;
+    const imageRelativeY = clickY - offsetY;
+    const relativeX = imageRelativeX / actualDisplayWidth;
+    const relativeY = imageRelativeY / actualDisplayHeight;
+    
+    // 右上角关闭区域
+    return relativeX >= 0.90 && relativeX <= 1.0 && relativeY >= 0.0 && relativeY <= 0.10;
+  };
+
+  // 处理历史对话背景图片鼠标移动（动态改变光标）
+  const handleHistoryBgMouseMove = (event: React.MouseEvent<HTMLImageElement>) => {
+    const isClickable = checkHistoryClickableArea(event);
+    if (event.currentTarget) {
+      event.currentTarget.style.cursor = isClickable ? 'pointer' : 'default';
+    }
+  };
+
   // 处理历史对话背景图片点击（关闭历史对话）
   const handleHistoryBgClick = (event: React.MouseEvent<HTMLImageElement>) => {
     const img = event.currentTarget;
@@ -1112,13 +1158,65 @@ export default function Home() {
     const imageRelativeX = clickX - offsetX;
     const imageRelativeY = clickY - offsetY;
     
-    // 转换为图片原始坐标
+    // 使用相对位置（百分比）来检测关闭区域，确保在不同尺寸下都能正确识别
+    // 关闭区域在图片右上角，原始坐标：X1: 1752, Y1: 1, X2: 1917, Y2: 142
+    // 转换为相对位置：X从约91.25%到100%，Y从约0%到约9.5%
+    const relativeX = imageRelativeX / actualDisplayWidth;
+    const relativeY = imageRelativeY / actualDisplayHeight;
+    
+    // 检测是否在右上角关闭区域（使用更宽松的范围以确保在不同尺寸下都能点击）
+    // 右上角约10%的宽度和约10%的高度区域
+    if (relativeX >= 0.90 && relativeX <= 1.0 && relativeY >= 0.0 && relativeY <= 0.10) {
+      setShowHistory(false);
+    }
+  };
+
+  // 检测地图中鼠标位置是否在可点击区域
+  const checkMapClickableArea = (event: React.MouseEvent<HTMLImageElement>): boolean => {
+    const img = event.currentTarget;
+    const rect = img.getBoundingClientRect();
+    const imgElement = img as HTMLImageElement;
+    
+    const naturalWidth = imgElement.naturalWidth;
+    const naturalHeight = imgElement.naturalHeight;
+    
+    if (naturalWidth === 0 || naturalHeight === 0) {
+      return false;
+    }
+    
+    const displayWidth = rect.width;
+    const displayHeight = rect.height;
+    const scaleX = naturalWidth / displayWidth;
+    const scaleY = naturalHeight / displayHeight;
+    const scale = Math.min(scaleX, scaleY);
+    const actualDisplayWidth = naturalWidth / scale;
+    const actualDisplayHeight = naturalHeight / scale;
+    const offsetX = (displayWidth - actualDisplayWidth) / 2;
+    const offsetY = (displayHeight - actualDisplayHeight) / 2;
+    const clickX = event.clientX - rect.left;
+    const clickY = event.clientY - rect.top;
+    
+    if (clickX < offsetX || clickX > offsetX + actualDisplayWidth ||
+        clickY < offsetY || clickY > offsetY + actualDisplayHeight) {
+      return false;
+    }
+    
+    const imageRelativeX = clickX - offsetX;
+    const imageRelativeY = clickY - offsetY;
     const imageX = Math.round(imageRelativeX * scale);
     const imageY = Math.round(imageRelativeY * scale);
     
-    // 关闭区域：X1: 1752, Y1: 1, X2: 1917, Y2: 142
-    if (imageX >= 1752 && imageX <= 1917 && imageY >= 1 && imageY <= 142) {
-      setShowHistory(false);
+    const mapType = currentMapIndex === 0 ? '2' : currentMapIndex === 1 ? '1' : 'b1';
+    const region = findRegionByClick(mapType, imageX, imageY);
+    
+    return region !== null;
+  };
+
+  // 处理地图背景图片鼠标移动（动态改变光标）
+  const handleMapMouseMove = (event: React.MouseEvent<HTMLImageElement>) => {
+    const isClickable = checkMapClickableArea(event);
+    if (event.currentTarget) {
+      event.currentTarget.style.cursor = isClickable ? 'pointer' : 'default';
     }
   };
 
@@ -1364,11 +1462,12 @@ export default function Home() {
             src={getMapImageSrc(MAP_IMAGES[currentMapIndex])}
             alt={`Map ${currentMapIndex + 1}`}
             onClick={handleMapClick}
+            onMouseMove={handleMapMouseMove}
             style={{
               width: '100%',
               height: '100%',
               objectFit: 'contain',
-              cursor: 'pointer',
+              cursor: 'default', // 默认箭头光标，根据鼠标位置动态改变
             }}
           />
         </div>
@@ -1406,6 +1505,11 @@ export default function Home() {
               // 显示证言更新通知
               setShowContextUpdate(true);
               setTimeout(() => setShowContextUpdate(false), 3000);
+              // 触发立绘跳跃动画（两次跳跃）
+              setStandJump(prev => prev + 1);
+              setTimeout(() => {
+                setStandJump(prev => prev + 1);
+              }, 300);
             }}
             onEvidenceObtained={(evidenceId) => {
               // 找到新获得的证物
@@ -1847,6 +1951,19 @@ export default function Home() {
             >
               切换背景
             </Button>
+            <Button
+              onClick={() => setRestartConfirmOpened(true)}
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                color: 'white',
+                fontSize: `${14 * scale}px`,
+                padding: `${6 * scale}px ${12 * scale}px`,
+                height: 'auto',
+                minHeight: `${32 * scale}px`,
+              }}
+            >
+              重新开始
+            </Button>
             {!postGame && (
               <Button
                 onClick={handleEndGame}
@@ -1885,11 +2002,6 @@ export default function Home() {
                   effectiveHeight={effectiveHeight}
                   isGameContainerCentered={isGameContainerCentered}
                   onMessageSent={() => {
-                    // 触发立绘跳跃动画（两次跳跃）
-                    setStandJump(prev => prev + 1);
-                    setTimeout(() => {
-                      setStandJump(prev => prev + 1);
-                    }, 300);
                     // 减少倒计时（一次对话减少2次行动）
                     setActionCountdown(prev => Math.max(0, prev - 1));
                   }}
@@ -2055,12 +2167,35 @@ export default function Home() {
                 src={getHistoryBgSrc()}
                 alt="History Background"
                 onClick={handleHistoryBgClick}
+                onMouseMove={handleHistoryBgMouseMove}
                 onLoad={calculateHistoryBgImageLayout}
                 style={{
                   width: '100%',
                   height: '100%',
                   objectFit: 'contain', // 与地图和证物相同的缩放方式
-                  cursor: 'pointer', // 添加指针样式
+                  cursor: 'default', // 默认箭头光标，根据鼠标位置动态改变
+                }}
+              />
+            )}
+
+            {/* 关闭区域覆盖层 - 确保即使被内容覆盖也能响应点击 */}
+            {historyBgImageLayout && (
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowHistory(false);
+                }}
+                style={{
+                  position: 'fixed', // 使用 fixed 定位，因为 historyBgImageLayout 的位置是相对于 viewport 的
+                  // 右上角区域：宽度10%，高度10%
+                  top: `${historyBgImageLayout.top}px`,
+                  left: `${historyBgImageLayout.left + historyBgImageLayout.width * 0.90}px`,
+                  width: `${historyBgImageLayout.width * 0.10}px`,
+                  height: `${historyBgImageLayout.height * 0.10}px`,
+                  zIndex: 2001, // 确保在最上层，高于内容区域
+                  cursor: 'pointer',
+                  // 透明背景，不遮挡内容但可以接收点击
+                  backgroundColor: 'transparent',
                 }}
               />
             )}
@@ -2175,6 +2310,73 @@ export default function Home() {
         opened={endModalOpened}
         onClose={() => setEndModalOpened(false)}
       />
+
+      {/* 重新开始确认框 */}
+      <Modal
+        opened={restartConfirmOpened}
+        onClose={() => setRestartConfirmOpened(false)}
+        centered
+        title={
+          <Text style={{ 
+            color: 'rgba(220, 220, 220, 1)', 
+            fontSize: `${18 * scale}px`,
+            fontWeight: 600,
+          }}>
+            确认重新开始
+          </Text>
+        }
+        styles={{
+          content: {
+            backgroundColor: 'rgba(40, 40, 40, 1)',
+            borderRadius: `${12 * scale}px`,
+          },
+          header: {
+            backgroundColor: 'transparent',
+            borderBottom: `1px solid rgba(255, 255, 255, 0.1)`,
+          },
+          body: {
+            backgroundColor: 'transparent',
+            padding: `${20 * scale}px`,
+          },
+        }}
+      >
+        <Text style={{ 
+          color: 'rgba(220, 220, 220, 1)', 
+          lineHeight: '1.8',
+          fontSize: `${16 * scale}px`,
+          marginBottom: `${20 * scale}px`,
+        }}>
+          确定要重新开始游戏吗？这将清除所有游戏进度，包括历史对话、证物和笔记。
+        </Text>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: `${10 * scale}px` }}>
+          <Button
+            onClick={() => {
+              clearGameProgress();
+              // 刷新页面以重置所有状态
+              window.location.reload();
+            }}
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              color: 'rgba(220, 220, 220, 1)',
+              padding: `${6 * scale}px ${16 * scale}px`,
+              fontSize: `${13 * scale}px`,
+            }}
+          >
+            确认
+          </Button>
+          <Button
+            onClick={() => setRestartConfirmOpened(false)}
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              color: 'rgba(220, 220, 220, 1)',
+              padding: `${6 * scale}px ${16 * scale}px`,
+              fontSize: `${13 * scale}px`,
+            }}
+          >
+            取消
+          </Button>
+        </div>
+      </Modal>
 
 
     </AppShell>

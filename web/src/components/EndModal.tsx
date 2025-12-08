@@ -255,7 +255,7 @@ const EndModal: React.FC<EndModalProps> = ({ opened, onClose }) => {
           lineHeight: '1.8',
           fontSize: `${16 * scale}px`,
         }}>
-          最后，这其实只是人工智能课的一次大作业，没想到不知不觉就给做成了这个样子。不管是写剧本还是写这类系统，这都是我的第一次尝试。因此，再次衷心感谢您，体验了这个尚显简易的小游戏。
+          这个系统是人工智能课的一次大作业，不知不觉就做成了现在这个样子。不管是写剧本还是建网站，这都是我的第一次尝试。因此，再次衷心感谢您，体验了这个尚显简易的小游戏。谢谢！
         </Text>
         <br></br>
         <div style={{ display: 'flex', justifyContent: 'center', gap: `${10 * scale}px`, marginTop: `${5 * scale}px` }}>

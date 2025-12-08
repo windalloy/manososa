@@ -39,6 +39,57 @@ const getEvidenceItemImageSrc = (imageFileName: string): string | null => {
   }
 };
 
+// 检测证物中鼠标位置是否在可点击区域
+export const checkEvidenceClickableArea = (
+  event: React.MouseEvent<HTMLImageElement>
+): boolean => {
+  const img = event.currentTarget;
+  const rect = img.getBoundingClientRect();
+  const imgElement = img as HTMLImageElement;
+  
+  const naturalWidth = imgElement.naturalWidth;
+  const naturalHeight = imgElement.naturalHeight;
+  
+  if (naturalWidth === 0 || naturalHeight === 0) {
+    return false;
+  }
+  
+  const displayWidth = rect.width;
+  const displayHeight = rect.height;
+  const scaleX = naturalWidth / displayWidth;
+  const scaleY = naturalHeight / displayHeight;
+  const scale = Math.min(scaleX, scaleY);
+  const actualDisplayWidth = naturalWidth / scale;
+  const actualDisplayHeight = naturalHeight / scale;
+  const offsetX = (displayWidth - actualDisplayWidth) / 2;
+  const offsetY = (displayHeight - actualDisplayHeight) / 2;
+  const clickX = event.clientX - rect.left;
+  const clickY = event.clientY - rect.top;
+  
+  if (clickX < offsetX || clickX > offsetX + actualDisplayWidth ||
+      clickY < offsetY || clickY > offsetY + actualDisplayHeight) {
+    return false;
+  }
+  
+  const imageRelativeX = clickX - offsetX;
+  const imageRelativeY = clickY - offsetY;
+  const imageX = Math.round(imageRelativeX * scale);
+  const imageY = Math.round(imageRelativeY * scale);
+  
+  const region = findEvidenceRegionByClick(imageX, imageY);
+  return region !== null;
+};
+
+// 处理证物背景图片鼠标移动（动态改变光标）
+export const handleEvidenceBackgroundMouseMove = (
+  event: React.MouseEvent<HTMLImageElement>
+) => {
+  const isClickable = checkEvidenceClickableArea(event);
+  if (event.currentTarget) {
+    event.currentTarget.style.cursor = isClickable ? 'pointer' : 'default';
+  }
+};
+
 // 处理证物背景图片点击
 export const handleEvidenceBackgroundClick = (
   event: React.MouseEvent<HTMLImageElement>,
@@ -461,11 +512,12 @@ export const EvidenceDisplay: React.FC<EvidenceDisplayProps> = ({
           src={backgroundImageSrc}
           alt="Evidence Background"
           onClick={(e) => handleEvidenceBackgroundClick(e, evidenceList, onSelectEvidence, onClose, selectedEvidence, currentActorId, actors, setActors, setEvidenceList, pageOffset, onAction, onContextAdded, onEvidenceObtained, onStandVariantChange)}
+          onMouseMove={handleEvidenceBackgroundMouseMove}
           style={{
             width: '100%',
             height: '100%',
             objectFit: 'contain',
-            cursor: 'pointer',
+            cursor: 'default', // 默认箭头光标，根据鼠标位置动态改变
           }}
         />
       )}
@@ -608,29 +660,51 @@ export const EvidenceDisplay: React.FC<EvidenceDisplayProps> = ({
             const relativeTop = position.top - bgImageLayout.top;
             
             return (
-              <div
-                style={{
-                  position: 'absolute',
-                  left: `${relativeLeft}px`,
-                  top: `${relativeTop}px`,
-                  transform: 'translate(-50%, -50%)',
-                  width: `${position.width}px`,
-                  height: `${position.height}px`,
-                  pointerEvents: 'none',
-                }}
-              >
-                {bigImageSrc && (
-                  <img
-                    src={bigImageSrc}
-                    alt={selectedEvidence.name}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'contain',
-                    }}
-                  />
-                )}
-              </div>
+              <>
+                {/* 大图光标覆盖层 - 确保大图区域显示箭头光标 */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: `${relativeLeft}px`,
+                    top: `${relativeTop}px`,
+                    transform: 'translate(-50%, -50%)',
+                    width: `${position.width}px`,
+                    height: `${position.height}px`,
+                    pointerEvents: 'auto', // 允许接收鼠标事件以改变光标
+                    cursor: 'default', // 箭头光标
+                    backgroundColor: 'transparent', // 透明，不遮挡内容
+                    zIndex: 10, // 确保在大图之上
+                  }}
+                  onMouseMove={(e) => {
+                    e.stopPropagation(); // 阻止事件冒泡到背景图片
+                  }}
+                />
+                {/* 大图图片 */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: `${relativeLeft}px`,
+                    top: `${relativeTop}px`,
+                    transform: 'translate(-50%, -50%)',
+                    width: `${position.width}px`,
+                    height: `${position.height}px`,
+                    pointerEvents: 'none',
+                    zIndex: 9, // 在覆盖层之下
+                  }}
+                >
+                  {bigImageSrc && (
+                    <img
+                      src={bigImageSrc}
+                      alt={selectedEvidence.name}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain',
+                      }}
+                    />
+                  )}
+                </div>
+              </>
             );
           })()}
           
