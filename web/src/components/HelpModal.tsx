@@ -215,8 +215,8 @@ const HelpModal: React.FC<HelpModalProps> = ({ opened, onClose }) => {
             </Text>
           )}
 
-          {/* 第二页和第三页：游戏操作说明 */}
-          {(currentPage === 2 || currentPage === 3) && (
+          {/* 第二页：游戏操作说明 */}
+          {currentPage === 2 && (
             <>
               <Text style={{ 
                 color: 'rgba(220, 220, 220, 1)', 
@@ -265,15 +265,18 @@ const HelpModal: React.FC<HelpModalProps> = ({ opened, onClose }) => {
               }}>
                 切换背景：如果当前背景不合心意，可使用此功能直接切换背景。
               </Text>
-              <br></br>
-              <Text style={{ 
-                color: 'rgba(220, 220, 220, 1)', 
-                lineHeight: '1.8',
-                fontSize: `${16 * scale}px`,
-              }}>
-                游戏过程中请不要刷新页面！因为网站不会保存游戏进度，刷新页面将会使游戏进度清零！
-              </Text>
             </>
+          )}
+
+          {/* 第三页：建议 */}
+          {currentPage === 3 && (
+            <Text style={{ 
+              color: 'rgba(220, 220, 220, 1)', 
+              lineHeight: '1.8',
+              fontSize: `${16 * scale}px`,
+            }}>
+              非常建议先对所有区域进行调查，
+            </Text>
           )}
         </ScrollArea>
         
