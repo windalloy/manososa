@@ -349,6 +349,69 @@ export default function Home() {
   const [scale, setScale] = useState<number>(initialScale); // 缩放比例
   // 立绘专用缩放比例：基于16:9区域的有效高度计算，之后固定不变
   const [standScale] = useState<number>(initialEffectiveHeight / BASE_HEIGHT);
+  
+  // 计算侧边栏最小宽度，确保头像和名称能显示在同一行
+  const minSidebarWidth = useMemo(() => {
+    if (filteredActors.length === 0) {
+      return 200 * scale; // 默认最小宽度
+    }
+    
+    // 计算文本宽度的辅助函数（使用canvas测量，更准确）
+    const measureTextWidth = (text: string, fontSize: number): number => {
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      if (!context) {
+        // 降级方案：保守估算（中文字符约等于字体大小，英文字符约0.6倍）
+        let width = 0;
+        for (const char of text) {
+          if (char >= '\u4e00' && char <= '\u9fff') {
+            width += fontSize; // 中文字符
+          } else {
+            width += fontSize * 0.6; // 英文字符
+          }
+        }
+        return width;
+      }
+      
+      // 使用系统默认字体，更接近实际渲染
+      context.font = `${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`;
+      const metrics = context.measureText(text);
+      return metrics.width;
+    };
+    
+    // 找出最长的角色名称
+    const longestName = filteredActors.reduce((longest, actor) => 
+      actor.name.length > longest.length ? actor.name : longest, 
+      filteredActors[0].name
+    );
+    
+    // 计算各部分宽度（使用更保守的估算）
+    const avatarWidth = 50 * scale; // 头像宽度
+    const groupPadding = 8 * scale * 2; // Group的左右padding: 4*scale上下 + 8*scale左右
+    const groupGap = 12 * scale; // Group的gap（Mantine默认md约为10px，但实际可能更大，使用12px更安全）
+    const nameFontSize = 15 * scale; // 名称字体大小
+    const nameWidth = measureTextWidth(longestName, nameFontSize); // 名称文字宽度
+    const sidebarPadding = 10 * scale * 2; // 侧边栏容器的左右padding
+    
+    // 总宽度 = 侧边栏padding + Group padding + 头像 + gap + 名称 + 更大的安全余量
+    // 根据scale动态调整安全余量：scale越小，需要的余量越大
+    let safetyMargin = 20 * scale;
+    if (scale < 0.3) {
+      safetyMargin = 30 * scale; // 极小屏幕下使用更大的安全余量
+    } else if (scale < 0.5) {
+      safetyMargin = 25 * scale; // 小屏幕下使用中等安全余量
+    }
+    
+    const totalWidth = sidebarPadding + groupPadding + avatarWidth + groupGap + nameWidth + safetyMargin;
+    
+    // 确保最小宽度不小于200*scale，并向上取整
+    // 在极小屏幕下，进一步增加最小宽度保证
+    const baseMinWidth = scale < 0.3 ? 220 * scale : 200 * scale;
+    const minWidth = Math.max(baseMinWidth, Math.ceil(totalWidth));
+    
+    // 最后再增加一个固定的最小安全边距（至少5px），防止在极端情况下出现问题
+    return minWidth + Math.max(5, 5 * scale);
+  }, [filteredActors, scale]);
   // 16:9游戏区域的有效高度（用于名称图片定位，不包含黑边）
   const [effectiveHeight, setEffectiveHeight] = useState<number>(initialEffectiveHeight);
   // 游戏容器是否居中显示（宽高比小于16:9时居中）
@@ -729,7 +792,7 @@ export default function Home() {
       const screenWidth = window.innerWidth;
       const screenHeight = window.innerHeight;
       const aspectRatio = screenWidth / screenHeight;
-      const sidebarWidth = 200 * scale;
+      const sidebarWidth = minSidebarWidth;
       
       // 输入框宽度：基于基准宽度的vw或固定px（取较小值）
       const inputBoxWidthVw = (800 / BASE_WIDTH) * 100; // 约70.42vw
@@ -766,7 +829,7 @@ export default function Home() {
     calculateNotesWidth();
     window.addEventListener('resize', calculateNotesWidth);
     return () => window.removeEventListener('resize', calculateNotesWidth);
-  }, [scale]);
+  }, [scale, minSidebarWidth]);
 
   // 计算缩放比例和16:9容器样式
   useEffect(() => {
@@ -1535,7 +1598,7 @@ export default function Home() {
 
       <AppShell
         navbar={{
-          width: 200 * scale, // 根据缩放比例调整侧边栏宽度
+          width: minSidebarWidth, // 根据计算的最小宽度调整侧边栏宽度
           breakpoint: 0, // 禁用响应式行为，始终保持侧边栏固定宽度
         }}
         padding={0}
@@ -1543,9 +1606,9 @@ export default function Home() {
           navbar: {
             backgroundColor: 'transparent',
             border: 'none',
-            width: `${200 * scale}px !important`, // 强制固定宽度
-            minWidth: `${200 * scale}px !important`, // 确保最小宽度
-            maxWidth: `${200 * scale}px !important`, // 确保最大宽度
+            width: `${minSidebarWidth}px !important`, // 强制固定宽度
+            minWidth: `${minSidebarWidth}px !important`, // 确保最小宽度
+            maxWidth: `${minSidebarWidth}px !important`, // 确保最大宽度
           },
           main: {
             backgroundColor: 'transparent',
@@ -1672,7 +1735,7 @@ export default function Home() {
             style={{
               position: 'fixed',
               top: `${10 * scale}px`,
-              left: `${200 * scale}px`, // 左侧边栏宽度 + 间距
+              left: `${minSidebarWidth}px`, // 左侧边栏宽度 + 间距
               zIndex: 1000,
               backgroundColor: 'rgba(0, 0, 0, 0.7)',
               padding: `${8 * scale}px ${12 * scale}px`,
@@ -1738,7 +1801,7 @@ export default function Home() {
                 position: 'fixed',
                 // 倒计时：top=10*scale, 高度≈32*scale, 间距10*scale
                 top: `${110 * scale}px`,
-                left: `${200 * scale}px`, // 左侧边栏宽度 + 间距
+                left: `${minSidebarWidth}px`, // 左侧边栏宽度 + 间距
                 zIndex: 9998, // 设置为最高层级（仅次于模态框），确保在最上层
                 display: 'flex',
                 flexDirection: 'column',

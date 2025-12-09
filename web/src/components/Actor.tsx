@@ -203,10 +203,20 @@ const getThinkingText = (actorName: string): string => {
   return thinkingTexts[actorName] || '少女思考中';
 };
 
+// 计算文本的等效字数
+// 规则：中文字符每个算1字，英文字符（包括字母、数字、标点等）每2个算1字
+const calculateEquivalentLength = (text: string): number => {
+  const chineseChars = Array.from(text).filter(c => '\u4e00' <= c && c <= '\u9fff').length;
+  const nonChineseChars = Array.from(text).filter(c => !('\u4e00' <= c && c <= '\u9fff')).length;
+  // 英文字符每2个算1字，向上取整
+  return chineseChars + Math.ceil(nonChineseChars / 2);
+};
+
 const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standScale = 1, effectiveHeight, isGameContainerCentered = false }: Props) => {
   const [currMessage, setCurrMessage] = useState("");
   const { setActors, globalStory } = useMysteryContext();
   const [loading, setLoading] = useState(false);
+  const MAX_INPUT_LENGTH = 200; // 输入框最大字数限制
   // 每个角色的输入模式状态单独管理（基于是否有回复来判断）
   // 如果角色有回复，则显示回复框；否则显示输入框
   const hasResponse = actor.messages.some(m => m.role === 'assistant');
@@ -685,7 +695,13 @@ const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standS
                 ref={textareaRef}
                 placeholder={`与${actor.name}对话...`}
                 onChange={(event) => {
-                  setCurrMessage(event.currentTarget.value);
+                  const newValue = event.currentTarget.value;
+                  // 检查等效字数是否超过限制
+                  const equivalentLength = calculateEquivalentLength(newValue);
+                  if (equivalentLength <= MAX_INPUT_LENGTH) {
+                    setCurrMessage(newValue);
+                  }
+                  // 如果超过限制，不更新状态，保持原值
                 }}
                 value={currMessage}
                 onKeyPress={handleKeyPress}

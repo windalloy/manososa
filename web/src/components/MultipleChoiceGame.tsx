@@ -306,14 +306,18 @@ const MultipleChoiceGame: React.FC<MultipleChoiceGameProps> = ({ onBackToGame, o
           <div
             style={{
               backgroundColor: 'rgba(0, 0, 0, 0.7)',
-              padding: `${10 * scale}px ${15 * scale}px ${5 * scale}px ${20 * scale}px`,
+              padding: `${10 * scale}px ${15 * scale}px ${20 * scale}px ${20 * scale}px`,
               minHeight: `${180 * scale}px`,
+              // 限制最大高度：确保在超宽屏幕上按钮不会被裁剪
+              maxHeight: `calc(100vh - ${120 * scale}px)`, // 留出足够的上下边距，确保按钮始终可见
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'flex-start',
               borderRadius: `${8 * scale}px`,
+              overflow: 'hidden', // 外层容器不滚动，只让文本区域滚动
             }}
           >
+            {/* 文本内容区域 - 限制高度，超出时显示滚动条 */}
             <div
               style={{
                 fontSize: `${18 * scale}px`,
@@ -321,20 +325,27 @@ const MultipleChoiceGame: React.FC<MultipleChoiceGameProps> = ({ onBackToGame, o
                 color: 'white',
                 whiteSpace: 'pre-wrap',
                 wordBreak: 'break-word',
-                marginBottom: `${10 * scale}px`,
                 marginTop: `${5 * scale}px`,
+                marginBottom: `${10 * scale}px`,
+                // 限制文本内容的最大高度，确保不会超出背景范围
+                // 使用 flex 布局，让文本区域占据剩余空间，但不超过合理上限
+                maxHeight: `calc(100vh - ${200 * scale}px)`, // 根据视口高度动态计算，留出按钮和padding的空间
+                overflowY: 'auto', // 文本内容超出时显示滚动条
+                overflowX: 'hidden',
+                flex: '1 1 auto', // 允许文本区域占据可用空间
+                minHeight: 0, // 允许 flex 子元素缩小
               }}
             >
               {isTyping ? displayedText : responseContent}
             </div>
-            {/* 进入审判庭按钮 - 只有在逐字播放完成后才显示 */}
+            {/* 进入审判庭按钮 - 固定在底部，不参与滚动 */}
             {!isTyping && (
               <div
                 style={{
                   display: 'flex',
                   justifyContent: 'flex-end',
-                  marginTop: 'auto',
-                  transform: `translateY(-${10 * scale}px)`,
+                  paddingTop: `${10 * scale}px`,
+                  flexShrink: 0, // 按钮区域不缩小
                 }}
               >
                 <Button

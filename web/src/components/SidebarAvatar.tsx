@@ -42,10 +42,23 @@ export default function SidebarAvatar({
         padding: `${4 * scale}px ${8 * scale}px`,
         borderRadius: `${8 * scale}px`,
         marginBottom: `${3 * scale}px`,
+        flexWrap: 'nowrap', // 强制不换行
+        whiteSpace: 'nowrap', // 防止文本换行
+        overflow: 'hidden', // 如果内容过长，隐藏而不是换行
       }}
     >
       <ActorImage actor={actor} scale={scale} />
-      <Text style={{ color: 'white', fontSize: `${15 * scale}px` }}>{actor.name}</Text>
+      <Text 
+        style={{ 
+          color: 'white', 
+          fontSize: `${15 * scale}px`,
+          whiteSpace: 'nowrap', // 防止文本换行
+          flexShrink: 0, // 防止文本被压缩
+          minWidth: 0, // 允许flex布局正常工作
+        }}
+      >
+        {actor.name}
+      </Text>
     </Group>
   );
 }
