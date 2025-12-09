@@ -1505,11 +1505,6 @@ export default function Home() {
               // 显示证言更新通知
               setShowContextUpdate(true);
               setTimeout(() => setShowContextUpdate(false), 3000);
-              // 触发立绘跳跃动画（两次跳跃）
-              setStandJump(prev => prev + 1);
-              setTimeout(() => {
-                setStandJump(prev => prev + 1);
-              }, 300);
             }}
             onEvidenceObtained={(evidenceId) => {
               // 找到新获得的证物
@@ -2002,6 +1997,8 @@ export default function Home() {
                   effectiveHeight={effectiveHeight}
                   isGameContainerCentered={isGameContainerCentered}
                   onMessageSent={() => {
+                    // 触发立绘跳跃动画（一次跳跃）
+                    setStandJump(prev => prev + 1);
                     // 减少倒计时（一次对话减少2次行动）
                     setActionCountdown(prev => Math.max(0, prev - 1));
                   }}

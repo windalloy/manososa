@@ -4,16 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="193e97bf-4125-4b01-be92-80643b491152" name="Changes" comment="12.7">
+    <list default="true" id="193e97bf-4125-4b01-be92-80643b491152" name="Changes" comment="12.8">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/ai.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/ai.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/characters.json" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/characters.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/components/EndModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/components/EndModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/components/EvidenceDisplay.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/components/EvidenceDisplay.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/components/MultipleChoiceGame.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/components/MultipleChoiceGame.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/pages/Home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/pages/Home.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/responseKeywordMapping.json" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/responseKeywordMapping.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/components/HelpModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/components/HelpModal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/config/mapRegions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/config/mapRegions.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -134,7 +128,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765125391430</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="12.8">
+      <option name="closed" value="true" />
+      <created>1765210910488</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1765210910488</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -145,6 +147,7 @@
     <MESSAGE value="12.5" />
     <MESSAGE value="12.6" />
     <MESSAGE value="12.7" />
-    <option name="LAST_COMMIT_MESSAGE" value="12.7" />
+    <MESSAGE value="12.8" />
+    <option name="LAST_COMMIT_MESSAGE" value="12.8" />
   </component>
 </project>
