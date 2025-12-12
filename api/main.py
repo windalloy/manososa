@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from invoke_types import InvocationRequest, InvocationResponse
 from db import pool
 import json
+import random
 from settings import MODEL, MODEL_KEY
 from ai import respond_initial, critique, refine, check_whether_to_refine
 from datetime import datetime, timezone
@@ -73,19 +74,56 @@ def prompt_ai(conn, request: InvocationRequest) -> InvocationResponse:
 
     problems_found = check_whether_to_refine(critique_response)
 
-    if problems_found:
-        refined_response = refine(conn, turn_id, request, critique_response, unrefined_response)
-        print(f"\nrefined_response: {refined_response}\n")
+    # 循环审查和修改机制：最多尝试2次
+    MAX_REFINE_ATTEMPTS = 2
+    refine_attempts = 0
+    current_response = unrefined_response
+    all_critique_responses = [critique_response]  # 记录所有审查结果
+    previous_refine_attempts = []  # 记录之前失败的修改尝试
+    refined_response = None
+    
+    while problems_found and refine_attempts < MAX_REFINE_ATTEMPTS:
+        refine_attempts += 1
+        print(f"\n=== 第 {refine_attempts} 次修改 ===\n")
         
-        final_response = refined_response
+        # 进行修改，传递之前失败的尝试历史和当前尝试次数
+        refined_response = refine(conn, turn_id, request, critique_response, current_response, previous_refine_attempts, refine_attempts)
+        print(f"\nrefined_response (attempt {refine_attempts}): {refined_response}\n")
+        
+        # 对修改后的内容进行审查
+        critique_response = critique(conn, turn_id, request, refined_response)
+        print(f"\ncritique_response (attempt {refine_attempts}): {critique_response}\n")
+        
+        all_critique_responses.append(critique_response)
+        
+        # 检查是否通过审查
+        problems_found = check_whether_to_refine(critique_response)
+        
+        if not problems_found:
+            # 审查通过，使用修改后的回复
+            current_response = refined_response
+            print(f"\n审查通过，使用第 {refine_attempts} 次修改后的回复\n")
+            break
+        else:
+            # 审查未通过，记录这次失败的尝试，继续使用修改后的回复作为下一次修改的基础
+            previous_refine_attempts.append(refined_response)
+            current_response = refined_response
+    
+    # 如果超过最大尝试次数仍然不通过，直接使用最后一次修改后的内容
+    if problems_found and refine_attempts >= MAX_REFINE_ATTEMPTS:
+        print(f"\n超过 {MAX_REFINE_ATTEMPTS} 次修改仍不通过，直接使用最后一次修改后的内容\n")
+        final_response = current_response
+        refined_response = current_response
     else:
-        final_response = unrefined_response
-        refined_response = None
+        final_response = current_response
+
+    # 合并所有审查结果（用于记录）
+    combined_critique = "\n---\n".join(all_critique_responses)
 
     response = InvocationResponse(
         original_response=unrefined_response,
-        critique_response=critique_response,
-        problems_detected=problems_found,
+        critique_response=combined_critique,
+        problems_detected=problems_found and refine_attempts >= MAX_REFINE_ATTEMPTS,  # 只有最终失败才标记为有问题
         final_response=final_response,
         refined_response=refined_response,
     )

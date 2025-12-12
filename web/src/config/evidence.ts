@@ -93,7 +93,7 @@ export const initialEvidence: Evidence[] = [
   {
     id: '12',
     name: '艾玛的证言2',
-    description: '根据艾玛的回忆，中午12:00时，除了梅露露和奈叶香以外的所有人都在食堂用餐。用餐期间，蕾雅曾邀请艾玛表演舞台剧，被艾玛婉拒了。',
+    description: '根据艾玛的回忆，中午12:00时，除了雪莉、梅露露和奈叶香以外的所有人都在食堂用餐。用餐期间，蕾雅曾邀请艾玛表演舞台剧，被艾玛婉拒了。',
     image: '12.webp',
     obtained: false,
   },

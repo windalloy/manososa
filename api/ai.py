@@ -161,7 +161,8 @@ def get_critique_prompt(
         last_utterance: str
 ):
     # 原则A：作用于全体角色的通用原则
-    principle_a = "原则A：发言与自身掌握的事实相矛盾"
+    # 原则A只检查"矛盾"（contradiction），不检查"遗漏"（omission）
+    principle_a = "原则A：发言与自身掌握的事实相矛盾（注意：只检查明确矛盾，不检查遗漏细节）"
     # 注意：原则B（字数超过88字）已在代码层面检查，这里只需要检查原则A和其他原则
     
     # 组合所有原则（不包括原则B，因为已在代码层面检查）
@@ -171,18 +172,80 @@ def get_critique_prompt(
     # 获取角色文本（context1），这是角色掌握的事实
     character_text = request.actor.context1 if request.actor.context1 else ""
     
+    # 获取完整的对话历史（最近5轮对话，用于理解上下文）
+    conversation_context = ""
+    if request.actor.messages and len(request.actor.messages) > 0:
+        # 获取最近5轮对话（10条消息，user和assistant交替）
+        recent_messages = request.actor.messages[-10:] if len(request.actor.messages) > 10 else request.actor.messages
+        conversation_parts = []
+        for msg in recent_messages:
+            role_name = "用户" if msg.role == "user" else f"{request.actor.name}"
+            conversation_parts.append(f"{role_name}：{msg.content}")
+        conversation_context = "\n".join(conversation_parts)
+    
+    # 明确列出所有需要检查的原则
+    principles_list = "原则A：发言与自身掌握的事实相矛盾"
+    if request.actor.violation and request.actor.violation.strip():
+        # 解析violation，提取各个原则
+        violation_lines = [line.strip() for line in request.actor.violation.split('\n') if line.strip()]
+        for line in violation_lines:
+            if line.startswith("原则"):
+                principles_list += f"\n{line}"
+    
     return f"""
-        检查{request.actor.name}的最后一次发言："{last_utterance}"是否严重违反了以下原则：{all_principles} 原则结束。
+        检查{request.actor.name}的最后一次发言："{last_utterance}"是否严重违反了以下原则：
+        
+        {principles_list}
+        
+        原则结束。
+        
         角色文本（{request.actor.name}掌握的事实）：{character_text}
         
+        【重要：完整对话上下文】
+        以下是最近的对话历史（用于理解上下文）：
+        {conversation_context if conversation_context else "无对话历史"}
+        
+        【原则A的判定标准 - 必须严格遵守】
+        原则A只检查"矛盾"（contradiction），不检查"遗漏"（omission）：
+        
+        以下情况不算违反原则A（允许的）：
+        1. 遗漏细节：发言没有提到角色文本中的某些细节（如时间点、地点细节），只要没有说错就不算违反
+        2. 顺序不完全一致：发言的事件顺序与角色文本不完全一致，但只要没有明确的时间线冲突就不算违反
+        3. 省略表述：发言省略了部分信息，只要省略的内容不导致误解就不算违反
+        
+        【审查步骤】
+        第一步：仔细阅读角色文本，理解其中明确提到的事实
+        第二步：检查发言是否明确否定了角色文本中的事实，或说出了明确冲突的内容
+        第三步：检查发言是否违反了角色特定的原则
+        
+        在审查时，你必须：
+        1. 考虑完整的对话上下文，理解用户的问题和角色的回复在对话中的含义
+        2. 如果用户问的是"和X接触的经历"，那么回复中的"之后便没再接触过"应该理解为"之后便没再和X接触过"，而不是"之后没再接触过任何人"。
+        3. 如果用户问的是特定人物、地点或事件，回复中的省略表述应该在该上下文中理解。
+        4. 只有明确矛盾才算违反原则A，遗漏细节不算违反。
+        5. 不要因为省略表述、顺序不完全一致或遗漏细节而误判为矛盾。
+        
+        【重要：必须检查所有原则】
+        你必须检查发言是否违反了上述所有原则，包括：
+        - 原则A：发言与自身掌握的事实相矛盾
+        - 所有角色特定的原则（如果有）
+        
         重要：你的回复必须严格控制在88字以内，并且必须在一行内完成，严禁使用换行符或分段。
-        只关注最后一次发言，不要考虑对话的前面部分。 
         识别明显违反上述原则的情况。允许偏离主题的对话。
         你只能参考上述原则和角色文本。不要关注其他内容。
         
-        如果没有违反任何原则，请直接返回"NONE!"，不要返回其他任何内容，不要逐步思考，不要解释。
-        如果有违反原则，请按照以下格式列出：引用：... 批评：... 违反的原则：...
-        此格式的示例：引用："{request.actor.name}在说好话。" 批评：发言是第三人称视角。违反的原则：原则2：对话不是{request.actor.name}的视角。
+        【输出格式要求 - 必须严格遵守】
+        如果没有违反任何原则：
+        - 你的回复必须且只能是："NONE!"
+        - 不能有任何其他文字、解释、思考过程或格式化的内容
+        - 不能输出"违反的原则：无"、"未发现违规"等任何其他格式
+        - 只能输出：NONE!
+        
+        如果有违反原则：
+        - 请按照以下格式列出：引用：... 批评：... 违反的原则：...
+        - 此格式的示例：引用："{request.actor.name}在说好话。" 批评：发言是第三人称视角。违反的原则：原则2：对话不是{request.actor.name}的视角。
+        
+        再次强调：如果没有违反任何原则，你的回复必须且只能是"NONE!"，不能有任何其他内容。
     """
 
 def critique(conn, turn_id: int, request: InvocationRequest, unrefined: str) -> str:
@@ -196,14 +259,40 @@ def critique(conn, turn_id: int, request: InvocationRequest, unrefined: str) -> 
         quote_text = unrefined[:50] + "..." if len(unrefined) > 50 else unrefined
         principle_b_violation = f'引用："{quote_text}" 批评：当前回复字数过多（等效{utterance_length}字），超过了88字的限制。违反的原则：原则B：字数超过88字。需要重新生成一个字数不多于88字的回复。'
     
+    # 构建完整的对话历史消息，用于审查AI理解上下文
+    critique_messages = []
+    if request.actor.messages and len(request.actor.messages) > 0:
+        # 获取最近5轮对话（10条消息）
+        recent_messages = request.actor.messages[-10:] if len(request.actor.messages) > 10 else request.actor.messages
+        # 添加对话历史（除了最后一条assistant消息，因为那是我们要审查的）
+        for msg in recent_messages[:-1] if len(recent_messages) > 0 and recent_messages[-1].role == "assistant" else recent_messages:
+            critique_messages.append(msg)
+    # 最后添加要审查的发言
+    critique_messages.append(LLMMessage(role="user", content=f"请审查以下发言是否违反原则：{unrefined}"))
+    
     # 调用 AI 检查原则A等其他原则
     ai_critique = invoke_ai(
         conn,
         turn_id,
         "critique",
         system_prompt=get_critique_prompt(request, unrefined),
-        messages=[LLMMessage(role="user", content=unrefined)]
+        messages=critique_messages
     )
+    
+    # 后处理：如果AI输出了"违反的原则：无"等格式，转换为"NONE!"
+    ai_critique_cleaned = ai_critique.strip()
+    # 检查是否包含"违反的原则：无"或类似模式
+    if re.search(r'违反的原则[：:]\s*无', ai_critique_cleaned):
+        # 如果明确说"违反的原则：无"，说明没有违反原则，转换为"NONE!"
+        ai_critique = "NONE!"
+    # 检查是否明确说"未发现矛盾"、"未发现违规"等
+    elif re.search(r'(未发现|没有|不存在).*(矛盾|违规|违反)', ai_critique_cleaned):
+        # 如果明确说未发现违规，转换为"NONE!"
+        ai_critique = "NONE!"
+    # 检查是否说"事实一致"且没有提到违反原则
+    elif "事实一致" in ai_critique_cleaned and "违反" not in ai_critique_cleaned:
+        # 如果只说事实一致且没有提到违反，转换为"NONE!"
+        ai_critique = "NONE!"
     
     # 合并结果
     if principle_b_violation:
@@ -221,6 +310,7 @@ def check_whether_to_refine(critique_chat_response: str) -> bool:
     """
     Returns a boolean indicating whether the chat response should be refined.
     Checks if the response contains "NONE!" (case-insensitive), even if there's other text before it.
+    Also checks for patterns like "违反的原则：无" or "违反的原则：无。"
     """
     if not critique_chat_response:
         return False  # 空响应不需要 refine
@@ -237,6 +327,15 @@ def check_whether_to_refine(critique_chat_response: str) -> bool:
     if re.search(r'\bnone!\b', critique_lower):
         return False
     
+    # 检查是否包含"违反的原则：无"或类似模式（表示没有违反原则）
+    # 匹配模式：违反的原则：无、违反的原则：无。、违反的原则:无 等
+    if re.search(r'违反的原则[：:]\s*无', critique_chat_response):
+        return False
+    
+    # 检查是否明确说"未发现矛盾"、"未发现违规"等
+    if re.search(r'(未发现|没有|不存在).*(矛盾|违规|违反)', critique_chat_response):
+        return False
+    
     # 如果响应很短（可能被截断），且没有明显的违规描述，也认为不需要 refine
     if len(critique_chat_response.strip()) < 20 and "违反" not in critique_chat_response and "批评" not in critique_chat_response:
         return False
@@ -244,15 +343,100 @@ def check_whether_to_refine(critique_chat_response: str) -> bool:
     return True
 
 def get_refiner_prompt(request: InvocationRequest,
-                       critique_response: str):
+                       critique_response: str,
+                       previous_attempts: list = None,
+                       attempt_number: int = 1):
     original_message = request.actor.messages[-1].content
+    
+    # 构建之前尝试的历史信息
+    previous_attempts_text = ""
+    if previous_attempts and len(previous_attempts) > 0:
+        previous_attempts_text = "\n\n重要：以下是之前失败的修改尝试（请避免重复这些错误）：\n"
+        for i, attempt in enumerate(previous_attempts, 1):
+            previous_attempts_text += f"第{i}次尝试：{attempt}\n"
+    
+    # 如果已经失败多次，采用更激进的策略
+    aggressive_strategy = ""
+    if attempt_number >= 3:
+        aggressive_strategy = """
+        
+        【重要：由于之前多次修改失败，现在采用更激进的策略】
+        1. 不要基于原回复进行修改，而是完全基于角色文本重新生成回复
+        2. 仔细阅读角色文本，只提取明确提到的事实（时间、地点、人物、事件）
+        3. 如果角色文本中没有相关信息，直接说"我不记得"、"我不清楚"或"我没有相关记忆"
+        4. 不要添加任何角色文本中没有的内容，即使这会让回复变短
+        5. 如果用户问的是角色文本中没有的信息，诚实回答不知道，不要编造
+        """
+
+    # 解析审查反馈，提取关键信息
+    violation_keywords = []
+    if "提及" in critique_response:
+        # 提取被提及的人物或内容
+        mention_matches = re.findall(r'提及(?:了|与)([^，。：\s]+)', critique_response)
+        violation_keywords.extend(mention_matches)
+    if "违反的原则" in critique_response:
+        # 提取违反的具体原则
+        principle_matches = re.findall(r'违反的原则[：:]([^。\n]+)', critique_response)
+        violation_keywords.extend(principle_matches)
+    
+    violation_instructions = ""
+    if violation_keywords:
+        violation_instructions = f"""
+        
+        【关键违规内容识别】
+        审查反馈明确指出以下违规内容：{', '.join(set(violation_keywords))}
+        
+        你必须：
+        1. 如果审查反馈说"提及了X"或"主动提及X"，你必须从回复中完全移除所有对X的提及，不能有任何残留。
+        2. 如果审查反馈说违反了某个特定原则（如"原则1：提及与玛格的关联"），你必须完全移除所有相关内容。
+        3. 不要试图用同义词或改写来绕过，必须完全移除。
+        4. 如果审查反馈指出某个事实"未提及"或"不存在"，必须从回复中完全移除该事实。
+        """
 
     refine_out = f"""
         你的工作是为一个悬疑推理游戏编辑对话。这段对话来自角色{request.actor.name}，是对以下提示的回应：{original_message} 
-        这是{request.actor.name}的故事背景：{request.actor.context1} {request.actor.secret} 
-        你修订的对话必须与故事背景一致，并且没有以下问题：{critique_response}。
-        你输出的修订对话必须从{request.actor.name}的视角出发，尽可能与原始用户消息相同，并与{request.actor.name}的性格一致：{request.actor.personality}。 
-        尽可能少地修改原始输入！ 
+        
+        这是{request.actor.name}的故事背景（角色文本，这是角色掌握的所有事实）：{request.actor.context1} {request.actor.secret} 
+        
+        审查反馈指出的问题：{critique_response}
+        
+        {violation_instructions}
+        
+        {previous_attempts_text}
+        
+        {aggressive_strategy}
+        
+        【核心修改原则 - 必须严格遵守】
+        1. 你的回复只能基于角色文本（context1和secret）中明确提到的事实。如果角色文本中没有提到某个时间、地点、人物或事件，你的回复中绝对不能声称发生过、见过或知道。
+        2. 如果审查反馈指出"未提及"、"不存在"、"矛盾"、"提及了X"、"主动提及X"等，说明你的回复包含了不应该有的内容，你必须完全移除这些内容，不能有任何残留。
+        3. 如果审查反馈指出违反了某个特定原则（如"原则1：提及与玛格的关联"），你必须完全移除所有相关内容，不能有任何残留。
+        4. 不要做局部微调（如"今天早上"改成"今天"），这是无效的。你必须重新审视整个回复，只保留角色文本中明确提到的事实。
+        5. 如果角色文本中没有相关信息来回答用户的问题，你应该诚实地说"我不记得"、"我不清楚"或类似的话，而不是编造不存在的事实。
+        6. 时间线必须严格匹配：如果角色文本说"12:00在A地"，你就不能说"12:00在B地"或"12:00左右在A地"。
+        
+        【修改策略 - 必须严格执行】
+        第一步：仔细阅读审查反馈，识别所有被指出的违规内容（如"提及了玛格"、"未提及见过X"等）
+        第二步：从原回复中完全移除所有违规内容，不能有任何残留
+        第三步：检查修改后的回复，确保没有任何违规内容
+        第四步：如果移除违规内容后，回复变得不完整，可以：
+        - 只保留角色文本中明确提到的事实
+        - 或者诚实地说"我不记得"、"我不清楚"
+        
+        不要试图修改或调整错误的陈述，而是：
+        - 完全移除角色文本中不存在的事实
+        - 完全移除审查反馈中指出的所有违规内容
+        - 只保留角色文本中明确提到的事实
+        - 如果角色文本中没有足够信息，就承认不知道
+        - 重新生成一个完全基于角色文本的回复，而不是对原回复进行局部修改
+        
+        【输出要求】
+        你输出的修订对话必须：
+        - 从{request.actor.name}的视角出发
+        - 与{request.actor.name}的性格一致：{request.actor.personality}
+        - 完全基于角色文本（context1和secret）中明确提到的事实
+        - 必须解决审查反馈中指出的所有问题
+        - 如果角色文本中没有相关信息，可以诚实地说不知道
+        
         在你的输出中省略以下任何内容：引号、关于故事一致性的评论、提及原则或违规行为。
         重要：你的回复必须严格控制在88字以内，并且必须在一行内完成，严禁使用换行符或分段。
         如果批评中提到违反了原则B（字数超过88字），你必须大幅缩短回复，确保最终回复不超过88字，只保留最核心的内容。
@@ -260,12 +444,12 @@ def get_refiner_prompt(request: InvocationRequest,
 
     return refine_out
 
-def refine(conn, turn_id: int, request: InvocationRequest, critique_response: str, unrefined_response: str):
+def refine(conn, turn_id: int, request: InvocationRequest, critique_response: str, unrefined_response: str, previous_attempts: list = None, attempt_number: int = 1):
     return invoke_ai(
         conn,
         turn_id,
         "refine",
-        system_prompt=get_refiner_prompt(request, critique_response),
+        system_prompt=get_refiner_prompt(request, critique_response, previous_attempts, attempt_number),
         messages=[
             LLMMessage(
                 role="user",

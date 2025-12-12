@@ -21,6 +21,12 @@ import { useSessionContext } from "../providers/sessionContext";
 import CHARACTER_DATA from "../characters.json";
 import { getNamePosition } from "../config/characterNamePositions";
 import responseKeywordMapping from "../responseKeywordMapping.json";
+import { 
+  isDetective, 
+  recordDialogue, 
+  memoryToContext1, 
+  extractUserInput 
+} from "../utils/detectiveMemory";
 
 // 基准尺寸：1136x746
 const BASE_WIDTH = 1136;
@@ -108,7 +114,8 @@ const sendChat = async (
   actor: Actor,
   setLoading: React.Dispatch<React.SetStateAction<boolean>>,
   onMessageSent?: () => void,
-  onEvidenceObtained?: (evidenceId: string) => void
+  onEvidenceObtained?: (evidenceId: string) => void,
+  getCurrentActors?: () => Record<number, Actor> // 用于获取当前 actors 状态的函数
 ) => {
   setLoading(true);
   const setActor = (a: Partial<Actor>) => {
@@ -125,25 +132,71 @@ const sendChat = async (
   setActor({ messages });
 
   try {
+    // 如果是与二阶堂希罗对话，需要更新 context1
+    let actorToInvoke = { ...actor, messages };
+    if (isDetective(actor.name) && getCurrentActors) {
+      // 获取所有角色，找到二阶堂希罗
+      const allActors = getCurrentActors();
+      const detective = Object.values(allActors).find(a => isDetective(a.name));
+      if (detective && detective.detectiveMemory) {
+        // 将记忆转换为 context1
+        const memoryContext = memoryToContext1(detective.detectiveMemory);
+        // 合并原始 context1 和记忆（如果原始 context1 有内容）
+        const originalContext1 = detective.context1 || '';
+        const combinedContext1 = originalContext1 
+          ? `${originalContext1}\n\n${memoryContext}` 
+          : memoryContext;
+        
+        actorToInvoke = {
+          ...actorToInvoke,
+          context1: combinedContext1,
+        };
+      }
+    }
+
     const data = await invokeAI({
       globalStory,
       sessionId,
       characterFileVersion: CHARACTER_DATA.fileKey,
-      actor: {
-        ...actor,
-        messages,
-      },
+      actor: actorToInvoke,
     });
+
+    const assistantMessage: LLMMessage = {
+      role: "assistant",
+      content: data.final_response,
+    };
 
     setActor({
       messages: [
         ...messages,
-        {
-          role: "assistant",
-          content: data.final_response,
-        },
+        assistantMessage,
       ],
     });
+
+    // 如果是与二阶堂希罗对话，记录对话到记忆（这是二阶堂希罗的脑内回想）
+    if (isDetective(actor.name)) {
+      setActors((all) => {
+        const newActors = { ...all };
+        const detective = Object.values(newActors).find(a => isDetective(a.name));
+        if (detective) {
+          // 获取最后一条用户消息和助手回复
+          const lastUserMessage = messages.filter(m => m.role === 'user').pop();
+          if (lastUserMessage) {
+            const userInput = extractUserInput(lastUserMessage.content);
+            const actorResponse = assistantMessage.content;
+            const currentMemory = detective.detectiveMemory || [];
+            // 记录为"与自己的对话"（脑内回想）
+            const updatedMemory = recordDialogue(currentMemory, '自己', userInput, actorResponse);
+            
+            newActors[detective.id] = {
+              ...detective,
+              detectiveMemory: updatedMemory,
+            };
+          }
+        }
+        return newActors;
+      });
+    }
     
     // 检查回复内容是否包含关键词，如果包含则获取对应证物（仅针对ID 11-15）
     const evidenceId = checkKeywordsAndGetEvidence(data.final_response, actor.name);
@@ -214,7 +267,7 @@ const calculateEquivalentLength = (text: string): number => {
 
 const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standScale = 1, effectiveHeight, isGameContainerCentered = false }: Props) => {
   const [currMessage, setCurrMessage] = useState("");
-  const { setActors, globalStory } = useMysteryContext();
+  const { actors, setActors, globalStory } = useMysteryContext();
   const [loading, setLoading] = useState(false);
   const MAX_INPUT_LENGTH = 200; // 输入框最大字数限制
   // 每个角色的输入模式状态单独管理（基于是否有回复来判断）
@@ -275,7 +328,7 @@ const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standS
     setTimeout(async () => {
       setIsInputMode(false);
       setIsAnimating(false);
-      await sendChat([...actor.messages, newMessage], setActors, globalStory, sessionId, actor, setLoading, onMessageSent, onEvidenceObtained);
+      await sendChat([...actor.messages, newMessage], setActors, globalStory, sessionId, actor, setLoading, onMessageSent, onEvidenceObtained, () => actors);
     }, 500);
   };
 

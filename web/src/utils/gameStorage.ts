@@ -26,6 +26,9 @@ export interface SavedGameState {
   bgImage: string;
   currentMapIndex: number;
   
+  // 二阶堂希罗的记忆（detectiveMemory）
+  detectiveMemory?: string[];
+  
   // 版本号，用于未来兼容性检查
   version: string;
 }

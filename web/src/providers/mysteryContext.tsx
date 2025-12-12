@@ -21,6 +21,7 @@ export interface Actor {
   violation: string;
   image: string;
   messages: LLMMessage[];
+  detectiveMemory?: string[]; // 二阶堂希罗的记忆：存储所有对话和证物出示记录
 }
 
 const INITIAL_CHARACTERS = Story.characters.map(

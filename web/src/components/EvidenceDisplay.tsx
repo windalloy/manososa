@@ -12,6 +12,7 @@ import { clearContinueDialogState } from './Actor';
 import evidenceData from '../evidence.json';
 import context2Mapping from '../context2Mapping.json';
 import evidenceObtainMapping from '../evidenceObtainMapping.json';
+import { isDetective, recordEvidence } from '../utils/detectiveMemory';
 
 interface EvidenceDisplayProps {
   evidenceList: Evidence[];
@@ -251,13 +252,15 @@ export const handleEvidenceBackgroundClick = (
         const evidenceToObtain = obtainMap[actorName]?.[evidenceId];
         const willObtainEvidence = evidenceToObtain && evidenceList.find(e => e.id === evidenceToObtain && !e.obtained);
         
+        // 先计算 contextToAppend（用于后续记录证物）
+        let contextToAppend = '';
+        
         setActors((all) => {
           const newActors = { ...all };
           const currentActorData = newActors[currentActorId];
           
           // 如果需要追加 context2、context3、context4 或 lastcontext，则将对应内容追加到 context1（仅第一次触发）
           if (shouldAddContext) {
-            let contextToAppend = '';
             const context1Content = currentActorData.context1 || '';
             
             if (contextToAdd === "context2" && currentActorData.context2 && currentActorData.context2.trim() !== '') {
@@ -310,6 +313,24 @@ export const handleEvidenceBackgroundClick = (
               assistantMessage,
             ],
           };
+          
+          // 记录所有证物出示到二阶堂希罗的记忆中
+          const detective = Object.values(newActors).find(a => isDetective(a.name));
+          if (detective) {
+            const evidenceDescription = contextToAppend || messageText; // 优先使用 context 内容，否则使用消息文本
+            const currentMemory = detective.detectiveMemory || [];
+            const updatedMemory = recordEvidence(
+              currentMemory,
+              actorName,
+              selectedEvidence.name,
+              evidenceDescription
+            );
+            newActors[detective.id] = {
+              ...detective,
+              detectiveMemory: updatedMemory,
+            };
+          }
+          
           return newActors;
         });
         

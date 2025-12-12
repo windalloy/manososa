@@ -14,6 +14,7 @@ import { EvidenceDisplay } from '../components/EvidenceDisplay';
 import { initialEvidence, obtainEvidence, Evidence } from '../config/evidence';
 import { preloadAllImages, preloadPriorityImages } from '../utils/imagePreloader';
 import { saveGameProgress, loadGameProgress, hasGameProgress, clearGameProgress } from '../utils/gameStorage';
+import { isDetective } from '../utils/detectiveMemory';
 
 // 背景图片列表（01.avif 到 48.avif）
 const BG_IMAGES = Array.from({ length: 48 }, (_, i) => {
@@ -509,6 +510,21 @@ export default function Home() {
         setCurrentMapIndex(savedState.currentMapIndex);
       }
       
+      // 恢复二阶堂希罗的记忆
+      if (savedState.detectiveMemory && savedState.actors) {
+        setActors((prevActors) => {
+          const newActors = { ...prevActors };
+          const detective = Object.values(newActors).find(a => isDetective(a.name));
+          if (detective) {
+            newActors[detective.id] = {
+              ...detective,
+              detectiveMemory: savedState.detectiveMemory,
+            };
+          }
+          return newActors;
+        });
+      }
+      
       hasRestoredRef.current = true;
     } else {
       hasRestoredRef.current = true;
@@ -518,6 +534,10 @@ export default function Home() {
   // 自动保存游戏进度（当关键状态变化时）
   useEffect(() => {
     if (!hasRestoredRef.current) return; // 等待恢复完成后再开始保存
+    
+    // 从 actors 中提取二阶堂希罗的 detectiveMemory
+    const detective = Object.values(actors).find(a => isDetective(a.name));
+    const detectiveMemory = detective?.detectiveMemory;
     
     saveGameProgress({
       actors,
@@ -532,6 +552,7 @@ export default function Home() {
       nextNoteId: nextNoteId.current,
       bgImage,
       currentMapIndex,
+      detectiveMemory,
     });
   }, [actors, globalStory, actionCountdown, endGame, postGame, countdownEnded, currActor, evidenceList, notes, bgImage, currentMapIndex]);
 
