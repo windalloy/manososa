@@ -4,18 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="193e97bf-4125-4b01-be92-80643b491152" name="Changes" comment="12.9">
+    <list default="true" id="193e97bf-4125-4b01-be92-80643b491152" name="Changes" comment="12.12">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/.env" beforeDir="false" afterPath="$PROJECT_DIR$/api/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/ai.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/ai.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/characters.json" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/characters.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/components/Actor.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/components/Actor.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/components/EvidenceDisplay.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/components/EvidenceDisplay.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/config/evidence.ts" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/config/evidence.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/pages/Home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/pages/Home.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/providers/mysteryContext.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/providers/mysteryContext.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/utils/gameStorage.ts" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/utils/gameStorage.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/components/HelpModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/components/HelpModal.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -184,7 +175,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765332297015</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="12.12">
+      <option name="closed" value="true" />
+      <created>1765546001763</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1765546001763</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -197,6 +196,7 @@
     <MESSAGE value="12.7" />
     <MESSAGE value="12.8" />
     <MESSAGE value="12.9" />
-    <option name="LAST_COMMIT_MESSAGE" value="12.9" />
+    <MESSAGE value="12.12" />
+    <option name="LAST_COMMIT_MESSAGE" value="12.12" />
   </component>
 </project>

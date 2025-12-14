@@ -131,7 +131,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ opened, onClose }) => {
             fontWeight: 600,
             marginLeft: `${4 * scale}px`,
           }}>
-            说明
+            {currentPage === 1 ? '案件说明' : currentPage === 2 ? '功能说明' : '注意事项'}
           </Text>
         }
         classNames={{
@@ -223,7 +223,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ opened, onClose }) => {
                 lineHeight: '1.8',
                 fontSize: `${16 * scale}px`,
               }}>
-                调查：你可以前往各个地点仔细查看，寻找可能的线索和证物。
+                调查：你可以前往各个地点仔细查看，寻找可能的线索和证物（非常建议先对所有场景进行调查）。
               </Text>
               <br></br>
               <Text style={{ 
@@ -231,7 +231,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ opened, onClose }) => {
                 lineHeight: '1.8',
                 fontSize: `${16 * scale}px`,
               }}>
-                出示：当你获得证物后，可以向特定的少女出示，触发特定对话，她们的证言也可能会因此发生改变。
+                出示：当你获得证物后，可以向特定的少女出示，触发特定对话。如果少女通过证物回想起了什么，她们的证言也会因此发生改变（所以建议在和角色对话前先出示一些可疑的证物）。
               </Text>
               <br></br>
               <Text style={{ 
@@ -239,7 +239,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ opened, onClose }) => {
                 lineHeight: '1.8',
                 fontSize: `${16 * scale}px`,
               }}>
-                询问：你可以与遇到的少女对话，她们或许知道些什么。一些关键的证言本身也可能成为新的证据，用于揭露更多的矛盾。
+                询问：你可以与遇到的少女对话，她们或许知道些什么。一些关键的证言本身也可能成为新的可出示的证据，用于揭露更多的矛盾。
               </Text>
               <br></br>
               <Text style={{ 
@@ -247,7 +247,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ opened, onClose }) => {
                 lineHeight: '1.8',
                 fontSize: `${16 * scale}px`,
               }}>
-                行动次数：调查和出示均消耗1次行动次数，对话消耗2次行动次数。剩余行动次数为0时，进入审判阶段，游戏结束。你也可以点击"结束游戏"按钮提前结束游戏。
+                行动次数：调查和出示均消耗1次行动次数，对话消耗2次行动次数。剩余行动次数为0时，进入审判阶段，游戏结束。由于案件涉及的事件很多，您没必要理清所有的疑点，如果您觉得找到了凶手，可以直接点击“结束游戏”按钮。。
               </Text>
               <br></br>
               <Text style={{ 
@@ -256,14 +256,6 @@ const HelpModal: React.FC<HelpModalProps> = ({ opened, onClose }) => {
                 fontSize: `${16 * scale}px`,
               }}>
                 历史对话：可随时查看与每位少女的全部出示与对话记录，回顾关键信息。
-              </Text>
-              <br></br>
-              <Text style={{ 
-                color: 'rgba(220, 220, 220, 1)', 
-                lineHeight: '1.8',
-                fontSize: `${16 * scale}px`,
-              }}>
-                切换背景：如果当前背景不合心意，可使用此功能直接切换背景。
               </Text>
             </>
           )}
@@ -275,7 +267,11 @@ const HelpModal: React.FC<HelpModalProps> = ({ opened, onClose }) => {
               lineHeight: '1.8',
               fontSize: `${16 * scale}px`,
             }}>
-              非常建议先对所有区域进行调查，
+              如果游戏过程中屏幕尺寸发生变化，页面各组件的位置和大小会发生错误。如果遇到这种情况，请刷新页面。
+              <br></br><br></br>
+              只有"出示"行为可以解锁少女们的新证言，"对话"只会让您更加了解事情的全貌，而不会让角色回想起更多的信息。
+              <br></br><br></br>
+              事件发生在12:00 - 16:00之间，如果您向角色提问这个时间段之外的事情或者闲聊，她们的回答并不是可信的。如果问到案件相关的事情，怀揣秘密的角色也可能会进行欺骗和隐瞒。如果您觉得觉得角色的回答实在太离谱了，那可能是模型出现了幻觉，可以尝试再问她一次。
             </Text>
           )}
         </ScrollArea>
