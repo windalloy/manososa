@@ -26,7 +26,7 @@ interface EvidenceDisplayProps {
   setEvidenceList: React.Dispatch<React.SetStateAction<Evidence[]>>;
   scale?: number; // 缩放比例
   onAction?: () => void; // 行动回调（用于倒计时）
-  onContextAdded?: () => void; // 证言更新回调
+  onContextAdded?: (actorId: number, evidenceId: string) => void; // 证言更新回调，传递角色ID和证物ID
   onEvidenceObtained?: (evidenceId: string) => void; // 证物更新回调，传递证物ID
   onStandVariantChange?: (variant: string | null) => void; // 立绘变体切换回调
 }
@@ -104,7 +104,7 @@ export const handleEvidenceBackgroundClick = (
   setEvidenceList: React.Dispatch<React.SetStateAction<Evidence[]>>,
   pageOffset: number,
   onAction?: () => void,
-  onContextAdded?: () => void,
+  onContextAdded?: (actorId: number, evidenceId: string) => void,
   onEvidenceObtained?: (evidenceId: string) => void,
   onStandVariantChange?: (variant: string | null) => void
 ) => {
@@ -299,7 +299,7 @@ export const handleEvidenceBackgroundClick = (
                 currentActorData.context1 = context1Content + separator + trimmedContext;
                 // 通知有新证言添加（但如果同时会获得证物，则不显示证言更新）
                 if (onContextAdded && !willObtainEvidence) {
-                  onContextAdded();
+                  onContextAdded(currentActorId, selectedEvidence.id);
                 }
               }
             }

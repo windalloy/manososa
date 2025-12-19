@@ -9,12 +9,13 @@ import { Actor, LLMMessage, useMysteryContext } from '../providers/mysteryContex
 import { useSessionContext } from '../providers/sessionContext';
 import MultipleChoiceGame from '../components/MultipleChoiceGame';
 import { getStandPosition } from '../config/characterStandPositions';
-import { findRegionByClick, MapRegion } from '../config/mapRegions';
+import { findRegionByClick, MapRegion, mapRegions } from '../config/mapRegions';
 import { EvidenceDisplay } from '../components/EvidenceDisplay';
 import { initialEvidence, obtainEvidence, Evidence } from '../config/evidence';
 import { preloadAllImages, preloadPriorityImages } from '../utils/imagePreloader';
 import { saveGameProgress, loadGameProgress, hasGameProgress, clearGameProgress } from '../utils/gameStorage';
 import { isDetective } from '../utils/detectiveMemory';
+import { generateHint, generateAvailableHints, Hint } from '../utils/hintGenerator';
 
 // 背景图片列表（01.avif 到 48.avif）
 const BG_IMAGES = Array.from({ length: 48 }, (_, i) => {
@@ -290,6 +291,10 @@ export default function Home() {
   const [endModalOpened, setEndModalOpened] = useState(false);
   const [helpModalOpened, setHelpModalOpened] = useState(false);
   const [restartConfirmOpened, setRestartConfirmOpened] = useState(false);
+  const [hintConfirmOpened, setHintConfirmOpened] = useState(false);
+  const [hintDisplayOpened, setHintDisplayOpened] = useState(false);
+  const [currentHint, setCurrentHint] = useState<Hint | null>(null);
+  const [shownHintIds, setShownHintIds] = useState<Set<string>>(new Set());
   const [actionCountdown, setActionCountdown] = useState<number>(658); 
   const [endGame, setEndGame] = useState(false);
   const [countdownEnded, setCountdownEnded] = useState(false); // 标记倒计时是否结束
@@ -1585,10 +1590,18 @@ export default function Home() {
             setEvidenceList={setEvidenceList}
             scale={scale}
             onAction={() => setActionCountdown(prev => Math.max(0, prev - 1))}
-            onContextAdded={() => {
+            onContextAdded={(actorId, evidenceId) => {
               // 显示证言更新通知
               setShowContextUpdate(true);
               setTimeout(() => setShowContextUpdate(false), 3000);
+              
+              // 移除相关的证言提示
+              setShownHintIds(prev => {
+                const newSet = new Set(prev);
+                const hintId = `testimony_${actorId}_${evidenceId}`;
+                newSet.add(hintId);
+                return newSet;
+              });
             }}
             onEvidenceObtained={(evidenceId) => {
               // 找到新获得的证物
@@ -1607,6 +1620,14 @@ export default function Home() {
                 setTimeout(() => {
                   setShowEvidenceUpdate(false);
                 }, 3000);
+                
+                // 移除相关的证物提示
+                setShownHintIds(prev => {
+                  const newSet = new Set(prev);
+                  const hintId = `location_${evidenceId}`;
+                  newSet.add(hintId);
+                  return newSet;
+                });
               }
             }}
             onStandVariantChange={(variant) => {
@@ -1979,6 +2000,19 @@ export default function Home() {
               说明
             </Button>
             <Button
+              onClick={() => setHintConfirmOpened(true)}
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                color: 'white',
+                fontSize: `${14 * scale}px`,
+                padding: `${6 * scale}px ${12 * scale}px`,
+                height: 'auto',
+                minHeight: `${32 * scale}px`,
+              }}
+            >
+              提示
+            </Button>
+            <Button
               onClick={toggleMap}
               style={{
                 backgroundColor: showMap ? 'rgba(173, 216, 230, 0.8)' : 'rgba(0, 0, 0, 0.6)',
@@ -2111,6 +2145,14 @@ export default function Home() {
                 setTimeout(() => {
                   setShowEvidenceUpdate(false);
                 }, 3000);
+                
+                // 移除相关的证物提示
+                setShownHintIds(prev => {
+                  const newSet = new Set(prev);
+                  const hintId = `location_${evidenceId}`;
+                  newSet.add(hintId);
+                  return newSet;
+                });
                       }
                       return updatedList;
                     });
@@ -2459,6 +2501,154 @@ export default function Home() {
         </div>
       </Modal>
 
+      {/* 提示确认弹窗 */}
+      <Modal
+        opened={hintConfirmOpened}
+        onClose={() => setHintConfirmOpened(false)}
+        centered
+        withCloseButton={false}
+        styles={{
+          content: {
+            backgroundColor: 'rgba(40, 40, 40, 1)',
+            borderRadius: `${12 * scale}px`,
+            maxWidth: `min(400px, ${70 * scale}vw)`,
+          },
+          header: {
+            backgroundColor: 'transparent',
+            borderBottom: 'none',
+            padding: 0,
+          },
+          body: {
+            backgroundColor: 'transparent',
+            padding: `${20 * scale}px`,
+          },
+        }}
+      >
+        <Text style={{ 
+          color: 'rgba(220, 220, 220, 1)', 
+          lineHeight: '1.8',
+          fontSize: `${16 * scale}px`,
+          marginBottom: `${20 * scale}px`,
+        }}>
+          确定要使用提示吗？你将随机获得指向某个证物或证言的线索。
+        </Text>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: `${10 * scale}px` }}>
+          <Button
+            onClick={() => {
+              // 生成提示
+              const hint = generateHint(evidenceList, filteredActors, mapRegions, shownHintIds);
+              
+              if (hint) {
+                // 将提示ID添加到已显示列表
+                setShownHintIds(prev => {
+                  const newSet = new Set(prev);
+                  newSet.add(hint.id);
+                  
+                  // 检查是否所有提示都已显示过
+                  const allHints = generateAvailableHints(evidenceList, filteredActors, mapRegions, new Set());
+                  // 如果当前显示的提示是最后一个，重置所有提示
+                  if (allHints.length === 0) {
+                    // 所有提示都已显示，重置为未显示状态
+                    return new Set();
+                  }
+                  
+                  return newSet;
+                });
+                
+                setCurrentHint(hint);
+                setHintConfirmOpened(false);
+                setHintDisplayOpened(true);
+              } else {
+                // 如果没有可用提示，重置所有提示并重新生成
+                setShownHintIds(new Set());
+                const newHint = generateHint(evidenceList, filteredActors, mapRegions, new Set());
+                if (newHint) {
+                  setShownHintIds(new Set([newHint.id]));
+                  setCurrentHint(newHint);
+                  setHintConfirmOpened(false);
+                  setHintDisplayOpened(true);
+                } else {
+                  // 如果重置后仍然没有提示，显示默认消息
+                  setCurrentHint({
+                    id: 'default',
+                    type: 'location',
+                    message: '当前没有可用的提示线索。'
+                  });
+                  setHintConfirmOpened(false);
+                  setHintDisplayOpened(true);
+                }
+              }
+            }}
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              color: 'rgba(220, 220, 220, 1)',
+              padding: `${6 * scale}px ${16 * scale}px`,
+              fontSize: `${13 * scale}px`,
+            }}
+          >
+            确认
+          </Button>
+          <Button
+            onClick={() => setHintConfirmOpened(false)}
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              color: 'rgba(220, 220, 220, 1)',
+              padding: `${6 * scale}px ${16 * scale}px`,
+              fontSize: `${13 * scale}px`,
+            }}
+          >
+            取消
+          </Button>
+        </div>
+      </Modal>
+
+      {/* 线索显示弹窗 */}
+      <Modal
+        opened={hintDisplayOpened}
+        onClose={() => setHintDisplayOpened(false)}
+        centered
+        withCloseButton={false}
+        styles={{
+          content: {
+            backgroundColor: 'rgba(40, 40, 40, 1)',
+            borderRadius: `${12 * scale}px`,
+            maxWidth: `min(400px, ${70 * scale}vw)`,
+          },
+          header: {
+            backgroundColor: 'transparent',
+            borderBottom: 'none',
+            padding: 0,
+          },
+          body: {
+            backgroundColor: 'transparent',
+            padding: `${20 * scale}px`,
+          },
+        }}
+      >
+        {currentHint && (
+          <Text style={{ 
+            color: 'rgba(220, 220, 220, 1)', 
+            lineHeight: '1.8',
+            fontSize: `${16 * scale}px`,
+            marginBottom: `${20 * scale}px`,
+          }}>
+            {currentHint.message}
+          </Text>
+        )}
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <Button
+            onClick={() => setHintDisplayOpened(false)}
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              color: 'rgba(220, 220, 220, 1)',
+              padding: `${6 * scale}px ${16 * scale}px`,
+              fontSize: `${13 * scale}px`,
+            }}
+          >
+            确定
+          </Button>
+        </div>
+      </Modal>
 
     </AppShell>
       </div>
