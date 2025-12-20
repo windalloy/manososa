@@ -15,7 +15,8 @@ import { initialEvidence, obtainEvidence, Evidence } from '../config/evidence';
 import { preloadAllImages, preloadPriorityImages } from '../utils/imagePreloader';
 import { saveGameProgress, loadGameProgress, hasGameProgress, clearGameProgress } from '../utils/gameStorage';
 import { isDetective } from '../utils/detectiveMemory';
-import { generateHint, generateAvailableHints, Hint } from '../utils/hintGenerator';
+import { generateHint, generateAvailableHints, Hint, countUncollectedItems } from '../utils/hintGenerator';
+import responseKeywordMapping from '../responseKeywordMapping.json';
 
 // 背景图片列表（01.avif 到 48.avif）
 const BG_IMAGES = Array.from({ length: 48 }, (_, i) => {
@@ -293,6 +294,7 @@ export default function Home() {
   const [restartConfirmOpened, setRestartConfirmOpened] = useState(false);
   const [hintConfirmOpened, setHintConfirmOpened] = useState(false);
   const [hintDisplayOpened, setHintDisplayOpened] = useState(false);
+  const [progressModalOpened, setProgressModalOpened] = useState(false);
   const [currentHint, setCurrentHint] = useState<Hint | null>(null);
   const [shownHintIds, setShownHintIds] = useState<Set<string>>(new Set());
   const [actionCountdown, setActionCountdown] = useState<number>(658); 
@@ -1621,11 +1623,24 @@ export default function Home() {
                   setShowEvidenceUpdate(false);
                 }, 3000);
                 
-                // 移除相关的证物提示
+                // 移除相关的证物提示（地点提示和对话提示）
                 setShownHintIds(prev => {
                   const newSet = new Set(prev);
-                  const hintId = `location_${evidenceId}`;
-                  newSet.add(hintId);
+                  const locationHintId = `location_${evidenceId}`;
+                  newSet.add(locationHintId);
+                  
+                  // 检查是否有对话提示需要移除
+                  const mapping = responseKeywordMapping as Record<string, { 关键词: string[]; 证物ID: string }>;
+                  for (const [actorName, config] of Object.entries(mapping)) {
+                    if (config.证物ID === evidenceId) {
+                      const actor = filteredActors.find(a => a.name === actorName);
+                      if (actor) {
+                        const dialogueHintId = `dialogue_${actor.id}_${evidenceId}`;
+                        newSet.add(dialogueHintId);
+                      }
+                    }
+                  }
+                  
                   return newSet;
                 });
               }
@@ -2146,11 +2161,24 @@ export default function Home() {
                   setShowEvidenceUpdate(false);
                 }, 3000);
                 
-                // 移除相关的证物提示
+                // 移除相关的证物提示（地点提示和对话提示）
                 setShownHintIds(prev => {
                   const newSet = new Set(prev);
-                  const hintId = `location_${evidenceId}`;
-                  newSet.add(hintId);
+                  const locationHintId = `location_${evidenceId}`;
+                  newSet.add(locationHintId);
+                  
+                  // 检查是否有对话提示需要移除
+                  const mapping = responseKeywordMapping as Record<string, { 关键词: string[]; 证物ID: string }>;
+                  for (const [actorName, config] of Object.entries(mapping)) {
+                    if (config.证物ID === evidenceId) {
+                      const actor = filteredActors.find(a => a.name === actorName);
+                      if (actor) {
+                        const dialogueHintId = `dialogue_${actor.id}_${evidenceId}`;
+                        newSet.add(dialogueHintId);
+                      }
+                    }
+                  }
+                  
                   return newSet;
                 });
                       }
@@ -2530,30 +2558,47 @@ export default function Home() {
           fontSize: `${16 * scale}px`,
           marginBottom: `${20 * scale}px`,
         }}>
-          确定要使用提示吗？你将随机获得指向某个证物或证言的线索。
+          确定要使用提示吗？你将随机获得某个证物或证言的线索。
         </Text>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: `${10 * scale}px` }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: `${10 * scale}px`, flexWrap: 'wrap' }}>
+          <Button
+            onClick={() => {
+              setHintConfirmOpened(false);
+              setProgressModalOpened(true);
+            }}
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              color: 'rgba(220, 220, 220, 1)',
+              padding: `${6 * scale}px ${16 * scale}px`,
+              fontSize: `${13 * scale}px`,
+            }}
+          >
+            查看收集进度
+          </Button>
           <Button
             onClick={() => {
               // 生成提示
               const hint = generateHint(evidenceList, filteredActors, mapRegions, shownHintIds);
               
               if (hint) {
-                // 将提示ID添加到已显示列表
-                setShownHintIds(prev => {
-                  const newSet = new Set(prev);
-                  newSet.add(hint.id);
-                  
-                  // 检查是否所有提示都已显示过
-                  const allHints = generateAvailableHints(evidenceList, filteredActors, mapRegions, new Set());
-                  // 如果当前显示的提示是最后一个，重置所有提示
-                  if (allHints.length === 0) {
-                    // 所有提示都已显示，重置为未显示状态
-                    return new Set();
-                  }
-                  
-                  return newSet;
-                });
+                // 如果是全部获取的提示，不需要添加到已显示列表
+                if (hint.id !== 'all_obtained') {
+                  // 将提示ID添加到已显示列表
+                  setShownHintIds(prev => {
+                    const newSet = new Set(prev);
+                    newSet.add(hint.id);
+                    
+                    // 检查是否所有提示都已显示过
+                    const allHints = generateAvailableHints(evidenceList, filteredActors, mapRegions, new Set());
+                    // 如果当前显示的提示是最后一个，重置所有提示
+                    if (allHints.length === 0) {
+                      // 所有提示都已显示，重置为未显示状态
+                      return new Set();
+                    }
+                    
+                    return newSet;
+                  });
+                }
                 
                 setCurrentHint(hint);
                 setHintConfirmOpened(false);
@@ -2563,7 +2608,10 @@ export default function Home() {
                 setShownHintIds(new Set());
                 const newHint = generateHint(evidenceList, filteredActors, mapRegions, new Set());
                 if (newHint) {
-                  setShownHintIds(new Set([newHint.id]));
+                  // 如果是全部获取的提示，不需要添加到已显示列表
+                  if (newHint.id !== 'all_obtained') {
+                    setShownHintIds(new Set([newHint.id]));
+                  }
                   setCurrentHint(newHint);
                   setHintConfirmOpened(false);
                   setHintDisplayOpened(true);
@@ -2648,6 +2696,82 @@ export default function Home() {
             确定
           </Button>
         </div>
+      </Modal>
+
+      {/* 收集进度弹窗 */}
+      <Modal
+        opened={progressModalOpened}
+        onClose={() => setProgressModalOpened(false)}
+        centered
+        withCloseButton={false}
+        styles={{
+          content: {
+            backgroundColor: 'rgba(40, 40, 40, 1)',
+            borderRadius: `${12 * scale}px`,
+            maxWidth: `min(400px, ${70 * scale}vw)`,
+          },
+          header: {
+            backgroundColor: 'transparent',
+            borderBottom: 'none',
+            padding: 0,
+          },
+          body: {
+            backgroundColor: 'transparent',
+            padding: `${20 * scale}px`,
+          },
+        }}
+      >
+        {(() => {
+          const { uncollectedEvidence, uncollectedTestimony } = countUncollectedItems(evidenceList, filteredActors);
+          return (
+            <>
+              <Text style={{ 
+                color: 'rgba(220, 220, 220, 1)', 
+                lineHeight: '1.8',
+                fontSize: `${16 * scale}px`,
+                marginBottom: `${20 * scale}px`,
+                textAlign: 'center',
+              }}>
+                收集进度
+              </Text>
+              <div style={{ 
+                marginBottom: `${20 * scale}px`,
+                padding: `${15 * scale}px`,
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                borderRadius: `${8 * scale}px`,
+              }}>
+                <Text style={{ 
+                  color: 'rgba(220, 220, 220, 1)', 
+                  lineHeight: '1.8',
+                  fontSize: `${14 * scale}px`,
+                  marginBottom: `${10 * scale}px`,
+                }}>
+                  未收集的证物：{uncollectedEvidence} 个
+                </Text>
+                <Text style={{ 
+                  color: 'rgba(220, 220, 220, 1)', 
+                  lineHeight: '1.8',
+                  fontSize: `${14 * scale}px`,
+                }}>
+                  未收集的证言：{uncollectedTestimony} 个
+                </Text>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <Button
+                  onClick={() => setProgressModalOpened(false)}
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    color: 'rgba(220, 220, 220, 1)',
+                    padding: `${6 * scale}px ${16 * scale}px`,
+                    fontSize: `${13 * scale}px`,
+                  }}
+                >
+                  确定
+                </Button>
+              </div>
+            </>
+          );
+        })()}
       </Modal>
 
     </AppShell>

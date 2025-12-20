@@ -7,11 +7,33 @@ import { Evidence } from '../config/evidence';
 import { Actor } from '../providers/mysteryContext';
 import { MapRegion } from '../config/mapRegions';
 import context2Mapping from '../context2Mapping.json';
+import responseKeywordMapping from '../responseKeywordMapping.json';
 
 export interface Hint {
   id: string; // 提示的唯一标识
-  type: 'location' | 'evidence' | 'testimony';
+  type: 'location' | 'dialogue' | 'testimony';
   message: string;
+}
+
+/**
+ * 检查角色是否可以通过对话获得证物
+ * @param actor 角色
+ * @param evidenceList 证物列表
+ * @returns 是否可以通过对话获得未获取的证物
+ */
+function canObtainEvidenceFromDialogue(actor: Actor, evidenceList: Evidence[]): boolean {
+  const mapping = responseKeywordMapping as Record<string, { 关键词: string[]; 证物ID: string }>;
+  const characterMapping = mapping[actor.name];
+  
+  if (!characterMapping) {
+    return false;
+  }
+  
+  const evidenceId = characterMapping.证物ID;
+  const evidence = evidenceList.find(e => e.id === evidenceId);
+  
+  // 如果证物不存在或已获取，不能通过对话获得
+  return evidence !== undefined && !evidence.obtained;
 }
 
 /**
@@ -67,6 +89,17 @@ function canObtainTestimony(actor: Actor, evidenceId: string): boolean {
 }
 
 /**
+ * 检查是否所有证物都已获取
+ * @param evidenceList 证物列表
+ * @returns 是否所有证物都已获取
+ */
+function areAllEvidenceObtained(evidenceList: Evidence[]): boolean {
+  // 排除证言类证物（名称包含"证言"的）
+  const nonTestimonyEvidence = evidenceList.filter(e => !e.name.includes('证言'));
+  return nonTestimonyEvidence.every(e => e.obtained);
+}
+
+/**
  * 生成所有可用的提示线索
  * @param evidenceList 当前证物列表
  * @param actors 当前角色列表
@@ -81,7 +114,33 @@ export function generateAvailableHints(
   shownHintIds: Set<string> = new Set()
 ): Hint[] {
   const hints: Hint[] = [];
+  const allEvidenceObtained = areAllEvidenceObtained(evidenceList);
   
+  // 如果所有证物都已获取，只生成证言提示
+  if (allEvidenceObtained) {
+    // 证言提示：只提示能够获得新证言的证物出示
+    const obtainedEvidence = evidenceList.filter(e => e.obtained && !e.name.includes('证言'));
+    
+    for (const actor of actors) {
+      for (const evidence of obtainedEvidence) {
+        // 检查是否可以获得新证言
+        if (canObtainTestimony(actor, evidence.id)) {
+          const hintId = `testimony_${actor.id}_${evidence.id}`;
+          if (!shownHintIds.has(hintId)) {
+            hints.push({
+              id: hintId,
+              type: 'testimony',
+              message: `建议向"${actor.name}"出示"${evidence.name}"，可能会获得新的证言。`
+            });
+          }
+        }
+      }
+    }
+    
+    return hints;
+  }
+  
+  // 如果还有未获取的证物，优先提示证物相关线索
   // 1. 地点提示：只提示有 obtainEvidenceId 的地点
   const evidenceLocations = mapRegions.filter(
     r => r.obtainEvidenceId && 
@@ -109,21 +168,20 @@ export function generateAvailableHints(
     }
   }
   
-  // 2. 证言提示：只提示能够获得新证言的证物出示
-  const obtainedEvidence = evidenceList.filter(e => e.obtained && !e.name.includes('证言'));
-  
+  // 2. 对话提示：提示可以通过对话获得证物的角色
   for (const actor of actors) {
-    for (const evidence of obtainedEvidence) {
-      // 检查是否可以获得新证言
-      if (canObtainTestimony(actor, evidence.id)) {
-        const hintId = `testimony_${actor.id}_${evidence.id}`;
-        if (!shownHintIds.has(hintId)) {
-          hints.push({
-            id: hintId,
-            type: 'testimony',
-            message: `建议向"${actor.name}"出示"${evidence.name}"，可能会获得新的证言。`
-          });
-        }
+    if (canObtainEvidenceFromDialogue(actor, evidenceList)) {
+      const mapping = responseKeywordMapping as Record<string, { 关键词: string[]; 证物ID: string }>;
+      const characterMapping = mapping[actor.name];
+      const evidenceId = characterMapping.证物ID;
+      const hintId = `dialogue_${actor.id}_${evidenceId}`;
+      
+      if (!shownHintIds.has(hintId)) {
+        hints.push({
+          id: hintId,
+          type: 'dialogue',
+          message: `建议和"${actor.name}"对话，可能会获得新的证物。`
+        });
       }
     }
   }
@@ -132,12 +190,104 @@ export function generateAvailableHints(
 }
 
 /**
+ * 检查是否所有证物和证言都已获取
+ * @param evidenceList 证物列表
+ * @param actors 角色列表
+ * @returns 是否所有证物和证言都已获取
+ */
+export function areAllEvidenceAndTestimonyObtained(
+  evidenceList: Evidence[],
+  actors: Actor[]
+): boolean {
+  // 检查是否所有证物都已获取
+  if (!areAllEvidenceObtained(evidenceList)) {
+    return false;
+  }
+  
+  // 检查是否所有证言都已获取（检查所有角色是否还有可获得的证言）
+  const obtainedEvidence = evidenceList.filter(e => e.obtained && !e.name.includes('证言'));
+  
+  for (const actor of actors) {
+    for (const evidence of obtainedEvidence) {
+      if (canObtainTestimony(actor, evidence.id)) {
+        return false; // 还有可获得的证言
+      }
+    }
+  }
+  
+  return true; // 所有证物和证言都已获取
+}
+
+/**
+ * 计算未收集的证物和证言数量
+ * @param evidenceList 证物列表
+ * @param actors 角色列表
+ * @returns 未收集的证物数量和证言数量
+ */
+export function countUncollectedItems(
+  evidenceList: Evidence[],
+  actors: Actor[]
+): { uncollectedEvidence: number; uncollectedTestimony: number } {
+  // 计算未收集的证物数量（包括所有证物，总共15个）
+  // 证物ID从01到15，包括通过对话获取的证物（11-15）
+  const allEvidence = evidenceList.filter(e => {
+    const idNum = parseInt(e.id, 10);
+    return idNum >= 1 && idNum <= 15;
+  });
+  const uncollectedEvidence = allEvidence.filter(e => !e.obtained).length;
+  
+  // 计算未收集的证言数量
+  // 只统计在 context2Mapping 中有映射的证言（每个映射算一个证言）
+  const contextMap = context2Mapping as Record<string, Record<string, "context2" | "context3" | "context4" | "lastcontext" | boolean>>;
+  let uncollectedTestimony = 0;
+  
+  for (const actor of actors) {
+    const context1Content = actor.context1 || '';
+    const actorMapping = contextMap[actor.name];
+    
+    if (!actorMapping) {
+      continue;
+    }
+    
+    // 遍历该角色在 context2Mapping 中的所有映射（遍历所有证物ID，不依赖 evidenceList）
+    for (const evidenceId in actorMapping) {
+      const contextToAdd = actorMapping[evidenceId];
+      
+      // 如果映射为字符串类型（context2/context3/context4/lastcontext），说明可以获得证言
+      if (contextToAdd && typeof contextToAdd === 'string') {
+        let canObtain = false;
+        
+        if (contextToAdd === "context2") {
+          const context2Content = actor.context2 || '';
+          canObtain = context2Content.trim() !== '' && !context1Content.includes(context2Content.trim());
+        } else if (contextToAdd === "context3") {
+          const context3Content = actor.context3 || '';
+          canObtain = context3Content.trim() !== '' && !context1Content.includes(context3Content.trim());
+        } else if (contextToAdd === "context4") {
+          const context4Content = actor.context4 || '';
+          canObtain = context4Content.trim() !== '' && !context1Content.includes(context4Content.trim());
+        } else if (contextToAdd === "lastcontext") {
+          const lastcontextContent = actor.lastcontext || '';
+          canObtain = lastcontextContent.trim() !== '' && !context1Content.includes(lastcontextContent.trim());
+        }
+        
+        if (canObtain) {
+          uncollectedTestimony++;
+        }
+      }
+    }
+  }
+  
+  return { uncollectedEvidence, uncollectedTestimony };
+}
+
+/**
  * 生成一个随机提示线索
  * @param evidenceList 当前证物列表
  * @param actors 当前角色列表
  * @param mapRegions 地图区域列表
  * @param shownHintIds 已显示的提示ID集合
- * @returns 提示线索，如果没有可用提示则返回null
+ * @returns 提示线索，如果没有可用提示则返回null。如果所有证物和证言都已获取，返回特殊提示。
  */
 export function generateHint(
   evidenceList: Evidence[],
@@ -145,13 +295,44 @@ export function generateHint(
   mapRegions: MapRegion[],
   shownHintIds: Set<string> = new Set()
 ): Hint | null {
+  // 检查是否所有证物和证言都已获取
+  if (areAllEvidenceAndTestimonyObtained(evidenceList, actors)) {
+    return {
+      id: 'all_obtained',
+      type: 'location',
+      message: '你已经获取了全部的证物和证言。'
+    };
+  }
+  
   const availableHints = generateAvailableHints(evidenceList, actors, mapRegions, shownHintIds);
   
   if (availableHints.length === 0) {
     return null;
   }
   
-  // 随机选择一个提示
+  // 优先级：地点提示 > 对话提示 > 证言提示
+  // 优先选择地点提示
+  const locationHints = availableHints.filter(h => h.type === 'location');
+  if (locationHints.length > 0) {
+    const randomIndex = Math.floor(Math.random() * locationHints.length);
+    return locationHints[randomIndex];
+  }
+  
+  // 如果没有地点提示，选择对话提示
+  const dialogueHints = availableHints.filter(h => h.type === 'dialogue');
+  if (dialogueHints.length > 0) {
+    const randomIndex = Math.floor(Math.random() * dialogueHints.length);
+    return dialogueHints[randomIndex];
+  }
+  
+  // 最后选择证言提示
+  const testimonyHints = availableHints.filter(h => h.type === 'testimony');
+  if (testimonyHints.length > 0) {
+    const randomIndex = Math.floor(Math.random() * testimonyHints.length);
+    return testimonyHints[randomIndex];
+  }
+  
+  // 如果都没有，随机选择一个（理论上不会到这里）
   const randomIndex = Math.floor(Math.random() * availableHints.length);
   return availableHints[randomIndex];
 }
