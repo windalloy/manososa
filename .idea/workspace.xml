@@ -7,7 +7,6 @@
     <list default="true" id="193e97bf-4125-4b01-be92-80643b491152" name="Changes" comment="12.20">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/characters.json" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/characters.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/components/HelpModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/components/HelpModal.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/evidence.json" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/evidence.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/pages/Home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/pages/Home.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/utils/hintGenerator.ts" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/utils/hintGenerator.ts" afterDir="false" />
@@ -43,14 +42,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/py/manososa&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;IntelliLang.Configuration&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "D:/py/gradeanal",
+    "settings.editor.selected.configurable": "IntelliLang.Configuration"
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -219,7 +218,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766165081698</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="12.20">
+      <option name="closed" value="true" />
+      <created>1766207947245</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1766207947245</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="UnknownFeatures">

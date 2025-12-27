@@ -22,6 +22,7 @@ const ASPECT_RATIO = 16 / 9;
 const EndModal: React.FC<EndModalProps> = ({ opened, onClose }) => {
   const [scale, setScale] = useState<number>(1);
   const [isLandscape, setIsLandscape] = useState<boolean>(window.innerWidth > window.innerHeight);
+  const [hasExistingWarning, setHasExistingWarning] = useState<boolean>(false);
   const [showStoryModal, setShowStoryModal] = useState<boolean>(false);
 
   useEffect(() => {
@@ -49,8 +50,26 @@ const EndModal: React.FC<EndModalProps> = ({ opened, onClose }) => {
     return () => window.removeEventListener('resize', calculateScale);
   }, []);
 
-  // 如果是竖屏，显示横屏提示
+  // 检查是否已经有横屏提示遮罩层
+  useEffect(() => {
+    const checkExistingWarning = () => {
+      const existing = document.querySelector('[data-landscape-warning="true"]') !== null;
+      setHasExistingWarning(existing);
+    };
+    
+    checkExistingWarning();
+    // 定期检查，因为遮罩层可能动态出现或消失
+    const interval = setInterval(checkExistingWarning, 100);
+    return () => clearInterval(interval);
+  }, []);
+
+  // 如果是竖屏，检查是否已经有横屏提示遮罩层
   if (!isLandscape) {
+    // 如果已经有横屏提示，就不显示Modal中的提示
+    if (hasExistingWarning) {
+      return null;
+    }
+    
     return (
       <Modal
         opened={opened}

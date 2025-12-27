@@ -29,6 +29,73 @@ const getRandomBg = () => {
   return BG_IMAGES[Math.floor(Math.random() * BG_IMAGES.length)];
 };
 
+/**
+ * 计算按钮文字中需要变红的字符数
+ * 2-3字：第一个字变红
+ * 4-5字：前两个字变红
+ */
+const getRedCharCount = (text: string): number => {
+  const length = text.length;
+  if (length >= 2 && length <= 3) {
+    return 1;
+  } else if (length >= 4 && length <= 5) {
+    return 2;
+  }
+  return 0;
+};
+
+/**
+ * 将按钮文字分割为红色部分和白色部分
+ */
+const splitButtonText = (text: string): { redPart: string; whitePart: string } => {
+  const redCount = getRedCharCount(text);
+  return {
+    redPart: text.slice(0, redCount),
+    whitePart: text.slice(redCount),
+  };
+};
+
+/**
+ * 计算角色触发了多少次出示事件
+ * 通过检查context1中包含多少个context2、context3、context4、lastcontext来判断
+ */
+const countEvidenceShownTimes = (actor: { context1?: string; context2?: string; context3?: string; context4?: string; lastcontext?: string }): number => {
+  if (!actor) return 0;
+  
+  const context1 = actor.context1 || '';
+  let count = 0;
+  
+  // 检查context2是否已添加到context1
+  if (actor.context2 && actor.context2.trim() !== '') {
+    if (context1.includes(actor.context2.trim())) {
+      count++;
+    }
+  }
+  
+  // 检查context3是否已添加到context1
+  if (actor.context3 && actor.context3.trim() !== '') {
+    if (context1.includes(actor.context3.trim())) {
+      count++;
+    }
+  }
+  
+  // 检查context4是否已添加到context1
+  if (actor.context4 && actor.context4.trim() !== '') {
+    if (context1.includes(actor.context4.trim())) {
+      count++;
+    }
+  }
+  
+  // 检查lastcontext是否已添加到context1
+  if (actor.lastcontext && actor.lastcontext.trim() !== '') {
+    if (context1.includes(actor.lastcontext.trim())) {
+      count++;
+    }
+  }
+  
+  return count;
+};
+
 // 根据头像文件名和context状态获取立绘文件名
 const getStandImage = (avatarFileName: string, actor?: { context1?: string; context2?: string; context3?: string; context4?: string; lastcontext?: string }, forcedVariant?: string | null): string | null => {
   // 去掉扩展名，获取基础名称
@@ -161,12 +228,12 @@ const preloadStandImages = () => {
     standVariants.forEach(variant => {
       const standPath = `character_stand/${baseName}${variant}.webp`;
       if (!standImageCache[standPath]) {
-        try {
-          standImageCache[standPath] = require(`../assets/${standPath}`);
-        } catch {
-          standImageCache[standPath] = null;
-        }
+      try {
+        standImageCache[standPath] = require(`../assets/${standPath}`);
+      } catch {
+        standImageCache[standPath] = null;
       }
+    }
     });
   });
 };
@@ -316,7 +383,10 @@ export default function Home() {
   const sessionId = useSessionContext();
   const [bgImage, setBgImage] = useState<string>('bg/01.avif');
   const [recentBgImages, setRecentBgImages] = useState<string[]>([]); // 跟踪最近7次使用的背景
-  const [standJump, setStandJump] = useState<number>(0); // 立绘跳跃动画计数器
+  const [standJump, setStandJump] = useState<number>(0); // 立绘跳跃动画计数器（先向下再向上，用于3次及以上出示）
+  const [standJumpUpOnce, setStandJumpUpOnce] = useState<number>(0); // 立绘向上跳动一次动画计数器（用于1次出示）
+  const [standJumpUpTwice, setStandJumpUpTwice] = useState<number>(0); // 立绘向上跳动两次动画计数器（用于0次出示）
+  const [standShake, setStandShake] = useState<number>(0); // 立绘抖动动画计数器
   const [showMap, setShowMap] = useState<boolean>(false); // 是否显示地图
   const [currentMapIndex, setCurrentMapIndex] = useState<number>(1); // 当前地图索引：0=map_2, 1=map_1, 2=map_b1
   const [showHistory, setShowHistory] = useState<boolean>(false); // 是否显示历史对话
@@ -462,7 +532,7 @@ export default function Home() {
     initialEvidence.map(e => ({ ...e })) // 深拷贝，确保每次都是新的数组实例
   ); // 证物列表
   const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(null); // 当前选中的证物
-  
+
   // 标记是否已经恢复过游戏状态，避免重复恢复
   const hasRestoredRef = useRef(false);
 
@@ -578,209 +648,9 @@ export default function Home() {
     }
   }, [actionCountdown, endGame, countdownEnded, actors]);
 
-  // 组件挂载时预加载所有图片（按优先级）
+  // 组件挂载时检测是否为移动设备
+  // 注意：初始资源预加载已在App.tsx的Loading组件中完成
   useEffect(() => {
-    // 保留原有的缓存机制
-    preloadStandImages();
-    preloadBgImages();
-    
-    // 收集图片路径（按新的分类方式）
-    const characterImages = [
-      'ema.jpg', 'hiro.jpg', 'anan.jpg', 'noa.jpg', 'leia.jpg', 
-      'milia.jpg', 'nanoka.jpg', 'arisa.jpg', 'sherry.jpg', 
-      'hanna.jpg', 'koko.jpg', 'meruru.jpg'
-    ];
-    
-    // 收集基础立绘（不带下划线的）
-    const collectBaseStandImages = (): string[] => {
-      const urls: string[] = [];
-      characterImages.forEach(imageFile => {
-        const baseName = imageFile.replace(/\.(jpg|jpeg|png)$/i, '');
-        const standPath = `character_stand/${baseName}.webp`;
-        try {
-          const src = require(`../assets/${standPath}`);
-          if (src) urls.push(src);
-        } catch {
-          // 忽略不存在的图片
-        }
-      });
-      return urls;
-    };
-    
-    // 收集立绘变体（带下划线的）
-    const collectStandVariants = (): string[] => {
-      const urls: string[] = [];
-      const standVariants = ['_2', '_3', '_4', '_l'];
-      characterImages.forEach(imageFile => {
-        const baseName = imageFile.replace(/\.(jpg|jpeg|png)$/i, '');
-        standVariants.forEach(variant => {
-          const standPath = `character_stand/${baseName}${variant}.webp`;
-          try {
-            const src = require(`../assets/${standPath}`);
-            if (src) urls.push(src);
-          } catch {
-            // 忽略不存在的图片
-          }
-        });
-      });
-      return urls;
-    };
-    
-    // 收集背景图片（按顺序）
-    const collectBgImageUrls = (): string[] => {
-      const urls: string[] = [];
-      BG_IMAGES.forEach(bgPath => {
-        try {
-          const src = require(`../assets/${bgPath}`);
-          if (src) urls.push(src);
-        } catch {
-          // 忽略不存在的图片
-        }
-      });
-      return urls;
-    };
-    
-    // 按目录分类收集其他图片
-    const collectOtherImagesByCategory = () => {
-      const map: string[] = [];
-      const ui: string[] = [];
-      const evidence: string[] = [];
-      const character_name: string[] = [];
-      const character_avatars: string[] = [];
-      const history: string[] = [];
-      
-      // 地图图片
-      MAP_IMAGES.forEach(mapPath => {
-        try {
-          const src = require(`../assets/${mapPath}`);
-          if (src) map.push(src);
-        } catch {}
-      });
-      
-      // UI 图片
-      const uiImages = ['ui/get.webp', 'ui/bg1.webp', 'ui/1.webp', 'ui/2.webp'];
-      uiImages.forEach(path => {
-        try {
-          const src = require(`../assets/${path}`);
-          if (src) ui.push(src);
-        } catch {}
-      });
-      
-      // 证物图片（包括背景）
-      for (let i = 1; i <= 15; i++) {
-        const num = String(i).padStart(2, '0');
-        try {
-          const src = require(`../assets/evidence/${num}.webp`);
-          if (src) evidence.push(src);
-        } catch {}
-      }
-      try {
-        const src = require('../assets/evidence/bg.webp');
-        if (src) evidence.push(src);
-      } catch {}
-      try {
-        const src = require('../assets/evidence/bg1.webp');
-        if (src) evidence.push(src);
-      } catch {}
-      
-      // 角色名称图片
-      const characterNames = ['name', 'n_ema', 'n_hiro', 'n_anan', 'n_noa', 'n_leia', 
-        'n_milia', 'n_nanoka', 'n_arisa', 'n_sherry', 'n_hanna', 'n_koko', 'n_meruru', 'n_alisa', 'n_mage'];
-      characterNames.forEach(name => {
-        try {
-          const src = require(`../assets/character_name/${name}.webp`);
-          if (src) character_name.push(src);
-        } catch {}
-      });
-      
-      // 角色头像
-      characterImages.forEach(imageFile => {
-        const baseName = imageFile.replace(/\.(jpg|jpeg|png)$/i, '');
-        try {
-          const src = require(`../assets/character_avatars/${baseName}.webp`);
-          if (src) character_avatars.push(src);
-        } catch {}
-      });
-      
-      // 历史背景
-      try {
-        const src = require('../assets/history/bg.webp');
-        if (src) history.push(src);
-      } catch {}
-      try {
-        const src = require('../assets/history/bg1.webp');
-        if (src) history.push(src);
-      } catch {}
-      
-      return { map, ui, evidence, character_name, character_avatars, history };
-    };
-    
-    // 第一步：优先加载首屏背景 01.avif 和立绘 ema
-    const initialImages: string[] = [];
-    
-    // 加载首屏背景 01.avif
-    try {
-      const bg01Src = require('../assets/bg/01.avif');
-      if (bg01Src) initialImages.push(bg01Src);
-    } catch {
-      // 忽略加载失败的图片
-    }
-    
-    // 加载立绘 ema（基础立绘）
-    try {
-      const emaStandSrc = require('../assets/character_stand/ema.webp');
-      if (emaStandSrc) initialImages.push(emaStandSrc);
-    } catch {
-      // 忽略加载失败的图片
-    }
-    
-    // 收集所有图片
-    const baseStandUrls = collectBaseStandImages();
-    const bgUrls = collectBgImageUrls();
-    const standVariants = collectStandVariants();
-    const otherImagesByCategory = collectOtherImagesByCategory();
-    
-    // 优先加载首屏图片，然后再开始队列预加载
-    if (initialImages.length > 0) {
-      preloadPriorityImages(initialImages).then(() => {
-        // 首屏图片加载完成后再开始队列预加载
-        preloadAllImages(
-          baseStandUrls,
-          bgUrls,
-          {
-            ...otherImagesByCategory,
-            character_stand_variants: standVariants,
-          }
-        ).catch(err => {
-          console.warn('图片预加载过程中出现错误:', err);
-        });
-      }).catch(() => {
-        // 即使优先加载失败，也继续队列预加载
-        preloadAllImages(
-          baseStandUrls,
-          bgUrls,
-          {
-            ...otherImagesByCategory,
-            character_stand_variants: standVariants,
-          }
-        ).catch(err => {
-          console.warn('图片预加载过程中出现错误:', err);
-        });
-      });
-    } else {
-      // 如果没有首屏图片，直接开始队列预加载
-      preloadAllImages(
-        baseStandUrls,
-        bgUrls,
-        {
-          ...otherImagesByCategory,
-          character_stand_variants: standVariants,
-        }
-      ).catch(err => {
-        console.warn('图片预加载过程中出现错误:', err);
-      });
-    }
-    
     // 检测是否为移动设备
     setIsMobile(isMobileDevice());
   }, []);
@@ -938,6 +808,9 @@ export default function Home() {
   // 切换角色时重置立绘跳跃动画状态，避免切换时触发动画
   useEffect(() => {
     setStandJump(0);
+    setStandJumpUpOnce(0);
+    setStandJumpUpTwice(0);
+    setStandShake(0);
   }, [currActor]);
 
   // 计算历史背景图片的实际显示位置和尺寸
@@ -1504,6 +1377,7 @@ export default function Home() {
       {/* 横屏提示遮罩层 - 移动设备竖屏时显示 */}
       {isMobile && !isLandscape && (
         <div
+          data-landscape-warning="true"
           style={{
             position: 'fixed',
             top: 0,
@@ -1597,6 +1471,9 @@ export default function Home() {
               setShowContextUpdate(true);
               setTimeout(() => setShowContextUpdate(false), 3000);
               
+              // 触发立绘抖动动画
+              setStandShake(prev => prev + 1);
+              
               // 移除相关的证言提示
               setShownHintIds(prev => {
                 const newSet = new Set(prev);
@@ -1688,6 +1565,25 @@ export default function Home() {
         {/* 立绘跳跃动画样式 */}
         <style>{`
           @keyframes standJump {
+            0% {
+              transform: ${currentStandPosition?.transform || 'translateX(-50%)'} translateY(0px);
+            }
+            50% {
+              transform: ${currentStandPosition?.transform || 'translateX(-50%)'} translateY(${20 * standScale}px);
+            }
+            100% {
+              transform: ${currentStandPosition?.transform || 'translateX(-50%)'} translateY(0px);
+            }
+          }
+          @keyframes standJumpUpOnce {
+            0%, 100% {
+              transform: ${currentStandPosition?.transform || 'translateX(-50%)'} translateY(0px);
+            }
+            50% {
+              transform: ${currentStandPosition?.transform || 'translateX(-50%)'} translateY(-${20 * standScale}px);
+            }
+          }
+          @keyframes standJumpUpTwice {
             0%, 100% {
               transform: ${currentStandPosition?.transform || 'translateX(-50%)'} translateY(0px);
             }
@@ -1700,6 +1596,31 @@ export default function Home() {
             75% {
               transform: ${currentStandPosition?.transform || 'translateX(-50%)'} translateY(-${20 * standScale}px);
             }
+          }
+          @keyframes standShake {
+            0%, 100% {
+              transform: ${currentStandPosition?.transform || 'translateX(-50%)'};
+            }
+            10%, 30%, 50%, 70%, 90% {
+              transform: ${currentStandPosition?.transform || 'translateX(-50%)'} translateX(-${5 * standScale}px);
+            }
+            20%, 40%, 60%, 80% {
+              transform: ${currentStandPosition?.transform || 'translateX(-50%)'} translateX(${5 * standScale}px);
+            }
+          }
+          /* 按钮hover样式 */
+          .top-button-hover {
+            position: relative;
+            transition: background 0.3s ease;
+          }
+          .top-button-hover:hover {
+            background: radial-gradient(circle at center, rgba(139, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.9) 70%, rgba(0, 0, 0, 0.95) 100%) !important;
+          }
+          .top-button-hover:hover .button-text-red {
+            color: #A90000;
+          }
+          .top-button-hover:hover .button-text-white {
+            color: white;
           }
         `}</style>
         {/* 背景图层 - 最底层 */}
@@ -1771,7 +1692,15 @@ export default function Home() {
               alignItems: 'flex-end',
               justifyContent: 'center',
               transition: 'bottom 0.3s ease, left 0.3s ease, right 0.3s ease, transform 0.3s ease, maxHeight 0.3s ease, maxWidth 0.3s ease', // 添加平滑过渡
-              animation: standJump > 0 ? 'standJump 0.6s ease-in-out' : 'none',
+              animation: standShake > 0 
+                ? 'standShake 0.5s ease-in-out' 
+                : (standJumpUpTwice > 0 
+                  ? 'standJumpUpTwice 0.6s ease-in-out' 
+                  : (standJumpUpOnce > 0 
+                    ? 'standJumpUpOnce 0.3s ease-in-out' 
+                    : (standJump > 0 
+                      ? 'standJump 0.6s ease-in-out' 
+                      : 'none'))),
             }}
           >
             <Image
@@ -2003,6 +1932,7 @@ export default function Home() {
           >
             <Button
               onClick={() => setHelpModalOpened(true)}
+              className="top-button-hover"
               style={{
                 backgroundColor: 'rgba(0, 0, 0, 0.6)',
                 color: 'white',
@@ -2010,12 +1940,15 @@ export default function Home() {
                 padding: `${6 * scale}px ${12 * scale}px`,
                 height: 'auto',
                 minHeight: `${32 * scale}px`,
+                position: 'relative',
               }}
             >
-              说明
+              <span className="button-text-red">说</span>
+              <span className="button-text-white">明</span>
             </Button>
             <Button
               onClick={() => setHintConfirmOpened(true)}
+              className="top-button-hover"
               style={{
                 backgroundColor: 'rgba(0, 0, 0, 0.6)',
                 color: 'white',
@@ -2023,12 +1956,21 @@ export default function Home() {
                 padding: `${6 * scale}px ${12 * scale}px`,
                 height: 'auto',
                 minHeight: `${32 * scale}px`,
+                position: 'relative',
               }}
             >
-              提示
+              <span className="button-text-red">提</span>
+              <span className="button-text-white">示</span>
+              <svg className="top-button-butterfly" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C10 2 8 3 7 4C6 5 5 7 5 9C5 10 5.5 11 6 12C5.5 13 5 14 5 15C5 16 5.5 17 6 18C6.5 19 7 20 8 20C9 20 10 19 11 18C11.5 18.5 12.5 18.5 13 18C14 19 15 20 16 20C17 20 18 19 19 18C19.5 17 20 16 20 15C20 14 19.5 13 19 12C19.5 11 20 10 20 9C20 7 19 5 18 4C17 3 15 2 12 2Z" fill="#ff0000"/>
+                <ellipse cx="9" cy="10" rx="2" ry="3" fill="#ff0000"/>
+                <ellipse cx="15" cy="10" rx="2" ry="3" fill="#ff0000"/>
+                <path d="M12 6L12 8" stroke="#ff0000" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
             </Button>
             <Button
               onClick={toggleMap}
+              className="top-button-hover"
               style={{
                 backgroundColor: showMap ? 'rgba(173, 216, 230, 0.8)' : 'rgba(0, 0, 0, 0.6)',
                 color: 'white',
@@ -2036,12 +1978,21 @@ export default function Home() {
                 padding: `${6 * scale}px ${12 * scale}px`,
                 height: 'auto',
                 minHeight: `${32 * scale}px`,
+                position: 'relative',
               }}
             >
-              调查
+              <span className="button-text-red">调</span>
+              <span className="button-text-white">查</span>
+              <svg className="top-button-butterfly" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C10 2 8 3 7 4C6 5 5 7 5 9C5 10 5.5 11 6 12C5.5 13 5 14 5 15C5 16 5.5 17 6 18C6.5 19 7 20 8 20C9 20 10 19 11 18C11.5 18.5 12.5 18.5 13 18C14 19 15 20 16 20C17 20 18 19 19 18C19.5 17 20 16 20 15C20 14 19.5 13 19 12C19.5 11 20 10 20 9C20 7 19 5 18 4C17 3 15 2 12 2Z" fill="#ff0000"/>
+                <ellipse cx="9" cy="10" rx="2" ry="3" fill="#ff0000"/>
+                <ellipse cx="15" cy="10" rx="2" ry="3" fill="#ff0000"/>
+                <path d="M12 6L12 8" stroke="#ff0000" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
             </Button>
             <Button
               onClick={toggleEvidence}
+              className="top-button-hover"
               style={{
                 backgroundColor: showEvidence ? 'rgba(173, 216, 230, 0.8)' : 'rgba(0, 0, 0, 0.6)',
                 color: 'white',
@@ -2049,12 +2000,21 @@ export default function Home() {
                 padding: `${6 * scale}px ${12 * scale}px`,
                 height: 'auto',
                 minHeight: `${32 * scale}px`,
+                position: 'relative',
               }}
             >
-              出示
+              <span className="button-text-red">出</span>
+              <span className="button-text-white">示</span>
+              <svg className="top-button-butterfly" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C10 2 8 3 7 4C6 5 5 7 5 9C5 10 5.5 11 6 12C5.5 13 5 14 5 15C5 16 5.5 17 6 18C6.5 19 7 20 8 20C9 20 10 19 11 18C11.5 18.5 12.5 18.5 13 18C14 19 15 20 16 20C17 20 18 19 19 18C19.5 17 20 16 20 15C20 14 19.5 13 19 12C19.5 11 20 10 20 9C20 7 19 5 18 4C17 3 15 2 12 2Z" fill="#ff0000"/>
+                <ellipse cx="9" cy="10" rx="2" ry="3" fill="#ff0000"/>
+                <ellipse cx="15" cy="10" rx="2" ry="3" fill="#ff0000"/>
+                <path d="M12 6L12 8" stroke="#ff0000" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
             </Button>
             <Button
               onClick={() => setShowHistory(true)}
+              className="top-button-hover"
               style={{
                 backgroundColor: 'rgba(0, 0, 0, 0.6)',
                 color: 'white',
@@ -2062,49 +2022,82 @@ export default function Home() {
                 padding: `${6 * scale}px ${12 * scale}px`,
                 height: 'auto',
                 minHeight: `${32 * scale}px`,
+                position: 'relative',
               }}
             >
-              历史对话
+              <span className="button-text-red">历史</span>
+              <span className="button-text-white">对话</span>
+              <svg className="top-button-butterfly" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C10 2 8 3 7 4C6 5 5 7 5 9C5 10 5.5 11 6 12C5.5 13 5 14 5 15C5 16 5.5 17 6 18C6.5 19 7 20 8 20C9 20 10 19 11 18C11.5 18.5 12.5 18.5 13 18C14 19 15 20 16 20C17 20 18 19 19 18C19.5 17 20 16 20 15C20 14 19.5 13 19 12C19.5 11 20 10 20 9C20 7 19 5 18 4C17 3 15 2 12 2Z" fill="#ff0000"/>
+                <ellipse cx="9" cy="10" rx="2" ry="3" fill="#ff0000"/>
+                <ellipse cx="15" cy="10" rx="2" ry="3" fill="#ff0000"/>
+                <path d="M12 6L12 8" stroke="#ff0000" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
             </Button>
-            <Button
+              <Button
               onClick={changeBackground}
-              style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                color: 'white',
+              className="top-button-hover"
+                style={{
+                  backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                  color: 'white',
                 fontSize: `${14 * scale}px`,
                 padding: `${6 * scale}px ${12 * scale}px`,
                 height: 'auto',
                 minHeight: `${32 * scale}px`,
+                position: 'relative',
               }}
             >
-              切换背景
-            </Button>
+              <span className="button-text-red">切换</span>
+              <span className="button-text-white">背景</span>
+              <svg className="top-button-butterfly" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C10 2 8 3 7 4C6 5 5 7 5 9C5 10 5.5 11 6 12C5.5 13 5 14 5 15C5 16 5.5 17 6 18C6.5 19 7 20 8 20C9 20 10 19 11 18C11.5 18.5 12.5 18.5 13 18C14 19 15 20 16 20C17 20 18 19 19 18C19.5 17 20 16 20 15C20 14 19.5 13 19 12C19.5 11 20 10 20 9C20 7 19 5 18 4C17 3 15 2 12 2Z" fill="#ff0000"/>
+                <ellipse cx="9" cy="10" rx="2" ry="3" fill="#ff0000"/>
+                <ellipse cx="15" cy="10" rx="2" ry="3" fill="#ff0000"/>
+                <path d="M12 6L12 8" stroke="#ff0000" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+              </Button>
             <Button
               onClick={() => setRestartConfirmOpened(true)}
-              style={{
+              className="top-button-hover"
+            style={{
                 backgroundColor: 'rgba(0, 0, 0, 0.6)',
                 color: 'white',
                 fontSize: `${14 * scale}px`,
                 padding: `${6 * scale}px ${12 * scale}px`,
                 height: 'auto',
                 minHeight: `${32 * scale}px`,
+                position: 'relative',
               }}
             >
-              重新开始
+              <span className="button-text-red">重新</span>
+              <span className="button-text-white">开始</span>
+              <svg className="top-button-butterfly" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C10 2 8 3 7 4C6 5 5 7 5 9C5 10 5.5 11 6 12C5.5 13 5 14 5 15C5 16 5.5 17 6 18C6.5 19 7 20 8 20C9 20 10 19 11 18C11.5 18.5 12.5 18.5 13 18C14 19 15 20 16 20C17 20 18 19 19 18C19.5 17 20 16 20 15C20 14 19.5 13 19 12C19.5 11 20 10 20 9C20 7 19 5 18 4C17 3 15 2 12 2Z" fill="#ff0000"/>
+                <ellipse cx="9" cy="10" rx="2" ry="3" fill="#ff0000"/>
+                <ellipse cx="15" cy="10" rx="2" ry="3" fill="#ff0000"/>
+                <path d="M12 6L12 8" stroke="#ff0000" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
             </Button>
             {!postGame && (
               <Button
                 onClick={handleEndGame}
+                className="top-button-hover"
                 style={{
-                  backgroundColor: 'rgba(0, 0, 0, 0.6)',
+              backgroundColor: 'rgba(0, 0, 0, 0.6)', 
                   color: 'white',
                   fontSize: `${14 * scale}px`,
                   padding: `${6 * scale}px ${12 * scale}px`,
                   height: 'auto',
                   minHeight: `${32 * scale}px`,
+                  position: 'relative',
                 }}
               >
-                结束游戏
+                <span className="button-text-red">结束</span>
+                <span className="button-text-white">游戏</span>
+                <svg className="top-button-butterfly" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2C8 2 5 5 5 9C5 11 6 13 7 14C6 15 5 17 5 19C5 21 6 22 8 22C9 22 10 21 11 20C11.5 20.5 12.5 20.5 13 20C14 21 15 22 16 22C18 22 19 21 19 19C19 17 18 15 17 14C18 13 19 11 19 9C19 5 16 2 12 2Z" fill="#ff0000"/>
+                  <path d="M12 6C10 6 8 7 8 9C8 10 9 11 10 11C9 12 8 13 8 14C8 15 9 16 10 16C10.5 15.5 11.5 15.5 12 16C13 16 14 15 14 14C14 13 13 12 12 11C13 11 14 10 14 9C14 7 12 6 12 6Z" fill="#ff0000"/>
+                </svg>
               </Button>
             )}
           </div>
@@ -2130,8 +2123,21 @@ export default function Home() {
                   effectiveHeight={effectiveHeight}
                   isGameContainerCentered={isGameContainerCentered}
                   onMessageSent={() => {
-                    // 触发立绘跳跃动画（一次跳跃）
+                    // 根据出示次数选择不同的动画
+                    const currentActor = actors[currActor];
+                    const shownTimes = countEvidenceShownTimes(currentActor);
+                    
+                    if (shownTimes === 0) {
+                      // 未触发任何出示事件：向上跳动两次
+                      setStandJumpUpTwice(prev => prev + 1);
+                    } else if (shownTimes === 1 || shownTimes === 2) {
+                      // 触发了一次或两次出示事件：向上跳动一次
+                      setStandJumpUpOnce(prev => prev + 1);
+                    } else {
+                      // 触发了三次及以上出示事件：先向下再向上
                     setStandJump(prev => prev + 1);
+                    }
+                    
                     // 减少倒计时（一次对话减少2次行动）
                     setActionCountdown(prev => Math.max(0, prev - 1));
                   }}
@@ -2154,7 +2160,7 @@ export default function Home() {
                   setShowContextUpdate(false);
                 }
                 // 动画结束后（2秒）清除图片状态，但保持通知显示到3秒
-                setTimeout(() => {
+                    setTimeout(() => {
                   setNewEvidenceImage(null);
                 }, 2000);
                 setTimeout(() => {
@@ -2297,20 +2303,20 @@ export default function Home() {
                 scrollbar-width: none; /* Firefox */
               }
             `}</style>
-            <div
-              style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                zIndex: 2000,
-                backgroundColor: 'rgba(0, 0, 0, 0.8)', // 与地图和证物相同的半透明背景
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              zIndex: 2000,
+              backgroundColor: 'rgba(0, 0, 0, 0.8)', // 与地图和证物相同的半透明背景
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             {/* 历史背景图片 - 与地图和证物相同的显示方式 */}
             {getHistoryBgSrc() && (
               <Image

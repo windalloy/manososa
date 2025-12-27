@@ -129,6 +129,39 @@ export async function preloadPriorityImages(images: string[]): Promise<void> {
 }
 
 /**
+ * 预加载图片并报告进度
+ * @param images 图片路径数组
+ * @param onProgress 进度回调函数 (loaded: number, total: number) => void
+ */
+export async function preloadImagesWithProgress(
+  images: string[],
+  onProgress?: (loaded: number, total: number) => void
+): Promise<void> {
+  let loaded = 0;
+  const total = images.length;
+
+  const batchSize = 3;
+  
+  for (let i = 0; i < images.length; i += batchSize) {
+    const batch = images.slice(i, i + batchSize);
+    await Promise.allSettled(
+      batch.map(async (src) => {
+        await preloadImage(src);
+        loaded++;
+        if (onProgress) {
+          onProgress(loaded, total);
+        }
+      })
+    );
+    
+    // 每批之间稍作延迟
+    if (i + batchSize < images.length) {
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+  }
+}
+
+/**
  * 预加载所有图片（按新的优先级顺序）
  * @param baseStandImages 基础立绘图片路径数组（不带下划线的，如 ema.webp, hiro.webp）
  * @param bgImages 背景图片路径数组（按顺序）
