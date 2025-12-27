@@ -27,7 +27,7 @@ export const mapRegions: MapRegion[] = [
     x2: 1064,
     y2: 444,
     message: '（一个兼具集会与展示功能的厅堂。原本放置弩枪的支架此刻空空如也。）',
-    bgImage: 'bg/01.avif',
+    bgImage: 'bg/03.avif',
   },
   {
     name: '淋浴间',
@@ -57,7 +57,7 @@ export const mapRegions: MapRegion[] = [
     x2: 848,
     y2: 635,
     message: '（这个很少使用的房间保持着一种刻板的整洁，所有家具都无声地肃立着，像是等待着不会驻足的少女，像是欢迎着不被接纳的访客。）',
-    bgImage: 'bg/01.avif',
+    bgImage: 'bg/03.avif',
   },
   {
     name: '玄关大厅',
@@ -137,7 +137,7 @@ export const mapRegions: MapRegion[] = [
     x2: 637,
     y2: 279,
     message: '（药品柜中有各色药水，摆放整齐，但都没有贴标签...可恶，这个监狱的管理者难道不会写字吗？...医务室的阳台有攀爬痕迹，似乎下午曾有人从这里进出大楼。）',
-    bgImage: 'bg/04.avif',
+    bgImage: 'bg/11.avif',
   },
   {
     name: '杂物间',
@@ -303,7 +303,7 @@ export const mapRegions: MapRegion[] = [
     x2: 1295,
     y2: 635,
     message: '（玛格的尸体已被移走，图书室内部和门口的血迹还在。蕾雅的刺剑作为凶器被发现，剑身沾有血迹。奈叶香的黑色发带落在不远处，一端浸染了血迹。一支弩箭深深嵌入樱树的树干，树下靠着一把扫帚......使用的凶器很简易，现场的状况却很复杂呢。）',
-    bgImage: 'bg/11.avif',
+    bgImage: 'bg/01.avif',
   },
   {
     name: '二楼大厅',

@@ -27,6 +27,7 @@ import {
   memoryToContext1, 
   extractUserInput 
 } from "../utils/detectiveMemory";
+import { getCharacterColor, hexToRgba, blendColorWithBlack } from "../config/characterColors";
 
 // 基准尺寸：1136x746
 const BASE_WIDTH = 1136;
@@ -279,6 +280,17 @@ const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standS
   const sessionId = useSessionContext();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  // 获取当前角色的颜色（仅用于回复框）
+  const characterColor = getCharacterColor(actor.name);
+  // 输入框使用固定的红色（二阶堂希罗的颜色）
+  const inputColor = 'A90000';
+  const inputColorRgba1 = hexToRgba(inputColor, 0.3);
+  const inputColorRgba2 = hexToRgba(inputColor, 0.5);
+  // 回复框使用角色颜色，使用线性渐变（左右方向），从黑色平滑过渡到边缘角色颜色
+  // 使用颜色混合而非透明度，确保从黑色平滑过渡到角色颜色，避免出现白色
+  const responseColorRgbaEdge = blendColorWithBlack(characterColor, 0.6); // 边缘颜色（50%混合）
+  const responseColorRgbaMid = blendColorWithBlack(characterColor, 0.4); // 中间过渡色（20%混合）
 
   // 当切换角色或该角色的消息变化时，根据该角色是否有回复来更新输入模式
   // 注意：如果正在加载中，不要切换模式（避免在发送消息后立即切回输入框）
@@ -686,6 +698,7 @@ const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standS
 
       {/* 统一的背景层 - 负责动画移动，宽度和高度独立变化 */}
       <div
+        className={`input-background-wrapper ${isAnimating ? 'animating' : ''}`}
         style={{
           position: 'fixed',
           bottom: (isInputMode && !isAnimating) || (!isInputMode && isAnimating) ? `${20 * scale}px` : 'auto',
@@ -700,14 +713,21 @@ const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standS
         }}
       >
         <div
+          className="input-background-layer"
           style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            backgroundColor: isAnimating ? 'rgba(0, 0, 0, 0.7)' : undefined,
+            background: isAnimating ? undefined : (
+              isInputMode 
+                ? `radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 75%, rgba(0, 0, 0, 0.85) 85%, ${inputColorRgba1} 95%, ${inputColorRgba2} 100%)`
+                : `linear-gradient(to right, ${responseColorRgbaEdge} 0%, ${responseColorRgbaMid} 2.5%, rgba(0, 0, 0, 0.7) 7.5%, rgba(0, 0, 0, 0.90) 50%, rgba(0, 0, 0, 0.90) 92.5%, ${responseColorRgbaMid} 97.5%, ${responseColorRgbaEdge} 100%)`
+            ),
             padding: `${15 * scale}px`,
             borderRadius: `${12 * scale}px`,
             boxShadow: `0 ${4 * scale}px ${12 * scale}px rgba(0, 0, 0, 0.3)`,
             width: '100%',
             height: '100%',
             boxSizing: 'border-box',
+            transition: 'background 0.3s ease',
           }}
         />
       </div>
@@ -716,6 +736,7 @@ const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standS
       {isInputMode && (
         <div
           ref={containerRef}
+          className="input-content-wrapper"
           style={{
             position: 'fixed',
             bottom: `${20 * scale}px`,

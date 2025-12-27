@@ -17,6 +17,7 @@ import { saveGameProgress, loadGameProgress, hasGameProgress, clearGameProgress 
 import { isDetective } from '../utils/detectiveMemory';
 import { generateHint, generateAvailableHints, Hint, countUncollectedItems } from '../utils/hintGenerator';
 import responseKeywordMapping from '../responseKeywordMapping.json';
+import { blendColorWithBlack } from '../config/characterColors';
 
 // 背景图片列表（01.avif 到 48.avif）
 const BG_IMAGES = Array.from({ length: 48 }, (_, i) => {
@@ -1614,7 +1615,7 @@ export default function Home() {
             transition: background 0.3s ease;
           }
           .top-button-hover:hover {
-            background: radial-gradient(circle at center, rgba(139, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.9) 70%, rgba(0, 0, 0, 0.95) 100%) !important;
+            background: radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 75%, rgba(0, 0, 0, 0.85) 85%, rgba(139, 0, 0, 0.3) 95%, rgba(139, 0, 0, 0.5) 100%) !important;
           }
           .top-button-hover:hover .button-text-red {
             color: #A90000;
@@ -2222,53 +2223,78 @@ export default function Home() {
                       display: none; /* Chrome, Safari, Opera */
                     }
                   `}</style>
-                  {notes.map((note, index) => (
-                    <div key={note.id} style={{ position: 'relative', flexShrink: 0 }}>
-                      {index > 0 && (
-                        <ActionIcon
-                          style={{
-                            position: 'absolute',
-                            top: `${8 * scale}px`,
-                            right: `${8 * scale}px`,
-                            zIndex: 10,
-                            color: 'white',
-                            cursor: 'pointer',
-                            width: `${24 * scale}px`,
-                            height: `${24 * scale}px`,
-                          }}
-                          onClick={() => deleteNote(note.id)}
-                          variant="subtle"
-                          size="sm"
-                        >
-                          <span style={{ fontSize: `${18 * scale}px` }}>×</span>
-                        </ActionIcon>
-                      )}
-                      <div>
-                        <style>{`
-                          .note-textarea::placeholder {
-                            color: rgba(255, 255, 255, 0.6) !important;
-                          }
-                        `}</style>
-                        <Textarea
-                          autosize
-                          minRows={6}
-                          maxRows={30}
-                          value={note.content}
-                          onChange={(event) => updateNote(note.id, event.currentTarget.value)}
-                          className="note-textarea"
-                          placeholder="输入笔记..."
-                          styles={{
-                            input: {
-                              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                  {notes.map((note, index) => {
+                    // 笔记框使用红色（输入框的颜色）
+                    const noteColor = 'A90000';
+                    const hasContent = note.content.trim().length > 0;
+                    
+                    // 默认渐变（无内容且不focus时）- 使用之前的样式（较淡的红色，从85%开始）
+                    const defaultGradient = `radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 75%, rgba(0, 0, 0, 0.85) 85%, rgba(139, 0, 0, 0.3) 95%, rgba(139, 0, 0, 0.5) 100%)`;
+                    
+                    // 输入时的渐变（有内容或focus时）- 使用更明显的红色，从70%开始
+                    const edgeColorActive = blendColorWithBlack(noteColor, 0.6); // 边缘颜色更明显
+                    const edgeColorMid = blendColorWithBlack(noteColor, 0.3); // 中间过渡色
+                    const activeGradient = `radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 65%, rgba(0, 0, 0, 0.85) 70%, ${edgeColorMid} 85%, ${edgeColorActive} 95%, ${edgeColorActive} 100%)`;
+                    
+                    return (
+                      <div key={note.id} style={{ position: 'relative', flexShrink: 0 }}>
+                        {index > 0 && (
+                          <ActionIcon
+                            style={{
+                              position: 'absolute',
+                              top: `${8 * scale}px`,
+                              right: `${8 * scale}px`,
+                              zIndex: 10,
                               color: 'white',
-                              border: 'none',
-                              fontSize: `${14 * scale}px`,
-                            },
-                          }}
-                        />
+                              cursor: 'pointer',
+                              width: `${24 * scale}px`,
+                              height: `${24 * scale}px`,
+                            }}
+                            onClick={() => deleteNote(note.id)}
+                            variant="subtle"
+                            size="sm"
+                          >
+                            <span style={{ fontSize: `${18 * scale}px` }}>×</span>
+                          </ActionIcon>
+                        )}
+                        <div className={`note-textarea-wrapper ${hasContent ? 'note-has-content' : ''}`}>
+                          <style>{`
+                            .note-textarea::placeholder {
+                              color: rgba(255, 255, 255, 0.6) !important;
+                            }
+                            .note-textarea-wrapper {
+                              position: relative;
+                            }
+                            .note-textarea-wrapper .mantine-Textarea-input {
+                              background: ${defaultGradient} !important;
+                            }
+                            .note-textarea-wrapper.note-has-content .mantine-Textarea-input,
+                            .note-textarea-wrapper:focus-within .mantine-Textarea-input {
+                              background: ${activeGradient} !important;
+                            }
+                          `}</style>
+                          <Textarea
+                            autosize
+                            minRows={6}
+                            maxRows={30}
+                            value={note.content}
+                            onChange={(event) => updateNote(note.id, event.currentTarget.value)}
+                            className="note-textarea"
+                            placeholder="输入笔记..."
+                            styles={{
+                              input: {
+                                backgroundColor: 'transparent',
+                                color: 'white',
+                                border: 'none',
+                                fontSize: `${14 * scale}px`,
+                                transition: 'background 0.3s ease',
+                              },
+                            }}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   <Button
                     onClick={addNote}
                     variant="subtle"
