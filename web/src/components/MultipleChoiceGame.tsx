@@ -305,7 +305,7 @@ const MultipleChoiceGame: React.FC<MultipleChoiceGameProps> = ({ onBackToGame, o
         >
           <div
             style={{
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              background: `radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 75%, rgba(0, 0, 0, 0.85) 85%, rgba(139, 0, 0, 0.3) 95%, rgba(139, 0, 0, 0.5) 100%)`,
               padding: `${10 * scale}px ${15 * scale}px ${20 * scale}px ${20 * scale}px`,
               minHeight: `${180 * scale}px`,
               // 限制最大高度：确保在超宽屏幕上按钮不会被裁剪
@@ -384,7 +384,7 @@ const MultipleChoiceGame: React.FC<MultipleChoiceGameProps> = ({ onBackToGame, o
     >
       <div
         style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          background: `radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 75%, rgba(0, 0, 0, 0.85) 85%, rgba(139, 0, 0, 0.3) 95%, rgba(139, 0, 0, 0.5) 100%)`,
           padding: `${30 * scale}px ${25 * scale}px`,
           borderRadius: `${8 * scale}px`,
         }}

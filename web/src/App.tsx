@@ -5,13 +5,23 @@ import { MysteryProvider } from "./providers/mysteryContext";
 import { SessionProvider } from "./providers/sessionContext";
 import Loading from "./components/Loading";
 import { preloadImagesWithProgress } from "./utils/imagePreloader";
+import { loadFangZhengFont } from "./utils/fontLoader";
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState(0);
 
   useEffect(() => {
-    // 首先预加载logo.webp（最高优先级）
+    // 首先预加载字体（最高优先级）
+    const loadFonts = async () => {
+      try {
+        await loadFangZhengFont();
+      } catch (error) {
+        console.warn('字体预加载失败，将使用系统fallback字体', error);
+      }
+    };
+
+    // 然后预加载logo.webp
     const loadLogo = async () => {
       try {
         const logoSrc = require('./assets/logo.webp');
@@ -72,8 +82,8 @@ export default function App() {
     // 合并所有需要加载的图片
     const allImages = [...bgImages, ...baseStandImages, ...characterAvatars];
 
-    // 先加载logo，然后加载其他资源
-    loadLogo().then(() => {
+    // 先加载字体和logo，然后加载其他资源
+    Promise.all([loadFonts(), loadLogo()]).then(() => {
       // 开始预加载其他资源
       preloadImagesWithProgress(allImages, (loaded, total) => {
         const progress = (loaded / total) * 100;

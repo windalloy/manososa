@@ -58,7 +58,7 @@ export const initialEvidence: Evidence[] = [
   {
     id: '07',
     name: '诺亚的素描本',
-    description: '在画室发现的素描本，上面画有一只紫色蝴蝶，该图案似乎由魔法绘制而成，形态生动逼真，散发着轻微的醉人香气。',
+    description: '在画室发现的素描本，上面画有一只紫色蝴蝶，该图案似乎由魔法绘制而成，形态生动逼真，散发着轻微的酒香。',
     image: '07.webp',
     obtained: false,
   },

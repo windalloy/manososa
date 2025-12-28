@@ -6,6 +6,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Text, ScrollArea } from '@mantine/core';
+import { blendColorWithBlack } from '../config/characterColors';
 
 interface HelpModalProps {
   opened: boolean;
@@ -164,7 +165,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ opened, onClose }) => {
             position: 'fixed',
           },
           content: {
-            backgroundColor: 'rgba(40, 40, 40, 1)',
+            background: `radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 75%, rgba(0, 0, 0, 0.85) 85%, rgba(139, 0, 0, 0.3) 95%, rgba(139, 0, 0, 0.5) 100%)`,
             borderRadius: `${12 * scale}px`,
             width: `${Math.min(800 * scale, window.innerWidth * 0.9)}px`,
             maxWidth: '90vw',
@@ -274,7 +275,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ opened, onClose }) => {
                 lineHeight: '1.8',
                 fontSize: `${16 * scale}px`,
               }}>
-                提示：通过提示可以查看证物和证言的收集进度，也可以随机查看一个证物或证言的获取条件。
+                提示：通过提示可以查看证物和证言的收集进度，也可以随机获得一个证物或证言的获取条件。
               </Text>
             </>
           )}

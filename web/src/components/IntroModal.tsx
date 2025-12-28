@@ -10,6 +10,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Text, ScrollArea } from '@mantine/core';
+import { blendColorWithBlack } from '../config/characterColors';
 
 interface IntroModalProps {
   opened: boolean;
@@ -168,7 +169,7 @@ const IntroModal: React.FC<IntroModalProps> = ({ opened, onClose }) => {
             position: 'fixed',
           },
           content: {
-            backgroundColor: 'rgba(40, 40, 40, 1)',
+            background: `radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 75%, rgba(0, 0, 0, 0.85) 85%, rgba(139, 0, 0, 0.3) 95%, rgba(139, 0, 0, 0.5) 100%)`,
             borderRadius: `${12 * scale}px`,
             width: `${Math.min(800 * scale, window.innerWidth * 0.9)}px`,
             maxWidth: '90vw',

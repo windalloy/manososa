@@ -6,10 +6,17 @@
   <component name="ChangeListManager">
     <list default="true" id="193e97bf-4125-4b01-be92-80643b491152" name="Changes" comment="12.27">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/components/Actor.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/components/Actor.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/components/SidebarAvatar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/components/SidebarAvatar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/components/EndModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/components/EndModal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/components/HelpModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/components/HelpModal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/components/IntroModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/components/IntroModal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/components/MultipleChoiceGame.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/components/MultipleChoiceGame.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/components/SecretsModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/components/SecretsModal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/config/evidence.ts" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/config/evidence.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/config/mapRegions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/config/mapRegions.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/evidence.json" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/evidence.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/src/pages/Home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/pages/Home.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/src/story.json" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/story.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -242,7 +249,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766845607241</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="12.27">
+      <option name="closed" value="true" />
+      <created>1766857726299</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1766857726299</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="UnknownFeatures">

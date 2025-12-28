@@ -10,6 +10,7 @@ import React from 'react';
 import { Modal, Button, Text, Image, Stack, Group, Anchor } from '@mantine/core';
 import secrets from '../assets/secrets.png';
 import secrets_blurred from '../assets/secrets_blurred.png';
+import { blendColorWithBlack } from '../config/characterColors';
 
 interface SecretsModalProps {
   opened: boolean;
@@ -24,6 +25,17 @@ const SecretsModal: React.FC<SecretsModalProps> = ({ opened, onClose, postGame }
       onClose={onClose} 
       size="xl"
       title={<Text size="lg" fw={700}>Spoilers</Text>}
+      styles={{
+        content: {
+          background: `radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 75%, rgba(0, 0, 0, 0.85) 85%, rgba(139, 0, 0, 0.3) 95%, rgba(139, 0, 0, 0.5) 100%)`,
+        },
+        header: {
+          backgroundColor: 'transparent',
+        },
+        body: {
+          backgroundColor: 'transparent',
+        },
+      }}
     >
       <Image 
         src={postGame ? secrets_blurred : secrets}  // Conditionally render image

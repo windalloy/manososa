@@ -18,6 +18,7 @@ import { isDetective } from '../utils/detectiveMemory';
 import { generateHint, generateAvailableHints, Hint, countUncollectedItems } from '../utils/hintGenerator';
 import responseKeywordMapping from '../responseKeywordMapping.json';
 import { blendColorWithBlack } from '../config/characterColors';
+import storyData from '../story.json';
 
 // 背景图片列表（01.avif 到 48.avif）
 const BG_IMAGES = Array.from({ length: 48 }, (_, i) => {
@@ -358,6 +359,7 @@ export default function Home() {
   // 如果有保存的进度，不显示介绍模态框
   const [introModalOpened, setIntroModalOpened] = useState(() => !hasGameProgress());
   const [endModalOpened, setEndModalOpened] = useState(false);
+  const [storyModalOpened, setStoryModalOpened] = useState(false); // 剧本Modal状态
   const [helpModalOpened, setHelpModalOpened] = useState(false);
   const [restartConfirmOpened, setRestartConfirmOpened] = useState(false);
   const [hintConfirmOpened, setHintConfirmOpened] = useState(false);
@@ -370,7 +372,6 @@ export default function Home() {
   const [countdownEnded, setCountdownEnded] = useState(false); // 标记倒计时是否结束
   const [notesWidth, setNotesWidth] = useState<number>(300); // 笔记框宽度（基于scale计算，会在useEffect中更新）
   const [postGame, setPostGame] = useState(false);
-  const [hasEffectRun, setHasEffectRun] = useState(false);
   const [filteredActors, setFilteredActors] = useState<Actor[]>(Object.values(actors));
   const [loading, setLoading] = useState(false);
   const [notes, setNotes] = useState<Array<{ id: number; content: string }>>([
@@ -638,6 +639,12 @@ export default function Home() {
   useEffect(() => {
     if (actionCountdown === 0 && !endGame && !countdownEnded) {
       setCountdownEnded(true);
+      // 在设置endGame之前，保存当前状态用于"继续游戏"
+      preEndGameStateRef.current = {
+        actors: { ...actors },
+        bgImage,
+        currActor,
+      };
       // 切换背景为12.png
       setBgImage('bg/10.avif');
       // 切换到希罗的角色（立绘会自动切换为hiro.png）
@@ -647,7 +654,7 @@ export default function Home() {
       }
       setEndGame(true);
     }
-  }, [actionCountdown, endGame, countdownEnded, actors]);
+  }, [actionCountdown, endGame, countdownEnded, actors, bgImage, currActor]);
 
   // 组件挂载时检测是否为移动设备
   // 注意：初始资源预加载已在App.tsx的Loading组件中完成
@@ -885,13 +892,19 @@ export default function Home() {
   useEffect(() => {
     if (!postGame) {
       setFilteredActors(Object.values(actors));
-    } else if (!hasEffectRun) {      
+    } else {
+      // 每次 postGame 变为 true 时都显示结束语弹窗
       setEndModalOpened(true);
-      setHasEffectRun(true);
     }
   }, [actors, postGame]);
 
   const handleEndGame = () => {
+    // 在设置endGame之前，保存当前状态用于"继续游戏"
+    preEndGameStateRef.current = {
+      actors: { ...actors },
+      bgImage,
+      currActor,
+    };
     // 切换背景为12.png
     setBgImage('bg/10.avif');
     // 切换到希罗的角色（立绘会自动切换为hiro.png）
@@ -905,6 +918,13 @@ export default function Home() {
   const handleResumeGame = () => {
     setEndGame(false);
   };
+
+  // 保存游戏结束前的状态，用于"继续游戏"功能
+  const preEndGameStateRef = useRef<{
+    actors: { [id: number]: Actor };
+    bgImage: string;
+    currActor: number;
+  } | null>(null);
 
   const handleBackToGame = (answers: string[]) => {
     console.log(answers)
@@ -957,6 +977,12 @@ export default function Home() {
 
       forceTextResponseToLarry(updatedActors[larryId], forcedMessage);
     }
+    // 在设置postGame之前，保存当前状态用于"继续游戏"
+    preEndGameStateRef.current = {
+      actors: { ...actors },
+      bgImage,
+      currActor,
+    };
     setEndGame(false);
     setPostGame(true);
   };
@@ -2101,6 +2127,91 @@ export default function Home() {
                 </svg>
               </Button>
             )}
+            {postGame && (
+              <>
+                <Button
+                  onClick={() => {
+                    // 恢复游戏状态
+                    if (preEndGameStateRef.current) {
+                      setActors(preEndGameStateRef.current.actors);
+                      setFilteredActors(Object.values(preEndGameStateRef.current.actors));
+                      setBgImage(preEndGameStateRef.current.bgImage);
+                      setCurrActor(preEndGameStateRef.current.currActor);
+                    }
+                    setPostGame(false);
+                    setEndGame(false);
+                    // 重新保存游戏状态
+                    const stateToSave = preEndGameStateRef.current 
+                      ? {
+                          actors: preEndGameStateRef.current.actors,
+                          globalStory,
+                          actionCountdown,
+                          endGame: false,
+                          postGame: false,
+                          countdownEnded,
+                          currActor: preEndGameStateRef.current.currActor,
+                          evidenceList,
+                          notes,
+                          nextNoteId: nextNoteId.current,
+                          bgImage: preEndGameStateRef.current.bgImage,
+                          currentMapIndex,
+                        }
+                      : {
+                          actors,
+                          globalStory,
+                          actionCountdown,
+                          endGame: false,
+                          postGame: false,
+                          countdownEnded,
+                          currActor,
+                          evidenceList,
+                          notes,
+                          nextNoteId: nextNoteId.current,
+                          bgImage,
+                          currentMapIndex,
+                        };
+                    saveGameProgress(stateToSave);
+                  }}
+                  className="top-button-hover"
+                  style={{
+                    backgroundColor: 'rgba(0, 0, 0, 0.6)', 
+                    color: 'white',
+                    fontSize: `${14 * scale}px`,
+                    padding: `${6 * scale}px ${12 * scale}px`,
+                    height: 'auto',
+                    minHeight: `${32 * scale}px`,
+                    position: 'relative',
+                  }}
+                >
+                  <span className="button-text-red">继续</span>
+                  <span className="button-text-white">游戏</span>
+                  <svg className="top-button-butterfly" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C8 2 5 5 5 9C5 11 6 13 7 14C6 15 5 17 5 19C5 21 6 22 8 22C9 22 10 21 11 20C11.5 20.5 12.5 20.5 13 20C14 21 15 22 16 22C18 22 19 21 19 19C19 17 18 15 17 14C18 13 19 11 19 9C19 5 16 2 12 2Z" fill="#ff0000"/>
+                    <path d="M12 6C10 6 8 7 8 9C8 10 9 11 10 11C9 12 8 13 8 14C8 15 9 16 10 16C10.5 15.5 11.5 15.5 12 16C13 16 14 15 14 14C14 13 13 12 12 11C13 11 14 10 14 9C14 7 12 6 12 6Z" fill="#ff0000"/>
+                  </svg>
+                </Button>
+                <Button
+                  onClick={() => setStoryModalOpened(true)}
+                  className="top-button-hover"
+                  style={{
+                    backgroundColor: 'rgba(0, 0, 0, 0.6)', 
+                    color: 'white',
+                    fontSize: `${14 * scale}px`,
+                    padding: `${6 * scale}px ${12 * scale}px`,
+                    height: 'auto',
+                    minHeight: `${32 * scale}px`,
+                    position: 'relative',
+                  }}
+                >
+                  <span className="button-text-red">查看</span>
+                  <span className="button-text-white">剧本</span>
+                  <svg className="top-button-butterfly" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C8 2 5 5 5 9C5 11 6 13 7 14C6 15 5 17 5 19C5 21 6 22 8 22C9 22 10 21 11 20C11.5 20.5 12.5 20.5 13 20C14 21 15 22 16 22C18 22 19 21 19 19C19 17 18 15 17 14C18 13 19 11 19 9C19 5 16 2 12 2Z" fill="#ff0000"/>
+                    <path d="M12 6C10 6 8 7 8 9C8 10 9 11 10 11C9 12 8 13 8 14C8 15 9 16 10 16C10.5 15.5 11.5 15.5 12 16C13 16 14 15 14 14C14 13 13 12 12 11C13 11 14 10 14 9C14 7 12 6 12 6Z" fill="#ff0000"/>
+                  </svg>
+                </Button>
+              </>
+            )}
           </div>
         )}
 
@@ -2492,7 +2603,155 @@ export default function Home() {
       <EndModal
         opened={endModalOpened}
         onClose={() => setEndModalOpened(false)}
+        onContinueGame={() => {
+          // 恢复游戏结束前的状态
+          if (preEndGameStateRef.current) {
+            setActors(preEndGameStateRef.current.actors);
+            setFilteredActors(Object.values(preEndGameStateRef.current.actors));
+            setBgImage(preEndGameStateRef.current.bgImage);
+            setCurrActor(preEndGameStateRef.current.currActor);
+          }
+          // 恢复游戏状态：将postGame和endGame设置为false
+          setPostGame(false);
+          setEndGame(false);
+          // 重新保存游戏状态，确保postGame状态被更新
+          const stateToSave = preEndGameStateRef.current 
+            ? {
+                actors: preEndGameStateRef.current.actors,
+                globalStory,
+                actionCountdown,
+                endGame: false,
+                postGame: false,
+                countdownEnded,
+                currActor: preEndGameStateRef.current.currActor,
+                evidenceList,
+                notes,
+                nextNoteId: nextNoteId.current,
+                bgImage: preEndGameStateRef.current.bgImage,
+                currentMapIndex,
+              }
+            : {
+                actors,
+                globalStory,
+                actionCountdown,
+                endGame: false,
+                postGame: false,
+                countdownEnded,
+                currActor,
+                evidenceList,
+                notes,
+                nextNoteId: nextNoteId.current,
+                bgImage,
+                currentMapIndex,
+              };
+          saveGameProgress(stateToSave);
+        }}
       />
+
+      {/* 独立的剧本显示 Modal */}
+      <Modal
+        opened={storyModalOpened}
+        onClose={() => setStoryModalOpened(false)}
+        size="xl"
+        centered
+        title={
+          <Text style={{ 
+            color: 'rgba(220, 220, 220, 1)', 
+            fontSize: `${20 * scale}px`,
+            fontWeight: 600,
+          }}>
+            {(storyData as any).title}
+          </Text>
+        }
+        styles={{
+          inner: {
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            position: 'fixed',
+          },
+          content: {
+            background: `radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 75%, rgba(0, 0, 0, 0.85) 85%, rgba(139, 0, 0, 0.3) 95%, rgba(139, 0, 0, 0.5) 100%)`,
+            borderRadius: `${12 * scale}px`,
+            width: `${Math.min(900 * scale, window.innerWidth * 0.9)}px`,
+            maxWidth: '90vw',
+            maxHeight: '85vh',
+          },
+          header: {
+            backgroundColor: 'transparent',
+            padding: `${16 * scale}px ${20 * scale}px`,
+            minHeight: 'auto',
+            height: 'auto',
+            borderBottom: `1px solid rgba(255, 255, 255, 0.1)`,
+          },
+          body: {
+            backgroundColor: 'transparent',
+            padding: `${20 * scale}px`,
+            maxHeight: 'calc(85vh - 80px)',
+          },
+          close: {
+            color: 'rgba(200, 200, 200, 1)',
+            width: `${24 * scale}px`,
+            height: `${24 * scale}px`,
+          },
+        }}
+      >
+        <ScrollArea 
+          style={{ 
+            height: 'calc(85vh - 120px)',
+          }}
+          offsetScrollbars
+          styles={{
+            root: {
+              paddingRight: `${10 * scale}px`,
+            },
+            viewport: {
+              paddingRight: `${10 * scale}px`,
+            },
+            scrollbar: {
+              '&[data-orientation="vertical"] .mantine-ScrollArea-thumb': {
+                backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                },
+              },
+            },
+          }}
+        >
+          <div style={{ paddingRight: `${10 * scale}px` }}>
+            {(storyData as any).content.map((section: any, index: number) => (
+              <div key={index} style={{ marginBottom: `${20 * scale}px` }}>
+                <Text
+                  style={{
+                    color: 'rgba(100, 150, 255, 1)',
+                    fontSize: `${18 * scale}px`,
+                    fontWeight: 600,
+                    marginBottom: `${8 * scale}px`,
+                    display: 'block',
+                  }}
+                >
+                  {section.time.startsWith('■') ? section.time : `■ ${section.time}`}
+                </Text>
+                {section.events.map((event: string, eventIndex: number) => (
+                  <Text
+                    key={eventIndex}
+                    style={{
+                      color: 'rgba(220, 220, 220, 1)',
+                      fontSize: `${15 * scale}px`,
+                      lineHeight: '1.8',
+                      marginBottom: `${6 * scale}px`,
+                      paddingLeft: `${12 * scale}px`,
+                      display: 'block',
+                    }}
+                  >
+                    {event}
+                  </Text>
+                ))}
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </Modal>
 
       {/* 重新开始确认框 */}
       <Modal
@@ -2510,7 +2769,7 @@ export default function Home() {
         }
         styles={{
           content: {
-            backgroundColor: 'rgba(40, 40, 40, 1)',
+            background: `radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 75%, rgba(0, 0, 0, 0.85) 85%, rgba(139, 0, 0, 0.3) 95%, rgba(139, 0, 0, 0.5) 100%)`,
             borderRadius: `${12 * scale}px`,
           },
           header: {
@@ -2569,7 +2828,7 @@ export default function Home() {
         withCloseButton={false}
         styles={{
           content: {
-            backgroundColor: 'rgba(40, 40, 40, 1)',
+            background: `radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 75%, rgba(0, 0, 0, 0.85) 85%, rgba(139, 0, 0, 0.3) 95%, rgba(139, 0, 0, 0.5) 100%)`,
             borderRadius: `${12 * scale}px`,
             maxWidth: `min(400px, ${70 * scale}vw)`,
           },
@@ -2690,7 +2949,7 @@ export default function Home() {
         withCloseButton={false}
         styles={{
           content: {
-            backgroundColor: 'rgba(40, 40, 40, 1)',
+            background: `radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 75%, rgba(0, 0, 0, 0.85) 85%, rgba(139, 0, 0, 0.3) 95%, rgba(139, 0, 0, 0.5) 100%)`,
             borderRadius: `${12 * scale}px`,
             maxWidth: `min(400px, ${70 * scale}vw)`,
           },
@@ -2738,7 +2997,7 @@ export default function Home() {
         withCloseButton={false}
         styles={{
           content: {
-            backgroundColor: 'rgba(40, 40, 40, 1)',
+            background: `radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 75%, rgba(0, 0, 0, 0.85) 85%, rgba(139, 0, 0, 0.3) 95%, rgba(139, 0, 0, 0.5) 100%)`,
             borderRadius: `${12 * scale}px`,
             maxWidth: `min(400px, ${70 * scale}vw)`,
           },

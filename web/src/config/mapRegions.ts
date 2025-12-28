@@ -323,7 +323,7 @@ export const mapRegions: MapRegion[] = [
     y1: 193,
     x2: 483,
     y2: 279,
-    message: '（整洁得没有一丝生活气息的宿舍，像是无声蛰伏着的透明空气。）',
+    message: '（整洁得没有一丝生活气息的房间，像是无声蛰伏着的透明空气。）',
     bgImage: 'bg/21.avif',
   },
   {
@@ -373,7 +373,7 @@ export const mapRegions: MapRegion[] = [
     y1: 193,
     x2: 970,
     y2: 279,
-    message: '（本就无光的宿舍在玛格的布置下显得更加阴暗。奈叶香的物品很少，房间里几乎都是玛格的东西。）',
+    message: '（奈叶香的物品很少，房间里几乎都是玛格的东西。浓郁的生活和回忆气息压得人喘不过气。...我们短暂而飘渺的生命，追寻和拒绝着爱的幻影。）',
     bgImage: 'bg/21.avif',
   },
   {
@@ -383,7 +383,7 @@ export const mapRegions: MapRegion[] = [
     y1: 193,
     x2: 1069,
     y2: 279,
-    message: '（桌子上的药瓶似乎已经被收走了，宿舍看上去空荡荡的。）',
+    message: '（桌子上的药瓶似乎已经被收走了，房间看上去空荡荡的。）',
     bgImage: 'bg/21.avif',
   },
   {
@@ -393,7 +393,7 @@ export const mapRegions: MapRegion[] = [
     y1: 283,
     x2: 1069,
     y2: 334,
-    message: '（这里是宿舍区域，点击具体宿舍可以进行更详细的调查。）',
+    message: '（这里是牢房区域，点击具体牢房可以进行更详细的调查。）',
     bgImage: 'bg/22.avif',
   },
   {

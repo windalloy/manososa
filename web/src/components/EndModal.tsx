@@ -7,10 +7,13 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Text, ScrollArea } from '@mantine/core';
 import storyData from '../story.json';
+import { blendColorWithBlack } from '../config/characterColors';
 
 interface EndModalProps {
   opened: boolean;
   onClose: () => void;
+  onContinueGame?: () => void; // 继续游戏回调
+  showStoryDirectly?: boolean; // 是否直接显示剧本
 }
 
 // 基准尺寸：1136x746
@@ -19,11 +22,18 @@ const BASE_HEIGHT = 746;
 // 16:9 宽高比限制
 const ASPECT_RATIO = 16 / 9;
 
-const EndModal: React.FC<EndModalProps> = ({ opened, onClose }) => {
+const EndModal: React.FC<EndModalProps> = ({ opened, onClose, onContinueGame, showStoryDirectly = false }) => {
   const [scale, setScale] = useState<number>(1);
   const [isLandscape, setIsLandscape] = useState<boolean>(window.innerWidth > window.innerHeight);
   const [hasExistingWarning, setHasExistingWarning] = useState<boolean>(false);
   const [showStoryModal, setShowStoryModal] = useState<boolean>(false);
+
+  // 如果showStoryDirectly为true，直接显示剧本
+  useEffect(() => {
+    if (opened && showStoryDirectly) {
+      setShowStoryModal(true);
+    }
+  }, [opened, showStoryDirectly]);
 
   useEffect(() => {
     const calculateScale = () => {
@@ -157,7 +167,7 @@ const EndModal: React.FC<EndModalProps> = ({ opened, onClose }) => {
             position: 'fixed',
           },
           content: {
-            backgroundColor: 'rgba(40, 40, 40, 1)',
+            background: `radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 75%, rgba(0, 0, 0, 0.85) 85%, rgba(139, 0, 0, 0.3) 95%, rgba(139, 0, 0, 0.5) 100%)`,
             borderRadius: `${12 * scale}px`,
             width: `${Math.min(800 * scale, window.innerWidth * 0.9)}px`,
             maxWidth: '90vw',
@@ -278,6 +288,26 @@ const EndModal: React.FC<EndModalProps> = ({ opened, onClose }) => {
         </Text>
         <br></br>
         <div style={{ display: 'flex', justifyContent: 'center', gap: `${10 * scale}px`, marginTop: `${5 * scale}px` }}>
+          {onContinueGame && (
+            <Button 
+              onClick={() => {
+                if (onContinueGame) {
+                  onContinueGame();
+                }
+                onClose();
+              }}
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                color: 'rgba(220, 220, 220, 1)',
+                padding: `${6 * scale}px ${16 * scale}px`,
+                fontSize: `${13 * scale}px`,
+                height: 'fit-content',
+                lineHeight: '1.5',
+              }}
+            >
+              继续游戏
+            </Button>
+          )}
           <Button 
             onClick={() => setShowStoryModal(true)}
             style={{
@@ -330,7 +360,7 @@ const EndModal: React.FC<EndModalProps> = ({ opened, onClose }) => {
             position: 'fixed',
           },
           content: {
-            backgroundColor: 'rgba(40, 40, 40, 1)',
+            background: `radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 75%, rgba(0, 0, 0, 0.85) 85%, rgba(139, 0, 0, 0.3) 95%, rgba(139, 0, 0, 0.5) 100%)`,
             borderRadius: `${12 * scale}px`,
             width: `${Math.min(900 * scale, window.innerWidth * 0.9)}px`,
             maxWidth: '90vw',
