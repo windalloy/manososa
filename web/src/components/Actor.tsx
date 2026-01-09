@@ -268,6 +268,7 @@ const calculateEquivalentLength = (text: string): number => {
 
 const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standScale = 1, effectiveHeight, isGameContainerCentered = false }: Props) => {
   const [currMessage, setCurrMessage] = useState("");
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const { actors, setActors, globalStory } = useMysteryContext();
   const [loading, setLoading] = useState(false);
   const MAX_INPUT_LENGTH = 200; // 输入框最大字数限制
@@ -715,12 +716,35 @@ const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standS
         <div
           className="input-background-layer"
           style={{
-            backgroundColor: isAnimating ? 'rgba(0, 0, 0, 0.7)' : undefined,
-            background: isAnimating ? undefined : (
-              isInputMode 
-                ? `radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 75%, rgba(0, 0, 0, 0.85) 85%, ${inputColorRgba1} 95%, ${inputColorRgba2} 100%)`
-                : `linear-gradient(to right, ${responseColorRgbaEdge} 0%, ${responseColorRgbaMid} 2.5%, rgba(0, 0, 0, 0.7) 7.5%, rgba(0, 0, 0, 0.90) 50%, rgba(0, 0, 0, 0.90) 92.5%, ${responseColorRgbaMid} 97.5%, ${responseColorRgbaEdge} 100%)`
-            ),
+            background: isAnimating 
+              ? 'rgba(0, 0, 0, 0.7)' 
+              : (
+                  isInputMode 
+                    ? (() => {
+                        // 使用和笔记框完全一样的渐变样式逻辑（椭圆形渐变，让垂直方向也有变化）
+                        const inputColor = 'A90000';
+                        const hasContent = currMessage.trim().length > 0;
+                        
+                        // 默认渐变（无内容且不focus时）- 使用更圆润的椭圆形渐变，让中间黑色多，上下边缘红色多
+                        // 减小左右方向的尺寸（80%宽度），让椭圆形更圆润，左右渐变范围更小
+                        // 扩大渐变区域：让颜色更早开始出现，覆盖更大范围
+                        const defaultGradient = `radial-gradient(ellipse 80% 100% at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 50%, rgba(0, 0, 0, 0.85) 60%, rgba(139, 0, 0, 0.2) 75%, rgba(139, 0, 0, 0.4) 85%, rgba(139, 0, 0, 0.5) 100%)`;
+                        
+                        // 输入时的渐变（有内容或focus时）- 使用更圆润的椭圆形渐变，让中间黑色多，上下边缘红色多
+                        const edgeColorActive = blendColorWithBlack(inputColor, 0.6); // 边缘颜色更明显
+                        const edgeColorMid = blendColorWithBlack(inputColor, 0.3); // 中间过渡色
+                        const activeGradient = `radial-gradient(ellipse 80% 100% at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 45%, rgba(0, 0, 0, 0.85) 55%, ${edgeColorMid} 70%, ${edgeColorActive} 85%, ${edgeColorActive} 100%)`;
+                        
+                        return (hasContent || isInputFocused) ? activeGradient : defaultGradient;
+                      })()
+                    : (() => {
+                        // 使用更圆润的椭圆形渐变，让中间黑色多，上下边缘角色颜色多（保持角色颜色不变）
+                        // 减小左右方向的尺寸（80%宽度），让椭圆形更圆润，左右渐变范围更小
+                        // 扩大渐变区域：让颜色更早开始出现，覆盖更大范围
+                        const defaultGradient = `radial-gradient(ellipse 80% 100% at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 50%, rgba(0, 0, 0, 0.85) 60%, ${responseColorRgbaMid} 75%, ${responseColorRgbaEdge} 85%, ${responseColorRgbaEdge} 100%)`;
+                        return defaultGradient;
+                      })()
+                ),
             padding: `${15 * scale}px`,
             borderRadius: `${12 * scale}px`,
             boxShadow: `0 ${4 * scale}px ${12 * scale}px rgba(0, 0, 0, 0.3)`,
@@ -779,6 +803,8 @@ const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standS
                 }}
                 value={currMessage}
                 onKeyPress={handleKeyPress}
+                onFocus={() => setIsInputFocused(true)}
+                onBlur={() => setIsInputFocused(false)}
                 autosize
                 minRows={4}
                 maxRows={5}

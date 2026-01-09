@@ -2339,13 +2339,19 @@ export default function Home() {
                     const noteColor = 'A90000';
                     const hasContent = note.content.trim().length > 0;
                     
-                    // 默认渐变（无内容且不focus时）- 使用之前的样式（较淡的红色，从85%开始）
-                    const defaultGradient = `radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 75%, rgba(0, 0, 0, 0.85) 85%, rgba(139, 0, 0, 0.3) 95%, rgba(139, 0, 0, 0.5) 100%)`;
+                    // 默认渐变（无内容且不focus时）- 使用椭圆形渐变，让中间黑色多，上下边缘红色多
+                    const defaultGradient = `radial-gradient(ellipse at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 75%, rgba(0, 0, 0, 0.85) 85%, rgba(139, 0, 0, 0.3) 95%, rgba(139, 0, 0, 0.5) 100%)`;
                     
-                    // 输入时的渐变（有内容或focus时）- 使用更明显的红色，从70%开始
+                    // 输入时的渐变（有内容或focus时）- 使用椭圆形渐变，让中间黑色多，上下边缘红色多
                     const edgeColorActive = blendColorWithBlack(noteColor, 0.6); // 边缘颜色更明显
                     const edgeColorMid = blendColorWithBlack(noteColor, 0.3); // 中间过渡色
-                    const activeGradient = `radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 65%, rgba(0, 0, 0, 0.85) 70%, ${edgeColorMid} 85%, ${edgeColorActive} 95%, ${edgeColorActive} 100%)`;
+                    const activeGradient = `radial-gradient(ellipse at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 65%, rgba(0, 0, 0, 0.85) 70%, ${edgeColorMid} 85%, ${edgeColorActive} 95%, ${edgeColorActive} 100%)`;
+                    
+                    // 计算笔记框的最大高度：不超过初始高度的2倍
+                    const minRows = 6;
+                    const lineHeight = 14 * scale * 1.5; // 估算行高（字体大小 * 1.5）
+                    const initialHeight = minRows * lineHeight; // 初始高度（基于minRows）
+                    const maxHeight = initialHeight * 2; // 最大高度为初始高度的2倍
                     
                     return (
                       <div key={note.id} style={{ position: 'relative', flexShrink: 0 }}>
@@ -2368,7 +2374,7 @@ export default function Home() {
                             <span style={{ fontSize: `${18 * scale}px` }}>×</span>
                           </ActionIcon>
                         )}
-                        <div className={`note-textarea-wrapper ${hasContent ? 'note-has-content' : ''}`}>
+                        <div className={`note-textarea-wrapper note-wrapper-${note.id} ${hasContent ? 'note-has-content' : ''}`}>
                           <style>{`
                             .note-textarea::placeholder {
                               color: rgba(255, 255, 255, 0.6) !important;
@@ -2382,6 +2388,27 @@ export default function Home() {
                             .note-textarea-wrapper.note-has-content .mantine-Textarea-input,
                             .note-textarea-wrapper:focus-within .mantine-Textarea-input {
                               background: ${activeGradient} !important;
+                            }
+                            /* 自定义滚动条样式 - 非常小，黑色，显示在叉号下面 */
+                            .note-wrapper-${note.id} .mantine-Textarea-input {
+                              max-height: ${maxHeight}px !important; /* 最大高度为初始高度的2倍 */
+                              overflow-y: auto;
+                              scrollbar-width: thin; /* Firefox */
+                              scrollbar-color: rgba(0, 0, 0, 0.8) transparent; /* Firefox */
+                            }
+                            .note-wrapper-${note.id} .mantine-Textarea-input::-webkit-scrollbar {
+                              width: ${3 * scale}px; /* 非常小的滚动条宽度 */
+                            }
+                            .note-wrapper-${note.id} .mantine-Textarea-input::-webkit-scrollbar-track {
+                              background: transparent;
+                            }
+                            .note-wrapper-${note.id} .mantine-Textarea-input::-webkit-scrollbar-thumb {
+                              background-color: rgba(0, 0, 0, 0.8);
+                              border-radius: ${1.5 * scale}px;
+                              border: none;
+                            }
+                            .note-wrapper-${note.id} .mantine-Textarea-input::-webkit-scrollbar-thumb:hover {
+                              background-color: rgba(0, 0, 0, 0.9);
                             }
                           `}</style>
                           <Textarea
@@ -2399,6 +2426,9 @@ export default function Home() {
                                 border: 'none',
                                 fontSize: `${14 * scale}px`,
                                 transition: 'background 0.3s ease',
+                                width: '100%',
+                                paddingRight: `${6 * scale}px`, // 为滚动条留出空间
+                                lineHeight: `${lineHeight}px`, // 设置行高
                               },
                             }}
                           />
