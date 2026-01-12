@@ -290,8 +290,11 @@ const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standS
   const inputColorRgba2 = hexToRgba(inputColor, 0.5);
   // 回复框使用角色颜色，使用线性渐变（左右方向），从黑色平滑过渡到边缘角色颜色
   // 使用颜色混合而非透明度，确保从黑色平滑过渡到角色颜色，避免出现白色
-  const responseColorRgbaEdge = blendColorWithBlack(characterColor, 0.6); // 边缘颜色（50%混合）
-  const responseColorRgbaMid = blendColorWithBlack(characterColor, 0.4); // 中间过渡色（20%混合）
+  // 对于二阶堂希罗，使用与其他角色相同的混合比例和透明度，确保视觉效果一致
+  const isHiro = isDetective(actor.name);
+  // 所有角色使用相同的混合比例和透明度计算
+  const responseColorRgbaEdge = blendColorWithBlack(characterColor, 0.6); // 边缘颜色（60%混合）
+  const responseColorRgbaMid = blendColorWithBlack(characterColor, 0.4); // 中间过渡色（40%混合）
 
   // 当切换角色或该角色的消息变化时，根据该角色是否有回复来更新输入模式
   // 注意：如果正在加载中，不要切换模式（避免在发送消息后立即切回输入框）
@@ -728,12 +731,14 @@ const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standS
                         // 默认渐变（无内容且不focus时）- 使用更圆润的椭圆形渐变，让中间黑色多，上下边缘红色多
                         // 减小左右方向的尺寸（80%宽度），让椭圆形更圆润，左右渐变范围更小
                         // 扩大渐变区域：让颜色更早开始出现，覆盖更大范围
-                        const defaultGradient = `radial-gradient(ellipse 80% 100% at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 50%, rgba(0, 0, 0, 0.85) 60%, rgba(139, 0, 0, 0.2) 75%, rgba(139, 0, 0, 0.4) 85%, rgba(139, 0, 0, 0.5) 100%)`;
+                        // 输入框中心区域使用更低的透明度，与回复框保持一致
+                        const defaultGradient = `radial-gradient(ellipse 80% 100% at center, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.75) 50%, rgba(0, 0, 0, 0.7) 60%, rgba(139, 0, 0, 0.2) 75%, rgba(139, 0, 0, 0.4) 85%, rgba(139, 0, 0, 0.5) 100%)`;
                         
                         // 输入时的渐变（有内容或focus时）- 使用更圆润的椭圆形渐变，让中间黑色多，上下边缘红色多
                         const edgeColorActive = blendColorWithBlack(inputColor, 0.6); // 边缘颜色更明显
                         const edgeColorMid = blendColorWithBlack(inputColor, 0.3); // 中间过渡色
-                        const activeGradient = `radial-gradient(ellipse 80% 100% at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 45%, rgba(0, 0, 0, 0.85) 55%, ${edgeColorMid} 70%, ${edgeColorActive} 85%, ${edgeColorActive} 100%)`;
+                        // 输入框中心区域使用更低的透明度，与回复框保持一致
+                        const activeGradient = `radial-gradient(ellipse 80% 100% at center, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.75) 45%, rgba(0, 0, 0, 0.7) 55%, ${edgeColorMid} 70%, ${edgeColorActive} 85%, ${edgeColorActive} 100%)`;
                         
                         return (hasContent || isInputFocused) ? activeGradient : defaultGradient;
                       })()
@@ -741,8 +746,14 @@ const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standS
                         // 使用更圆润的椭圆形渐变，让中间黑色多，上下边缘角色颜色多（保持角色颜色不变）
                         // 减小左右方向的尺寸（80%宽度），让椭圆形更圆润，左右渐变范围更小
                         // 扩大渐变区域：让颜色更早开始出现，覆盖更大范围
-                        const defaultGradient = `radial-gradient(ellipse 80% 100% at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 50%, rgba(0, 0, 0, 0.85) 60%, ${responseColorRgbaMid} 75%, ${responseColorRgbaEdge} 85%, ${responseColorRgbaEdge} 100%)`;
-                        return defaultGradient;
+                        // 对于二阶堂希罗，中心区域使用更低的透明度
+                        if (isHiro) {
+                          const defaultGradient = `radial-gradient(ellipse 80% 100% at center, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.75) 50%, rgba(0, 0, 0, 0.7) 60%, ${responseColorRgbaMid} 75%, ${responseColorRgbaEdge} 85%, ${responseColorRgbaEdge} 100%)`;
+                          return defaultGradient;
+                        } else {
+                          const defaultGradient = `radial-gradient(ellipse 80% 100% at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.9) 50%, rgba(0, 0, 0, 0.85) 60%, ${responseColorRgbaMid} 75%, ${responseColorRgbaEdge} 85%, ${responseColorRgbaEdge} 100%)`;
+                          return defaultGradient;
+                        }
                       })()
                 ),
             padding: `${15 * scale}px`,

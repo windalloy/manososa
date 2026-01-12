@@ -37,8 +37,9 @@ export const hexToRgba = (hex: string, alpha: number): string => {
 /**
  * 混合黑色和角色颜色，用于渐变（避免出现白色）
  * ratio: 0 = 纯黑色, 1 = 纯角色颜色
+ * alpha: 可选的透明度参数，默认0.7
  */
-export const blendColorWithBlack = (hex: string, ratio: number): string => {
+export const blendColorWithBlack = (hex: string, ratio: number, alpha: number = 0.7): string => {
   const r = parseInt(hex.substring(0, 2), 16);
   const g = parseInt(hex.substring(2, 4), 16);
   const b = parseInt(hex.substring(4, 6), 16);
@@ -46,6 +47,8 @@ export const blendColorWithBlack = (hex: string, ratio: number): string => {
   const blendedR = Math.round(r * ratio);
   const blendedG = Math.round(g * ratio);
   const blendedB = Math.round(b * ratio);
-  return `rgba(${blendedR}, ${blendedG}, ${blendedB}, 0.7)`;
+  // 所有角色使用相同的透明度
+  const adjustedAlpha = alpha;
+  return `rgba(${blendedR}, ${blendedG}, ${blendedB}, ${adjustedAlpha})`;
 };
 

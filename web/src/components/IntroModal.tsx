@@ -12,6 +12,91 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Text, ScrollArea } from '@mantine/core';
 import { blendColorWithBlack } from '../config/characterColors';
 
+// 通用文字高亮函数：将文本中指定的文字标记为指定颜色
+const highlightText = (
+  text: string, 
+  highlights: (string | { text: string; color?: string })[], 
+  defaultColor: string = '#FFD700'
+): React.ReactNode => {
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let keyIndex = 0;
+  
+  // 找到所有需要高亮的文字位置
+  const matches: Array<{ index: number; text: string; color: string }> = [];
+  
+  highlights.forEach(highlight => {
+    const highlightText = typeof highlight === 'string' ? highlight : highlight.text;
+    const highlightColor = typeof highlight === 'string' ? defaultColor : (highlight.color || defaultColor);
+    
+    let index = text.indexOf(highlightText, 0);
+    while (index !== -1) {
+      matches.push({ index, text: highlightText, color: highlightColor });
+      index = text.indexOf(highlightText, index + 1);
+    }
+  });
+  
+  // 按位置排序，如果位置相同，按长度降序排列（优先匹配更长的文字）
+  matches.sort((a, b) => {
+    if (a.index !== b.index) {
+      return a.index - b.index;
+    }
+    return b.text.length - a.text.length;
+  });
+  
+  // 处理重叠的情况：只保留第一个匹配
+  const filteredMatches: typeof matches = [];
+  let currentEnd = -1;
+  matches.forEach(match => {
+    if (match.index >= currentEnd) {
+      filteredMatches.push(match);
+      currentEnd = match.index + match.text.length;
+    }
+  });
+  
+  filteredMatches.forEach((match) => {
+    // 添加高亮文字之前的内容
+    if (match.index > lastIndex) {
+      parts.push(text.substring(lastIndex, match.index));
+    }
+    // 添加高亮文字（指定颜色）
+    parts.push(
+      <span key={`${match.index}-${keyIndex++}`} style={{ color: match.color }}>
+        {match.text}
+      </span>
+    );
+    lastIndex = match.index + match.text.length;
+  });
+  
+  // 添加剩余内容
+  if (lastIndex < text.length) {
+    parts.push(text.substring(lastIndex));
+  }
+  
+  return parts.length > 0 ? <>{parts}</> : text;
+};
+
+// 高亮冒号之前的词语：只标黄冒号之前的词语，不标黄文本中其他相同词语
+const highlightBeforeColon = (
+  text: string,
+  color: string = '#FFD700'
+): React.ReactNode => {
+  const colonIndex = text.indexOf('：');
+  if (colonIndex === -1) {
+    return text;
+  }
+  
+  const beforeColon = text.substring(0, colonIndex);
+  const afterColon = text.substring(colonIndex);
+  
+  return (
+    <>
+      <span style={{ color }}>{beforeColon}</span>
+      {afterColon}
+    </>
+  );
+};
+
 interface IntroModalProps {
   opened: boolean;
   onClose: () => void;
@@ -233,7 +318,7 @@ const IntroModal: React.FC<IntroModalProps> = ({ opened, onClose }) => {
               <br></br><br></br>
               在这座实行"魔女审判"规则的监狱中，案发后必须找出真凶，否则将会有无辜的少女被处决。而你，二阶堂希罗，被赋予了侦探的职责，必须引领调查，揭开真相。
               <br></br><br></br>
-              接下来，你需要通过探索不同地点来搜集线索与证物，并与其他少女对话以获取信息。当你获得关键证物时，可以向特定少女出示，她们的证言可能会因此改变或透露出新的内容。同时，一些关键的证言本身也可能成为揭露更多矛盾的重要证据。
+              {highlightText('接下来，你需要通过调查不同地点来搜集线索与证物，并与其他少女对话以获取信息。当你获得关键证物时，可以向特定少女进行出示，她们的证言可能会因此改变或透露出新的内容。同时，一些关键的证言本身也可能成为揭露更多矛盾的重要证据。', ['调查', '对话', '出示'])}
               <br></br><br></br>
               岛上每个人都可能怀揣秘密，真相就隐藏于她们的言语与物品的交织之中。现在，开始你的魔女搜查吧。
             </Text>
@@ -247,7 +332,7 @@ const IntroModal: React.FC<IntroModalProps> = ({ opened, onClose }) => {
                 lineHeight: '1.8',
                 fontSize: `${16 * scale}px`,
               }}>
-                调查：你可以前往各个地点仔细查看，寻找可能的线索和证物（非常建议先对所有场景进行调查）。
+                {highlightBeforeColon('调查：你可以前往各个地点仔细查看，寻找可能的线索和证物（非常建议先对所有场景进行调查）。')}
               </Text>
               <br></br>
               <Text style={{ 
@@ -255,7 +340,7 @@ const IntroModal: React.FC<IntroModalProps> = ({ opened, onClose }) => {
                 lineHeight: '1.8',
                 fontSize: `${16 * scale}px`,
               }}>
-                出示：当你获得证物后，可以向特定的少女出示，触发特定对话。如果少女通过证物回想起了什么，她们的证言也会因此发生改变（所以建议在和角色对话前先出示一些可疑的证物）。
+                {highlightBeforeColon('出示：当你获得证物后，可以向特定的少女出示，触发特定对话。如果少女通过证物回想起了什么，她们的证言也会因此发生改变（所以建议在和角色对话前先出示一些可疑的证物）。')}
               </Text>
               <br></br>
               <Text style={{ 
@@ -263,7 +348,7 @@ const IntroModal: React.FC<IntroModalProps> = ({ opened, onClose }) => {
                 lineHeight: '1.8',
                 fontSize: `${16 * scale}px`,
               }}>
-                询问：你可以与遇到的少女对话，她们或许知道些什么。一些关键的证言本身也可能成为新的可出示的证据，用于揭露更多的矛盾。
+                {highlightBeforeColon('对话：你可以和遇到的少女交谈，她们或许知道些什么。一些关键的证言本身也可能成为新的可出示的证据，用于揭露更多的矛盾。')}
               </Text>
               <br></br>
               <Text style={{ 
@@ -271,7 +356,7 @@ const IntroModal: React.FC<IntroModalProps> = ({ opened, onClose }) => {
                 lineHeight: '1.8',
                 fontSize: `${16 * scale}px`,
               }}>
-                行动次数：调查和出示均消耗1次行动次数，对话消耗2次行动次数。剩余行动次数为0时，进入审判阶段，游戏结束。由于案件涉及的事件很多，您没必要理清所有的疑点，如果您觉得找到了凶手，可以直接点击"结束游戏"按钮。。
+                {highlightBeforeColon('行动次数：调查和出示均消耗1次行动次数，对话消耗2次行动次数。剩余行动次数为0时，进入审判阶段，游戏结束。由于案件涉及的事件很多，您没必要理清所有的疑点，如果您觉得找到了凶手，可以直接点击"结束游戏"按钮。。')}
               </Text>
               <br></br>
               <Text style={{ 
@@ -279,7 +364,7 @@ const IntroModal: React.FC<IntroModalProps> = ({ opened, onClose }) => {
                 lineHeight: '1.8',
                 fontSize: `${16 * scale}px`,
               }}>
-                历史对话：可随时查看与每位少女的全部出示与对话记录，回顾关键信息。
+                {highlightBeforeColon('提示：通过提示可以查看证物和证言的收集进度，也可以随机获得一个证物或证言的获取条件。')}
               </Text>
             </>
           )}
