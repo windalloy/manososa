@@ -47,7 +47,7 @@ export const mapRegions: MapRegion[] = [
     x2: 848,
     y2: 500,
     message: '（喷泉系统被改造，淋浴间的水管被临时接入。诺亚似乎想用它制造一个大型蝴蝶喷泉。如此一来，梅露露就不用每天给中庭的花草浇水了，不过大家也不能再去中庭喝茶了。）',
-    bgImage: 'bg/03.avif',
+    bgImage: 'bg/04.avif',
   },
   {
     name: '接客室',

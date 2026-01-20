@@ -3,7 +3,8 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 # get os variables from api/ .env file
-load_dotenv()
+# 使用 override=True 强制覆盖已存在的环境变量，确保 .env 文件的优先级最高
+load_dotenv(override=True)
 
 # Get configuration from .env file
 INFERENCE_SERVICE = os.getenv('INFERENCE_SERVICE', 'anthropic')  # Default to Anthropic

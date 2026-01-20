@@ -56,6 +56,8 @@ export default function App() {
     }
 
     // 收集所有基础立绘
+    // 注意：这里的 require() 不仅获取路径，还确保 webpack 模块已经被解析和加载
+    // 这样可以避免在 Home.tsx 中使用 require() 时的首次解析延迟
     const baseStandImages: string[] = [];
     characterImages.forEach(imageFile => {
       const baseName = imageFile.replace(/\.(jpg|jpeg|png)$/i, '');
@@ -68,6 +70,7 @@ export default function App() {
     });
 
     // 收集全人物头像
+    // 同样，这里的 require() 确保 webpack 模块提前加载
     const characterAvatars: string[] = [];
     characterImages.forEach(imageFile => {
       const baseName = imageFile.replace(/\.(jpg|jpeg|png)$/i, '');
@@ -79,30 +82,46 @@ export default function App() {
       }
     });
 
-    // 合并所有需要加载的图片
-    const allImages = [...bgImages, ...baseStandImages, ...characterAvatars];
+    // 合并所有需要加载的图片（倒序：先加载小的头像，再加载立绘，最后加载大的背景图）
+    const allImages = [...characterAvatars, ...baseStandImages, ...bgImages];
 
-    // 先加载字体和logo，然后加载其他资源
-    Promise.all([loadFonts(), loadLogo()]).then(() => {
-      // 开始预加载其他资源
-      preloadImagesWithProgress(allImages, (loaded, total) => {
-        const progress = (loaded / total) * 100;
-        setLoadingProgress(progress);
-        
-        // 通过自定义事件通知Loading组件
-        const event = new CustomEvent('loadingProgress', { detail: progress });
-        window.dispatchEvent(event);
-      }).then(() => {
-        // 加载完成
-        setLoadingProgress(100);
-        const event = new CustomEvent('loadingProgress', { detail: 100 });
-        window.dispatchEvent(event);
-      }).catch(() => {
-        // 即使出错也继续
-        setLoadingProgress(100);
-        const event = new CustomEvent('loadingProgress', { detail: 100 });
-        window.dispatchEvent(event);
-      });
+    // 立即加载logo（不阻塞进度条）
+    loadLogo().catch(() => {});
+
+    // 立即开始加载图片资源，不等待字体
+    console.log(`[加载阶段] 开始加载图片资源，总共 ${allImages.length} 张（倒序加载）：`);
+    console.log(`  - 角色头像: ${characterAvatars.length} 张（优先）`);
+    console.log(`  - 基础立绘: ${baseStandImages.length} 张`);
+    console.log(`  - 背景图: ${bgImages.length} 张（最后）`);
+    
+    const imagesStartTime = Date.now();
+    preloadImagesWithProgress(allImages, (loaded, total) => {
+      const progress = (loaded / total) * 100;
+      setLoadingProgress(progress);
+      
+      // 通过自定义事件通知Loading组件
+      const event = new CustomEvent('loadingProgress', { detail: progress });
+      window.dispatchEvent(event);
+    }).then(() => {
+      const imagesTime = Date.now() - imagesStartTime;
+      console.log(`[加载阶段] 所有图片加载完成 (${imagesTime}ms)`);
+      
+      // 图片加载完成后，再加载字体（不阻塞进度条）
+      console.log('[加载阶段] 开始加载字体（后台加载，不影响进度条）...');
+      loadFonts().catch(() => {});
+      
+      // 加载完成
+      setLoadingProgress(100);
+      const event = new CustomEvent('loadingProgress', { detail: 100 });
+      window.dispatchEvent(event);
+    }).catch(() => {
+      // 即使出错也继续
+      // 仍然尝试加载字体
+      loadFonts().catch(() => {});
+      
+      setLoadingProgress(100);
+      const event = new CustomEvent('loadingProgress', { detail: 100 });
+      window.dispatchEvent(event);
     });
   }, []);
 

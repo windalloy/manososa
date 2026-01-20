@@ -70,27 +70,68 @@ class PreloadQueue {
 // 全局预加载队列实例
 const preloadQueue = new PreloadQueue();
 
+// 已预加载的图片缓存（内存缓存）
+const preloadedImagesCache = new Set<string>();
+
+// 正在加载的图片（避免重复加载）
+const loadingImages = new Map<string, Promise<void>>();
+
 // 预加载单个图片
 function preloadImage(src: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    // 如果图片已经在缓存中，直接返回
+  // 如果已经在内存缓存中，直接返回
+  if (preloadedImagesCache.has(src)) {
+    return Promise.resolve();
+  }
+  
+  // 如果正在加载中，返回现有的 Promise
+  if (loadingImages.has(src)) {
+    return loadingImages.get(src)!;
+  }
+  
+  // 创建加载 Promise
+  const loadPromise = new Promise<void>((resolve) => {
+    // 检查是否有 link preload 标签
     const existingLink = document.querySelector(`link[href="${src}"]`);
     if (existingLink) {
+      preloadedImagesCache.add(src);
       resolve();
       return;
     }
 
-    // 检查图片是否已经在浏览器缓存中
+    // 创建 Image 对象加载图片
     const img = new Image();
+    
     img.onload = () => {
+      // 加载成功，加入缓存
+      preloadedImagesCache.add(src);
+      loadingImages.delete(src);
       resolve();
     };
+    
     img.onerror = () => {
-      // 静默失败，不影响其他图片加载
+      // 即使失败也加入缓存，避免重复尝试
+      preloadedImagesCache.add(src);
+      loadingImages.delete(src);
       resolve();
     };
+    
+    // 设置 src，浏览器会自动使用 HTTP 缓存
+    // 如果图片已经在浏览器缓存中，onload 会立即触发
     img.src = src;
+    
+    // 如果图片已经在浏览器缓存中，complete 会立即变为 true
+    // 这种情况下 onload 可能已经触发或即将触发
+    if (img.complete) {
+      preloadedImagesCache.add(src);
+      loadingImages.delete(src);
+      resolve();
+    }
   });
+  
+  // 记录正在加载的 Promise
+  loadingImages.set(src, loadPromise);
+  
+  return loadPromise;
 }
 
 // 使用 link preload 预加载关键图片（最高优先级）
@@ -145,9 +186,19 @@ export async function preloadImagesWithProgress(
   for (let i = 0; i < images.length; i += batchSize) {
     const batch = images.slice(i, i + batchSize);
     await Promise.allSettled(
-      batch.map(async (src) => {
+      batch.map(async (src, index) => {
+        const startTime = Date.now();
         await preloadImage(src);
+        const loadTime = Date.now() - startTime;
         loaded++;
+        
+        // 输出加载日志，帮助定位慢的图片
+        const imageName = src.split('/').pop() || src;
+        const category = src.includes('bg/') ? '背景图' : 
+                        src.includes('character_stand/') ? '立绘' : 
+                        src.includes('character_avatars/') ? '头像' : '其他';
+        console.log(`[加载进度 ${loaded}/${total}] ${category}: ${imageName} (${loadTime}ms)`);
+        
         if (onProgress) {
           onProgress(loaded, total);
         }

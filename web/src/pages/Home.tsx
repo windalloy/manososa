@@ -20,15 +20,37 @@ import responseKeywordMapping from '../responseKeywordMapping.json';
 import { blendColorWithBlack } from '../config/characterColors';
 import storyData from '../story.json';
 
-// 背景图片列表（01.avif 到 48.avif）
-const BG_IMAGES = Array.from({ length: 48 }, (_, i) => {
+// 背景图片列表（01.avif 到 34.avif）
+const BG_IMAGES = Array.from({ length: 34 }, (_, i) => {
   const num = String(i + 1).padStart(2, '0');
   return `bg/${num}.avif`;
 });
 
-// 获取随机背景图片
+// 检查背景图片文件是否实际存在
+const checkBgImageExists = (bgPath: string): boolean => {
+  try {
+    require(`../assets/${bgPath}`);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+// 获取所有实际存在的背景图片列表（在模块加载时计算一次）
+const getAvailableBgImages = (): string[] => {
+  return BG_IMAGES.filter(bg => checkBgImageExists(bg));
+};
+
+// 可用的背景图片列表（只包含实际存在的文件）
+const AVAILABLE_BG_IMAGES = getAvailableBgImages();
+
+// 获取随机背景图片（只从存在的背景中选择）
 const getRandomBg = () => {
-  return BG_IMAGES[Math.floor(Math.random() * BG_IMAGES.length)];
+  if (AVAILABLE_BG_IMAGES.length === 0) {
+    // 如果没有可用背景，返回默认背景
+    return 'bg/01.avif';
+  }
+  return AVAILABLE_BG_IMAGES[Math.floor(Math.random() * AVAILABLE_BG_IMAGES.length)];
 };
 
 /**
@@ -404,6 +426,7 @@ export default function Home() {
   } | null>(null);
   const [isLandscape, setIsLandscape] = useState<boolean>(window.innerWidth > window.innerHeight); // 检测是否为横屏
   const [isMobile, setIsMobile] = useState<boolean>(false); // 检测是否为移动设备
+  const [orientationChanged, setOrientationChanged] = useState<boolean>(false); // 标记是否发生了横竖屏切换
   // 通知状态：证物更新和证言更新
   const [showEvidenceUpdate, setShowEvidenceUpdate] = useState<boolean>(false);
   const [showContextUpdate, setShowContextUpdate] = useState<boolean>(false);
@@ -427,8 +450,8 @@ export default function Home() {
   const initialScaleY = initialEffectiveHeight / BASE_HEIGHT;
   const initialScale = Math.min(initialScaleX, initialScaleY);
   const [scale, setScale] = useState<number>(initialScale); // 缩放比例
-  // 立绘专用缩放比例：基于16:9区域的有效高度计算，之后固定不变
-  const [standScale] = useState<number>(initialEffectiveHeight / BASE_HEIGHT);
+  // 立绘专用缩放比例：基于16:9区域的有效高度计算，随窗口大小变化而更新
+  const [standScale, setStandScale] = useState<number>(initialEffectiveHeight / BASE_HEIGHT);
   
   // 计算侧边栏最小宽度，确保头像和名称能显示在同一行
   const minSidebarWidth = useMemo(() => {
@@ -661,6 +684,13 @@ export default function Home() {
   useEffect(() => {
     // 检测是否为移动设备
     setIsMobile(isMobileDevice());
+    
+    // 预加载所有立绘图片和背景图片（包括所有变体）
+    // 这样确保 webpack 模块已经解析和加载，避免首次使用 require() 时的延迟
+    // 注意：虽然图片已经在 App.tsx 中预加载到浏览器缓存了，
+    // 但 webpack 模块的解析仍然可能造成延迟，所以这里提前执行 require()
+    preloadStandImages();
+    preloadBgImages();
   }, []);
 
   // 优先加载当前背景图片
@@ -733,17 +763,60 @@ export default function Home() {
     };
 
     calculateNotesWidth();
-    window.addEventListener('resize', calculateNotesWidth);
-    return () => window.removeEventListener('resize', calculateNotesWidth);
+    window.addEventListener('resize', calculateNotesWidth, { passive: true });
+    
+    // 监听横竖屏切换
+    const handleOrientationChange = () => {
+      calculateNotesWidth();
+      setTimeout(calculateNotesWidth, 100);
+    };
+    window.addEventListener('orientationchange', handleOrientationChange, { passive: true });
+    
+    // 监听视觉视口变化
+    if (window.visualViewport) {
+      const handleViewportChange = () => {
+        calculateNotesWidth();
+      };
+      window.visualViewport.addEventListener('resize', handleViewportChange, { passive: true });
+      window.visualViewport.addEventListener('scroll', handleViewportChange, { passive: true });
+      
+      return () => {
+        window.removeEventListener('resize', calculateNotesWidth);
+        window.removeEventListener('orientationchange', handleOrientationChange);
+        if (window.visualViewport) {
+          window.visualViewport.removeEventListener('resize', handleViewportChange);
+          window.visualViewport.removeEventListener('scroll', handleViewportChange);
+        }
+      };
+    }
+
+    return () => {
+      window.removeEventListener('resize', calculateNotesWidth);
+      window.removeEventListener('orientationchange', handleOrientationChange);
+    };
   }, [scale, minSidebarWidth]);
 
   // 计算缩放比例和16:9容器样式
   useEffect(() => {
+    let lastOrientation = window.innerWidth > window.innerHeight;
+    
     const calculateScale = () => {
       const currentWidth = window.innerWidth;
       const currentHeight = window.innerHeight;
       const currentAspectRatio = currentWidth / currentHeight;
+      const currentOrientation = currentWidth > currentHeight;
       
+      // 检测横竖屏切换
+      if (currentOrientation !== lastOrientation) {
+        setOrientationChanged(true);
+        // 5秒后清除提示
+        setTimeout(() => {
+          setOrientationChanged(false);
+        }, 5000);
+        lastOrientation = currentOrientation;
+      }
+      
+      // 每次 resize 都重新计算（确保实时响应）
       // 计算16:9区域的有效高度（不包含黑边）
       const newEffectiveHeight = currentAspectRatio < ASPECT_RATIO 
         ? currentWidth / ASPECT_RATIO  // 宽高比小于16:9，使用计算出的高度
@@ -761,7 +834,7 @@ export default function Home() {
           left: '50%',
           transform: 'translate(-50%, -50%)',
           width: `${currentWidth}px`,
-          height: `${effectiveHeight}px`,
+          height: `${newEffectiveHeight}px`,
           maxWidth: '100vw',
           maxHeight: '100vh',
           overflow: 'hidden',
@@ -784,31 +857,52 @@ export default function Home() {
       const scaleY = newEffectiveHeight / BASE_HEIGHT;
       const newScale = Math.min(scaleX, scaleY);
       setScale(newScale);
-      // 立绘专用缩放比例：基于初始高度计算，之后固定不变，不随窗口尺寸变化
-      // standScale 在组件初始化时已经设置，这里不再更新
-      setIsLandscape(currentWidth > currentHeight);
+      
+      // 更新立绘专用缩放比例：基于当前有效高度计算
+      const newStandScale = newEffectiveHeight / BASE_HEIGHT;
+      setStandScale(newStandScale);
+      
+      setIsLandscape(currentOrientation);
       setIsMobile(isMobileDevice());
     };
 
-    const handleResize = () => {
-      calculateScale();
-    };
-
-    const handleOrientationChange = () => {
-      // 延迟一下，等待方向变化完成
-      setTimeout(() => {
-        calculateScale();
-      }, 100);
-    };
-
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('orientationchange', handleOrientationChange);
-    
-    // 初始计算
+    // 立即执行一次
     calculateScale();
 
+    // 监听窗口尺寸变化（实时响应）
+    window.addEventListener('resize', calculateScale, { passive: true });
+    
+    // 监听横竖屏切换（移动设备）
+    const handleOrientationChange = () => {
+      // 立即执行一次
+      calculateScale();
+      // 然后再延迟执行几次，确保捕获所有变化
+      setTimeout(calculateScale, 50);
+      setTimeout(calculateScale, 150);
+      setTimeout(calculateScale, 300);
+    };
+    window.addEventListener('orientationchange', handleOrientationChange, { passive: true });
+    
+    // 监听视觉视口变化（移动设备软键盘、地址栏等）
+    if (window.visualViewport) {
+      const handleViewportChange = () => {
+        calculateScale();
+      };
+      window.visualViewport.addEventListener('resize', handleViewportChange, { passive: true });
+      window.visualViewport.addEventListener('scroll', handleViewportChange, { passive: true });
+      
+      return () => {
+        window.removeEventListener('resize', calculateScale);
+        window.removeEventListener('orientationchange', handleOrientationChange);
+        if (window.visualViewport) {
+          window.visualViewport.removeEventListener('resize', handleViewportChange);
+          window.visualViewport.removeEventListener('scroll', handleViewportChange);
+        }
+      };
+    }
+
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', calculateScale);
       window.removeEventListener('orientationchange', handleOrientationChange);
     };
   }, []);
@@ -1011,18 +1105,24 @@ export default function Home() {
     // 将当前背景添加到最近使用的列表中
     const updatedRecent = [bgImage, ...recentBgImages].slice(0, 7); // 保持最多7个
     
-    // 获取可用的背景图片（排除最近7次使用的）
-    const availableBgs = BG_IMAGES.filter(bg => !updatedRecent.includes(bg));
+    // 获取可用的背景图片（排除最近7次使用的，并且只使用实际存在的背景）
+    const availableBgs = AVAILABLE_BG_IMAGES.filter(bg => !updatedRecent.includes(bg));
     
-    // 如果所有背景都在最近7次中，则从所有背景中选择（这种情况不太可能，因为有48张图）
-    const candidateBgs = availableBgs.length > 0 ? availableBgs : BG_IMAGES;
+    // 如果所有可用背景都在最近7次中，则从所有可用背景中选择
+    const candidateBgs = availableBgs.length > 0 ? availableBgs : AVAILABLE_BG_IMAGES;
+    
+    // 如果没有任何可用背景，使用默认背景
+    if (candidateBgs.length === 0) {
+      setBgImage('bg/01.avif');
+      return;
+    }
     
     // 随机选择一个新背景
     let newBg = candidateBgs[Math.floor(Math.random() * candidateBgs.length)];
     
     // 确保切换到不同的背景（双重保险）
     let attempts = 0;
-    while (newBg === bgImage && attempts < 10) {
+    while (newBg === bgImage && attempts < 10 && candidateBgs.length > 1) {
       newBg = candidateBgs[Math.floor(Math.random() * candidateBgs.length)];
       attempts++;
     }
@@ -1430,6 +1530,50 @@ export default function Home() {
           <div style={{ fontSize: '20px', opacity: 0.8 }}>
             为了获得最佳游戏体验，请将您的设备旋转至横屏模式
           </div>
+        </div>
+      )}
+
+      {/* 横竖屏切换提示 - 如果检测到横竖屏切换，显示刷新提示 */}
+      {isMobile && isLandscape && orientationChanged && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 9998, // 仅次于横屏提示
+            backgroundColor: 'rgba(255, 165, 0, 0.9)',
+            color: '#000',
+            padding: `${12 * scale}px ${20 * scale}px`,
+            borderRadius: `${8 * scale}px`,
+            fontSize: `${14 * scale}px`,
+            fontWeight: 'bold',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: `${10 * scale}px`,
+            maxWidth: '90%',
+            textAlign: 'center',
+          }}
+        >
+          <span>⚠️</span>
+          <span>如果界面布局异常，请刷新页面</span>
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              border: 'none',
+              borderRadius: `${4 * scale}px`,
+              padding: `${6 * scale}px ${12 * scale}px`,
+              fontSize: `${12 * scale}px`,
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              color: '#000',
+              marginLeft: `${5 * scale}px`,
+            }}
+          >
+            刷新
+          </button>
         </div>
       )}
 
@@ -2251,7 +2395,7 @@ export default function Home() {
                     }
                     
                     // 减少倒计时（一次对话减少2次行动）
-                    setActionCountdown(prev => Math.max(0, prev - 1));
+                    setActionCountdown(prev => Math.max(0, prev - 2));
                   }}
                   onEvidenceObtained={(evidenceId) => {
                     // 当通过关键词检测获取证物时，更新证物列表

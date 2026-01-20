@@ -97,6 +97,63 @@ const highlightBeforeColon = (
   );
 };
 
+// 高亮引号内的特定词语：去掉引号，只标黄引号内的指定词语
+const highlightQuotedWords = (
+  text: string,
+  quotedWords: string[],
+  color: string = '#FFD700'
+): React.ReactNode => {
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let keyIndex = 0;
+  
+  // 找到所有引号内的指定词语的位置
+  const matches: Array<{ index: number; word: string; quotedPattern: string }> = [];
+  
+  quotedWords.forEach(word => {
+    const quotedPattern = `"${word}"`;
+    let searchIndex = 0;
+    let index = text.indexOf(quotedPattern, searchIndex);
+    while (index !== -1) {
+      matches.push({ index, word, quotedPattern });
+      searchIndex = index + 1;
+      index = text.indexOf(quotedPattern, searchIndex);
+    }
+  });
+  
+  // 按位置排序
+  matches.sort((a, b) => a.index - b.index);
+  
+  // 构建结果：去掉引号，标黄这些词
+  matches.forEach((match) => {
+    // 添加匹配词之前的内容
+    if (match.index > lastIndex) {
+      parts.push(text.substring(lastIndex, match.index));
+    }
+    
+    // 添加匹配词（黄色，不带引号）
+    parts.push(
+      <span key={`quoted-${match.index}-${keyIndex++}`} style={{ color }}>
+        {match.word}
+      </span>
+    );
+    
+    lastIndex = match.index + match.quotedPattern.length;
+  });
+  
+  // 添加最后剩余的内容
+  if (lastIndex < text.length) {
+    parts.push(text.substring(lastIndex));
+  }
+  
+  // 如果没有任何匹配，直接返回原文本
+  if (matches.length === 0) {
+    return text;
+  }
+  
+  return <>{parts}</>;
+};
+
 interface IntroModalProps {
   opened: boolean;
   onClose: () => void;
@@ -228,6 +285,27 @@ const IntroModal: React.FC<IntroModalProps> = ({ opened, onClose }) => {
           box-shadow: none !important;
         }
       `}</style>
+      <style>{`
+        /* 自定义滚动条样式 - 与笔记框一致的不明显样式 */
+        .intro-modal-scroll-area {
+          scrollbar-width: thin !important; /* Firefox */
+          scrollbar-color: rgba(0, 0, 0, 0.8) transparent !important; /* Firefox */
+        }
+        .intro-modal-scroll-area *::-webkit-scrollbar {
+          width: ${3 * scale}px !important; /* 非常小的滚动条宽度 */
+        }
+        .intro-modal-scroll-area *::-webkit-scrollbar-track {
+          background: transparent !important;
+        }
+        .intro-modal-scroll-area *::-webkit-scrollbar-thumb {
+          background-color: rgba(0, 0, 0, 0.8) !important;
+          border-radius: ${1.5 * scale}px !important;
+          border: none !important;
+        }
+        .intro-modal-scroll-area *::-webkit-scrollbar-thumb:hover {
+          background-color: rgba(0, 0, 0, 0.9) !important;
+        }
+      `}</style>
       <Modal
         opened={opened}
         onClose={onClose}
@@ -270,7 +348,9 @@ const IntroModal: React.FC<IntroModalProps> = ({ opened, onClose }) => {
             padding: `${20 * scale}px ${20 * scale}px ${12 * scale}px`,
             display: 'flex',
             flexDirection: 'column',
-            maxHeight: '70vh',
+            maxHeight: 'calc(80vh - 80px)', // 减去 header 和按钮区域高度
+            height: 'calc(80vh - 80px)', // 固定高度确保滚动正常工作
+            overflow: 'hidden',
           },
           close: {
             color: 'rgba(200, 200, 200, 1)',
@@ -284,24 +364,33 @@ const IntroModal: React.FC<IntroModalProps> = ({ opened, onClose }) => {
         }}
       >
         <ScrollArea 
+          className="intro-modal-scroll-area"
           style={{ 
-            flex: 1,
+            flex: '1 1 auto',
             minHeight: 0,
+            height: 0, // 关键：设置为0让flex计算高度
           }}
           offsetScrollbars
           styles={{
             root: {
-              flex: 1,
+              flex: '1 1 auto',
               minHeight: 0,
+              height: '100%',
             },
             viewport: {
               paddingRight: `${10 * scale}px`,
             },
             scrollbar: {
+              width: `${3 * scale}px`,
+              backgroundColor: 'transparent',
+              '&[data-orientation="vertical"]': {
+                width: `${3 * scale}px`,
+              },
               '&[data-orientation="vertical"] .mantine-ScrollArea-thumb': {
-                backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                borderRadius: `${1.5 * scale}px`,
                 '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                  backgroundColor: 'rgba(0, 0, 0, 0.9)',
                 },
               },
             },
@@ -314,7 +403,7 @@ const IntroModal: React.FC<IntroModalProps> = ({ opened, onClose }) => {
               lineHeight: '1.8',
               fontSize: `${16 * scale}px`,
             }}>
-              今天下午四点，泽渡可可、城崎诺亚和夏目安安发现了宝生玛格的尸体。她倒在图书室内部，背后插着莲见蕾雅的刺剑。尸体旁边，掉落着黑部奈叶香的发带，上面沾有血迹。图书室中央的樱树上插着一根弩箭，箭尾指向图书室门口。本应在玄关大厅的扫帚不知为何出现在樱树旁边。根据冰上梅露露的判断，玛格的死亡时间大约是14:30-15:00，尸体有被刺伤和砸伤的痕迹，尚不明确真正的死因。图书室内部和门口均有一些红蝴蝶在飞舞。
+              今天下午四点，泽渡可可、城崎诺亚和夏目安安发现了宝生玛格的尸体。她倒在图书室内部，背后插着莲见蕾雅的刺剑。尸体旁边，掉落着黑部奈叶香的发带，上面沾有血迹。图书室中央的樱树上插着一根弩箭，箭尾指向图书室门口。本应在玄关大厅的扫帚不知为何出现在樱树旁边。根据冰上梅露露的判断，玛格的死亡时间大约是14:30-15:00，尸体有被刺伤和砸伤的痕迹，尚不明确真正的死因。图书室内部和门口均有一些红蝴蝶在飞舞。经事后确认，玛格死时双目紧闭，因此大家都没有确认尸体眼睛的状态。
               <br></br><br></br>
               在这座实行"魔女审判"规则的监狱中，案发后必须找出真凶，否则将会有无辜的少女被处决。而你，二阶堂希罗，被赋予了侦探的职责，必须引领调查，揭开真相。
               <br></br><br></br>
@@ -326,53 +415,33 @@ const IntroModal: React.FC<IntroModalProps> = ({ opened, onClose }) => {
 
           {/* 第二页：游戏操作说明 */}
           {currentPage === 2 && (
-            <>
-              <Text style={{ 
-                color: 'rgba(220, 220, 220, 1)', 
-                lineHeight: '1.8',
-                fontSize: `${16 * scale}px`,
-              }}>
-                {highlightBeforeColon('调查：你可以前往各个地点仔细查看，寻找可能的线索和证物（非常建议先对所有场景进行调查）。')}
-              </Text>
-              <br></br>
-              <Text style={{ 
-                color: 'rgba(220, 220, 220, 1)', 
-                lineHeight: '1.8',
-                fontSize: `${16 * scale}px`,
-              }}>
-                {highlightBeforeColon('出示：当你获得证物后，可以向特定的少女出示，触发特定对话。如果少女通过证物回想起了什么，她们的证言也会因此发生改变（所以建议在和角色对话前先出示一些可疑的证物）。')}
-              </Text>
-              <br></br>
-              <Text style={{ 
-                color: 'rgba(220, 220, 220, 1)', 
-                lineHeight: '1.8',
-                fontSize: `${16 * scale}px`,
-              }}>
-                {highlightBeforeColon('对话：你可以和遇到的少女交谈，她们或许知道些什么。一些关键的证言本身也可能成为新的可出示的证据，用于揭露更多的矛盾。')}
-              </Text>
-              <br></br>
-              <Text style={{ 
-                color: 'rgba(220, 220, 220, 1)', 
-                lineHeight: '1.8',
-                fontSize: `${16 * scale}px`,
-              }}>
-                {highlightBeforeColon('行动次数：调查和出示均消耗1次行动次数，对话消耗2次行动次数。剩余行动次数为0时，进入审判阶段，游戏结束。由于案件涉及的事件很多，您没必要理清所有的疑点，如果您觉得找到了凶手，可以直接点击"结束游戏"按钮。。')}
-              </Text>
-              <br></br>
-              <Text style={{ 
-                color: 'rgba(220, 220, 220, 1)', 
-                lineHeight: '1.8',
-                fontSize: `${16 * scale}px`,
-              }}>
-                {highlightBeforeColon('提示：通过提示可以查看证物和证言的收集进度，也可以随机获得一个证物或证言的获取条件。')}
-              </Text>
-            </>
+            <Text style={{ 
+              color: 'rgba(220, 220, 220, 1)', 
+              lineHeight: '1.8',
+              fontSize: `${16 * scale}px`,
+            }}>
+              {highlightBeforeColon('调查：你可以前往各个地点仔细查看，寻找可能的线索和证物（非常建议先对所有场景进行调查）。')}
+              <br></br><br></br>
+              {highlightBeforeColon('出示：当你获得证物后，可以向特定的少女出示，触发特定对话。如果少女通过证物回想起了什么，她们的证言也会因此发生改变（所以建议在和角色对话前先出示一些可疑的证物）。')}
+              <br></br><br></br>
+              {highlightBeforeColon('对话：你可以和遇到的少女交谈，她们或许知道些什么。一些关键的证言本身也可能成为新的可出示的证据，用于揭露更多的矛盾。')}
+              <br></br><br></br>
+              {highlightBeforeColon('行动次数：调查和出示均消耗1次行动次数，对话消耗2次行动次数。剩余行动次数为0时，进入审判阶段，游戏结束。由于案件涉及的事件很多，您没必要理清所有的疑点，如果您觉得找到了凶手，可以直接点击"结束游戏"按钮。。')}
+              <br></br><br></br>
+              {highlightBeforeColon('提示：通过提示可以查看证物和证言的收集进度，也可以随机获得一个证物或证言的获取条件。')}
+            </Text>
           )}
 
         </ScrollArea>
         
         {/* 分页按钮 */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: `${10 * scale}px`, marginTop: `${15 * scale}px` }}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          gap: `${10 * scale}px`, 
+          marginTop: `${15 * scale}px`,
+          flexShrink: 0, // 防止按钮被压缩
+        }}>
           {currentPage > 1 && (
             <Button 
               onClick={() => setCurrentPage(prev => prev - 1)}
