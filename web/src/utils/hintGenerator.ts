@@ -204,13 +204,45 @@ export function areAllEvidenceAndTestimonyObtained(
     return false;
   }
   
-  // 检查是否所有证言都已获取（检查所有角色是否还有可获得的证言）
-  const obtainedEvidence = evidenceList.filter(e => e.obtained && !e.name.includes('证言'));
+  // 检查是否所有证言都已获取（只检查是否已添加到 context1，不检查前置条件）
+  // 使用与 countUncollectedItems 相同的逻辑
+  const contextMap = context2Mapping as Record<string, Record<string, "context2" | "context3" | "context4" | "lastcontext" | boolean>>;
   
   for (const actor of actors) {
-    for (const evidence of obtainedEvidence) {
-      if (canObtainTestimony(actor, evidence.id)) {
-        return false; // 还有可获得的证言
+    const context1Content = actor.context1 || '';
+    const actorMapping = contextMap[actor.name];
+    
+    if (!actorMapping) {
+      continue;
+    }
+    
+    // 遍历该角色在 context2Mapping 中的所有映射
+    for (const evidenceId in actorMapping) {
+      const contextToAdd = actorMapping[evidenceId];
+      
+      // 如果映射为字符串类型（context2/context3/context4/lastcontext），说明可以获得证言
+      if (contextToAdd && typeof contextToAdd === 'string') {
+        let canObtain = false;
+        
+        if (contextToAdd === "context2") {
+          const context2Content = actor.context2 || '';
+          canObtain = context2Content.trim() !== '' && !context1Content.includes(context2Content.trim());
+        } else if (contextToAdd === "context3") {
+          const context3Content = actor.context3 || '';
+          canObtain = context3Content.trim() !== '' && !context1Content.includes(context3Content.trim());
+        } else if (contextToAdd === "context4") {
+          const context4Content = actor.context4 || '';
+          canObtain = context4Content.trim() !== '' && !context1Content.includes(context4Content.trim());
+        } else if (contextToAdd === "lastcontext") {
+          // lastcontext 只检查是否已添加到 context1，不检查前置条件
+          const lastcontextContent = actor.lastcontext || '';
+          canObtain = lastcontextContent.trim() !== '' && !context1Content.includes(lastcontextContent.trim());
+        }
+        
+        // 如果还有未收集的证言，返回 false
+        if (canObtain) {
+          return false;
+        }
       }
     }
   }
@@ -267,6 +299,7 @@ export function countUncollectedItems(
           const context4Content = actor.context4 || '';
           canObtain = context4Content.trim() !== '' && !context1Content.includes(context4Content.trim());
         } else if (contextToAdd === "lastcontext") {
+          // lastcontext 只检查是否已添加到 context1，不检查前置条件（前置条件由 canObtainTestimony 检查）
           const lastcontextContent = actor.lastcontext || '';
           canObtain = lastcontextContent.trim() !== '' && !context1Content.includes(lastcontextContent.trim());
         }

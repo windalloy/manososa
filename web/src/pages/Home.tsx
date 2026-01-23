@@ -1102,33 +1102,40 @@ export default function Home() {
 
   // 切换背景
   const changeBackground = () => {
-    // 将当前背景添加到最近使用的列表中
-    const updatedRecent = [bgImage, ...recentBgImages].slice(0, 7); // 保持最多7个
-    
-    // 获取可用的背景图片（排除最近7次使用的，并且只使用实际存在的背景）
-    const availableBgs = AVAILABLE_BG_IMAGES.filter(bg => !updatedRecent.includes(bg));
-    
-    // 如果所有可用背景都在最近7次中，则从所有可用背景中选择
-    const candidateBgs = availableBgs.length > 0 ? availableBgs : AVAILABLE_BG_IMAGES;
-    
-    // 如果没有任何可用背景，使用默认背景
-    if (candidateBgs.length === 0) {
+    try {
+      // 将当前背景添加到最近使用的列表中
+      const updatedRecent = [bgImage, ...recentBgImages].slice(0, 7); // 保持最多7个
+      
+      // 获取可用的背景图片（排除最近7次使用的，并且只使用实际存在的背景）
+      const availableBgs = AVAILABLE_BG_IMAGES.filter(bg => !updatedRecent.includes(bg));
+      
+      // 如果所有可用背景都在最近7次中，则从所有可用背景中选择
+      const candidateBgs = availableBgs.length > 0 ? availableBgs : AVAILABLE_BG_IMAGES;
+      
+      // 如果没有任何可用背景，使用默认背景
+      if (candidateBgs.length === 0) {
+        setBgImage('bg/01.avif');
+        setRecentBgImages(updatedRecent);
+        return;
+      }
+      
+      // 随机选择一个新背景
+      let newBg = candidateBgs[Math.floor(Math.random() * candidateBgs.length)];
+      
+      // 确保切换到不同的背景（双重保险）
+      let attempts = 0;
+      while (newBg === bgImage && attempts < 10 && candidateBgs.length > 1) {
+        newBg = candidateBgs[Math.floor(Math.random() * candidateBgs.length)];
+        attempts++;
+      }
+      
+      setBgImage(newBg);
+      setRecentBgImages(updatedRecent);
+    } catch (error) {
+      console.error('切换背景时出错:', error);
+      // 出错时至少尝试切换到默认背景
       setBgImage('bg/01.avif');
-      return;
     }
-    
-    // 随机选择一个新背景
-    let newBg = candidateBgs[Math.floor(Math.random() * candidateBgs.length)];
-    
-    // 确保切换到不同的背景（双重保险）
-    let attempts = 0;
-    while (newBg === bgImage && attempts < 10 && candidateBgs.length > 1) {
-      newBg = candidateBgs[Math.floor(Math.random() * candidateBgs.length)];
-      attempts++;
-    }
-    
-    setBgImage(newBg);
-    setRecentBgImages(updatedRecent);
   };
 
   // 切换地图显示
@@ -1792,6 +1799,10 @@ export default function Home() {
           }
           .top-button-hover:hover .button-text-white {
             color: white;
+          }
+          /* 确保SVG图标不拦截点击事件 */
+          .top-button-butterfly {
+            pointer-events: none;
           }
         `}</style>
         {/* 背景图层 - 最底层 */}

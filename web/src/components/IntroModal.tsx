@@ -318,7 +318,7 @@ const IntroModal: React.FC<IntroModalProps> = ({ opened, onClose }) => {
             fontWeight: 600,
             marginLeft: `${4 * scale}px`,
           }}>
-            {currentPage === 1 ? '案件说明' : '功能说明'}
+            {currentPage === 1 ? '案件说明' : currentPage === 2 ? '功能说明' : '注意事项'}
           </Text>
         }
         classNames={{
@@ -426,9 +426,28 @@ const IntroModal: React.FC<IntroModalProps> = ({ opened, onClose }) => {
               <br></br><br></br>
               {highlightBeforeColon('对话：你可以和遇到的少女交谈，她们或许知道些什么。一些关键的证言本身也可能成为新的可出示的证据，用于揭露更多的矛盾。')}
               <br></br><br></br>
-              {highlightBeforeColon('行动次数：调查和出示均消耗1次行动次数，对话消耗2次行动次数。剩余行动次数为0时，进入审判阶段，游戏结束。由于案件涉及的事件很多，您没必要理清所有的疑点，如果您觉得找到了凶手，可以直接点击"结束游戏"按钮。。')}
+              {highlightBeforeColon('行动次数：调查和出示均消耗1次行动次数，对话消耗2次行动次数。剩余行动次数为0时，进入审判阶段，游戏结束。由于案件涉及的事件很多，您没必要理清所有的疑点，如果您觉得找到了凶手，可以直接点击"结束游戏"按钮。')}
               <br></br><br></br>
               {highlightBeforeColon('提示：通过提示可以查看证物和证言的收集进度，也可以随机获得一个证物或证言的获取条件。')}
+            </Text>
+          )}
+
+          {/* 第三页：建议 */}
+          {currentPage === 3 && (
+            <Text style={{ 
+              color: 'rgba(220, 220, 220, 1)', 
+              lineHeight: '1.8',
+              fontSize: `${16 * scale}px`,
+            }}>
+              {highlightQuotedWords('只有"出示"行为可以解锁少女们的新证言，"对话"只会让您更加了解事情的全貌，而不会让角色回想起更多的信息。', ['出示', '对话'])}
+              <br></br><br></br>
+              {highlightQuotedWords('如果你发现出示一个证物后，角色的表情发生改变，但没有追加证言，说明你需要先向该角色出示其它证物以解锁前置证言。', ['前置证言'])}
+              <br></br><br></br>
+              {highlightText('事件发生在12:00 - 16:00之间，如果您向角色提问这个时间段之外的事情或者闲聊，她们的回答并不是可信的。如果问到案件相关的事情，怀揣秘密的角色也可能会进行欺骗和隐瞒。如果您觉得角色的回答实在太离谱了，那可能是模型出现了幻觉（可以尝试再问一次或者换个问法)。', ['12:00 - 16:00'])}
+              <br></br><br></br>
+              为了防止角色剧透，一些角色的剧本里没有写与她们相关的重大秘密，因此这些信息无法通过逼问获取，只能靠玩家自行推断。
+              <br></br><br></br>
+              和希罗进行对话时，她会基于和各角色的对话记录（而非基于剧本），进行自问自答，因此她的回答通常是不可信的，仅供娱乐使用。
             </Text>
           )}
 
@@ -457,7 +476,7 @@ const IntroModal: React.FC<IntroModalProps> = ({ opened, onClose }) => {
               上一页
             </Button>
           )}
-          {currentPage < 2 ? (
+          {currentPage < 3 ? (
             <Button 
               onClick={() => setCurrentPage(prev => prev + 1)}
               style={{
