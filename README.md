@@ -214,11 +214,12 @@ cd manososa
 
 ### 步骤 2：配置后端
 
-#### 2.1 安装 Python 依赖
+#### 2.1 安装 Python 依赖并启动后端服务
 
 ```bash
 cd api
 pip install -r requirements.txt
+uvicorn main:app --host 0.0.0.0 --port 10000
 ```
 
 #### 2.2 创建环境变量文件
@@ -236,55 +237,26 @@ MAX_TOKENS=200
 OLLAMA_URL=http://localhost:11434
 ```
 
-#### 2.3 启动后端服务
-
-```bash
-# 使用 uvicorn
-uvicorn main:app --host 0.0.0.0 --port 10000
-
-# 或使用 run.sh（如果已配置）
-bash run.sh
-```
-
 后端服务将在 `http://localhost:10000` 启动。
 
 ### 步骤 3：配置前端
 
-#### 3.1 安装 Node.js 依赖
+#### 3.1 安装 Node.js 依赖并启动前端开发服务器
 
 ```bash
 cd web
 npm install
-```
-
-#### 3.2 配置 API URL
-
-编辑 `web/src/constants.ts`，修改 `SERVER_IP` 和 `SERVER_PORT`：
-
-```typescript
-const SERVER_IP = 'localhost';  // 本地开发使用 localhost
-const SERVER_PORT = 10000;
-```
-
-或者设置环境变量：
-
-```bash
-# Windows (PowerShell)
-$env:REACT_APP_API_URL="http://localhost:10000"; npm run start
-
-# Linux/Mac
-REACT_APP_API_URL=http://localhost:10000 npm run start
-```
-
-#### 3.3 启动前端开发服务器
-
-**开发模式（推荐用于开发）**：
-
-```bash
+$env:REACT_APP_API_URL="http://localhost:10000"
 npm run start
 ```
 
 前端将在 `http://localhost:3000` 启动，支持热重载。
+
+**注意**：如果使用 Linux/Mac，环境变量设置方式为：
+
+```bash
+REACT_APP_API_URL=http://localhost:10000 npm run start
+```
 
 **生产模式（构建后启动）**：
 
