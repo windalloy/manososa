@@ -462,21 +462,6 @@ sudo ufw reload
 | `SERVER_PORT` | 后端服务端口 | `10000` |
 | `REACT_APP_API_URL` | API URL（环境变量） | - |
 
-### 图片优化配置
-
-项目支持图片格式转换和优化：
-
-```bash
-# 平衡模式（推荐）
-npm run convert-images:balanced
-
-# 自定义模式（最优化）
-npm run convert-images:custom
-
-# 激进模式（高压缩）
-npm run convert-images:aggressive
-```
-
 详见 `web/COMPRESSION_GUIDE.md`。
 
 ## 📝 如何编写自己的剧本
