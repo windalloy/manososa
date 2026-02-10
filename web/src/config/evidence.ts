@@ -114,7 +114,7 @@ export const initialEvidence: Evidence[] = [
   {
     id: '15',
     name: '亚里沙的证言',
-    description: '紫藤亚里沙似乎不小心弄伤了自己的手臂，后续前往医务室取得药品，并于湖边将伤药涂抹在了伤口上。',
+    description: '紫藤亚里沙声称，她在下午不小心弄伤了自己的手臂，之后去医务室拿了一瓶伤药，并在湖边将药涂抹在了伤口上。...那道细长的伤痕，让我联想到案发现场某种特定类型的利器。',
     image: '15.webp',
     obtained: false,
   },

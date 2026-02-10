@@ -462,7 +462,6 @@ sudo ufw reload
 | `SERVER_PORT` | 后端服务端口 | `10000` |
 | `REACT_APP_API_URL` | API URL（环境变量） | - |
 
-详见 `web/COMPRESSION_GUIDE.md`。
 
 ## 📝 如何编写自己的剧本
 

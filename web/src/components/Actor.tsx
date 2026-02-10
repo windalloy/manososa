@@ -271,6 +271,8 @@ const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standS
   const [isInputFocused, setIsInputFocused] = useState(false);
   const { actors, setActors, globalStory } = useMysteryContext();
   const [loading, setLoading] = useState(false);
+  const [nameImageError, setNameImageError] = useState(false);
+  const [characterNameImageError, setCharacterNameImageError] = useState(false);
   const MAX_INPUT_LENGTH = 200; // 输入框最大字数限制
   // 每个角色的输入模式状态单独管理（基于是否有回复来判断）
   // 如果角色有回复，则显示回复框；否则显示输入框
@@ -295,6 +297,12 @@ const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standS
   // 所有角色使用相同的混合比例和透明度计算
   const responseColorRgbaEdge = blendColorWithBlack(characterColor, 0.6); // 边缘颜色（60%混合）
   const responseColorRgbaMid = blendColorWithBlack(characterColor, 0.4); // 中间过渡色（40%混合）
+
+  // 当切换角色时，重置图片加载错误状态
+  useEffect(() => {
+    setNameImageError(false);
+    setCharacterNameImageError(false);
+  }, [actor.id]);
 
   // 当切换角色或该角色的消息变化时，根据该角色是否有回复来更新输入模式
   // 注意：如果正在加载中，不要切换模式（避免在发送消息后立即切回输入框）
@@ -570,7 +578,7 @@ const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standS
   return (
     <>
       {/* 玩家角色名字图片 - 对话框外部左上角（仅输入框模式） */}
-      {nameImageSrc && isInputMode && (
+      {nameImageSrc && isInputMode && !nameImageError && (
         <div
           style={{
             position: 'fixed',
@@ -597,12 +605,13 @@ const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standS
               maxWidth: `${250 * standScale}px`,
               objectFit: 'contain',
             }}
+            onError={() => setNameImageError(true)}
           />
         </div>
       )}
 
       {/* 角色名称图片 - 回复框外部左上方（仅回复框模式） */}
-      {characterNameImageSrc && !isInputMode && (
+      {characterNameImageSrc && !isInputMode && !characterNameImageError && (
         <div
           style={{
             position: 'fixed',
@@ -696,6 +705,7 @@ const ActorChat = ({ actor, onMessageSent, onEvidenceObtained, scale = 1, standS
                 : `${200 * standScale}px`,
               objectFit: 'contain',
             }}
+            onError={() => setCharacterNameImageError(true)}
           />
         </div>
       )}

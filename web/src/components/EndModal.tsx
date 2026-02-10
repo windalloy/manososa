@@ -266,7 +266,7 @@ const EndModal: React.FC<EndModalProps> = ({ opened, onClose, onContinueGame, sh
               e.currentTarget.style.color = 'rgba(100, 150, 255, 1)';
             }}
           >
-            https://space.bilibili.com/292666183?spm_id_from=333.1007.0.0
+            https://www.bilibili.com/video/BV1uPkJB6EnR
           </a>
           {' '}。
         </Text>

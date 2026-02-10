@@ -134,7 +134,7 @@ const MultipleChoiceGame: React.FC<MultipleChoiceGameProps> = ({ onBackToGame, o
       if (answers[1] === "城崎诺亚") {
         return `明白了。让艾玛去继续${answers[0]}吧。至于我，该去准备正式的指控了。所有证据都已清晰地指出，${answers[1]}就是凶手。我将整理出无可辩驳的证词，揭露残酷的真相。`;
       } else {
-        return `明白了。让艾玛去继续${answers[0]}吧。至于我，该去准备对${answers[1]}的正式指控。证据都已确凿，但我总觉得似乎忽略了什么......算了，等审判时再通过质询来厘清最后的不安吧。`;
+        return `明白了。让艾玛去继续${answers[0]}吧。至于我，该去准备对${answers[1]}的正式指控了。证据都已确凿，但我总觉得似乎忽略了什么......算了，等审判时再通过质询来厘清最后的不安吧。`;
       }
     }
     
